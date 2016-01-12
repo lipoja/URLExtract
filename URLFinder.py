@@ -9,6 +9,7 @@
 import tldextract
 import string
 import idna
+import re
 
 
 class URLFinder:
@@ -22,7 +23,9 @@ class URLFinder:
         """
         tmp_tlds = {"."+(str(tld).strip('!*.')) for tld in tldextract.TLDExtract()._get_tld_extractor().tlds}
         tmp_idna_tlds = {"."+idna.encode(tld).decode('utf-8') for tld in tmp_tlds}
-        self.tlds = tmp_idna_tlds.union(tmp_tlds)
+        self.tlds = sorted(tmp_idna_tlds.union(tmp_tlds), key=len, reverse=True)
+        # escaped = [re.escape(tld) for tld in self.tlds]
+        self.tlds_re = re.compile('|'.join([re.escape(tld) for tld in self.tlds]))
         self.stop_chars = list(string.whitespace) + ['\"', '\'']
         self.after_tld_chars = list(string.whitespace) + ['/']
 
@@ -88,10 +91,16 @@ class URLFinder:
         :return: list of URLs
         """
         urls = []
-        for tld in self.tlds:
-            tld_pos = text.find(tld)
-            if tld_pos != -1 and self._validate_tld_match(text, tld, tld_pos):
-                urls.append(self._complete_url(text, tld_pos))
+        tld_pos = 0
+        matched_tlds = self.tlds_re.findall(text)
+
+        for tld in matched_tlds:
+            tmp_text = text[tld_pos:]
+            offset = tld_pos
+            tld_pos = tmp_text.find(tld)
+            if tld_pos != -1 and self._validate_tld_match(text, tld, offset+tld_pos):
+                urls.append(self._complete_url(text, offset+tld_pos))
+            tld_pos += len(tld) + offset
         if only_unique:
             return list(set(urls))
         return urls
