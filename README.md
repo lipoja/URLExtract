@@ -26,4 +26,4 @@ print(urls) # prints: ['janlipovsky.cz']
 ```
 
 ### License
-This piece of code is licence under The MIT License.
+This piece of code is licenced under The MIT License.
