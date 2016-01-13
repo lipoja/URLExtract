@@ -15,6 +15,8 @@ pip install idna
 ```  
 
 ### Example
+ You can look at example program *find_urls.py*.   
+ But everything you need to know is this:
 ```python
 from URLFinder import URLFinder
 
