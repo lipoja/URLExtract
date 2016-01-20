@@ -26,7 +26,7 @@ class URLFinder:
         self.tlds = sorted(tmp_idna_tlds.union(tmp_tlds), key=len, reverse=True)
         # escaped = [re.escape(tld) for tld in self.tlds]
         self.tlds_re = re.compile('|'.join([re.escape(tld) for tld in self.tlds]))
-        self.stop_chars = list(string.whitespace) + ['\"', '\'', '<', '>']
+        self.stop_chars = list(string.whitespace) + ['\"', '\'', '<', '>', ';']
         self.after_tld_chars = list(string.whitespace) + ['/']
 
     def _complete_url(self, text, tld_pos):
