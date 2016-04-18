@@ -2,14 +2,10 @@
 URLFinder is python class for collecting URLs from given text. 
 
 ### How does it work
-It tries to find any occurance of TLD in given text. If TLD is found it starts from that position to expoand boundaries to both sides searching for "stop character" (usualy whitespace, comma, single or double quote).
+It tries to find any occurrence of TLD in given text. If TLD is found it starts from that position to expand boundaries to both sides searching for "stop character" (usually whitespace, comma, single or double quote).
 
 ### Requirements
-- tldextract for getting list of all tlds  
-```
-pip install tldextract
-```  
-- IDNA for coverting links to IDNA format  
+- IDNA for converting links to IDNA format  
 ```
 pip install idna
 ```  

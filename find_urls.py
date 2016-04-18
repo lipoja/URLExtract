@@ -39,6 +39,15 @@ if __name__ == '__main__':
 
     finder = URLFinder()
 
+    # force update of list of TLDs
+    finder.update()
+
+    # get list of stop chars - characters are determining when we should stop looking around and return found URL
+    stop_chars = finder.get_stop_chars()
+    # add ';' to stop chars
+    stop_chars.append(';')
+    finder.set_stop_chars(stop_chars)
+
     with open(args.input_file, "r", encoding="UTF-8") as f:
         for line in f:
             for link in finder.find_urls(line):
