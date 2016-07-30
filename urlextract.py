@@ -1,31 +1,50 @@
-#!/usr/bin/python3
-# --------------------------------
-# Project:  URLFinder class
-# Author:   Jan Lipovský, 2016
-# E-mail:   janlipovsky@gmail.com
-# Licence:  MIT
-# --------------------------------
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+urlextract.py - file with definition of URLExtract class
 
-import string
-import idna
-import re
+.. Created on 2016-07-29
+.. Licence MIT
+.. codeauthor:: Jan Lipovský (janlipovsky@gmail.com), janlipovsky.cz
+"""
+
 import os
-import urllib.request
-from urllib.error import URLError, HTTPError
+import re
+import string
 import sys
+import urllib.request
 from datetime import datetime, timedelta
+from urllib.error import URLError, HTTPError
+
+import idna
+
+version = "0.2"  #: version of URLExtract class
 
 
-class URLFinder:
+class URLExtract:
     """
-    Main class for finding URLs in given string
+    Class for finding and extracting URLs from given string
+
+    **Example**
+
+    .. code-block:: python
+
+        from urlextract import URLExtract
+
+        extractor = URLExtract()
+        urls = extractor.find_urls("Let's have URL janlipovsky.cz as an example.")
+        print(urls) # prints: ['janlipovsky.cz']
+
+
     """
     # file name of cached list of TLDs downloaded from IANA
     cache_file_name = '.tlds'
 
     def __init__(self):
         """
-        Initialize function for URLFinder class
+        Initialize function for URLExtract class.
+        Tries to get cached .tlds, if cached file does not exist it will try to download new list from IANNA
+        and save it to users home directory.
         """
         # get directory for cached file
         dir_path = os.path.dirname(__file__)
@@ -36,7 +55,7 @@ class URLFinder:
         # full path for cached file with list of TLDs
         self.tld_list_path = os.path.join(dir_path, self.cache_file_name)
         if not os.access(self.tld_list_path, os.F_OK):
-            if not self.__download_tlds_list():
+            if not self._download_tlds_list():
                 sys.exit(-1)
 
         # check if cached file is readable
@@ -44,34 +63,35 @@ class URLFinder:
             print("ERROR: Cached file is not readable for current user. ({})".format(self.tld_list_path))
             sys.exit(-2)
 
-        # try to  update cache file when cache is older than 7 days
+        # try to update cache file when cache is older than 7 days
         if not self.update_when_older(7):
-            print("WARNING: Could not update file, using old version of tlds list. ({})".format(self.tld_list_path))
+            print("WARNING: Could not update file, using old version of TLDs list. ({})".format(self.tld_list_path))
 
         self.tlds = None
         self.tlds_re = None
-        self.__reload_tlds_from_file()
+        self._reload_tlds_from_file()
 
         self.stop_chars = list(string.whitespace) + ['\"', '\'', '<', '>', ';', '@']
+        # characters that are allowed to be right after TLD
         self.after_tld_chars = list(string.whitespace) + ['/', '\"', '\'', '<', '?']
 
-    def __reload_tlds_from_file(self):
+    def _reload_tlds_from_file(self):
         """
-        Reloads TLDs from file and compile regexp
+        Reloads TLDs from file and compile regexp.
         """
         # check if cached file is readable
         if not os.access(self.tld_list_path, os.R_OK):
             print("ERROR: Cached file is not readable for current user. ({})".format(self.tld_list_path))
         else:
-            self.tlds = sorted(self.__load_cached_tlds(), key=len, reverse=True)
+            self.tlds = sorted(self._load_cached_tlds(), key=len, reverse=True)
             self.tlds_re = re.compile('|'.join([re.escape(tld) for tld in self.tlds]))
 
-    def __download_tlds_list(self):
+    def _download_tlds_list(self):
         """
-        Function downloads list of TLDs from IANA 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt'
+        Function downloads list of TLDs from IANA 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt'.
 
         :return: True if list was downloaded, False in case of an error
-        :rtype boolean
+        :rtype: bool
         """
         url_list = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt'
 
@@ -95,12 +115,12 @@ class URLFinder:
                 return False
         return True
 
-    def __load_cached_tlds(self):
+    def _load_cached_tlds(self):
         """
-        Loads TLDs from cached file to and array (list)
+        Loads TLDs from cached file to set.
 
         :return: Set of current TLDs
-        :rtype set
+        :rtype: set
         """
 
         list_of_tlds = set()
@@ -119,12 +139,12 @@ class URLFinder:
 
         return list_of_tlds
 
-    def __get_last_cachefile_modification(self):
+    def _get_last_cachefile_modification(self):
         """
-        Get last modification of cache file with tlds
+        Get last modification of cache file with tlds.
 
         :return: Date and time of last modification or None when file does not exist
-        :rtype datetime|None
+        :rtype: datetime|None
         """
 
         try:
@@ -136,29 +156,29 @@ class URLFinder:
 
     def update(self):
         """
-        Update tld list - cache file
+        Update tld list cache file.
 
-        :return True if update was successfull False otherwise
-        :rtype boolean
+        :return: True if update was successfull False otherwise
+        :rtype: bool
         """
 
-        if not self.__download_tlds_list():
+        if not self._download_tlds_list():
             return False
 
-        self.__reload_tlds_from_file()
+        self._reload_tlds_from_file()
 
         return True
 
     def update_when_older(self, days):
         """
-        Update tld list cache file if the list is older than number of days given in parameter day
+        Update tld list cache file if the list is older than number of days given in parameter `days`.
 
         :param int days: number of days from last change
-        :return True if update was successfull False otherwise
-        :rtype boolean
+        :return: True if update was successfull, False otherwise
+        :rtype: bool
         """
 
-        last_cache = self.__get_last_cachefile_modification()
+        last_cache = self._get_last_cachefile_modification()
         if last_cache is None:
             return False
 
@@ -169,33 +189,43 @@ class URLFinder:
 
         return True
 
+    @staticmethod
+    def get_version():
+        """
+        Returns version number.
+
+        :return: version number
+        :rtype: str
+        """
+        return version
+
     def get_stop_chars(self):
         """
-        Returns list of stop chars
+        Returns list of stop chars.
 
         :return: list of stop chars
-        :rtype list
+        :rtype: list
         """
 
         return self.stop_chars
 
     def set_stop_chars(self, stop_chars):
         """
-        Set stop characters used when determining end of URL
+        Set stop characters used when determining end of URL.
 
         :param list stop_chars: list of characters
         """
 
         self.stop_chars = stop_chars
 
-    def __complete_url(self, text, tld_pos):
+    def _complete_url(self, text, tld_pos):
         """
-        Expand string in both sides to match whole URL
+        Expand string in both sides to match whole URL.
 
         :param str text: text where we want to find URL
         :param int tld_pos: position of tld
         :return: returns URL
-        :rtype str
+        :rtype: str
         """
 
         left_ok = True
@@ -221,19 +251,19 @@ class URLFinder:
                         end_pos += 1
                     else:
                         right_ok = False
-        return text[start_pos:end_pos+1].lstrip('//')
+        return text[start_pos:end_pos + 1].lstrip('//')
 
-    def __validate_tld_match(self, text, matched_tld, tld_pos):
+    def _validate_tld_match(self, text, matched_tld, tld_pos):
         """
-        Validate tld match - tells if at found position is really tld
+        Validate tld match - tells if at found position is really tld.
 
         :param str text: text where we want to find URLs
         :param str matched_tld: matched tld
         :param int tld_pos: position of matched tld
-        :return True if match is valid, False otherwise
-        :rtype boolean
+        :return: True if match is valid, False otherwise
+        :rtype: bool
         """
-        right_tld_pos = tld_pos+len(matched_tld)
+        right_tld_pos = tld_pos + len(matched_tld)
         if len(text) > right_tld_pos:
             if text[right_tld_pos] in self.after_tld_chars:
                 if tld_pos > 0 and text[tld_pos - 1] not in self.stop_chars:
@@ -246,12 +276,20 @@ class URLFinder:
 
     def find_urls(self, text, only_unique=False):
         """
-        Find all URLs in given text
+        Find all URLs in given text.
+
+        >>> extractor = URLExtract()
+        >>> extractor.find_urls("Let's have URL http://janlipovsky.cz as an example.")
+        ['http://janlipovsky.cz']
+
+        >>> extractor = URLExtract()
+        >>> extractor.find_urls("Let's have text without URLs.")
+        []
 
         :param str text: text where we want to find URLs
-        :param boolean only_unique: return only unique URLs
+        :param bool only_unique: return only unique URLs
         :return: list of URLs found in text
-        :rtype list
+        :rtype: list
         """
         urls = []
         tld_pos = 0
@@ -261,8 +299,8 @@ class URLFinder:
             tmp_text = text[tld_pos:]
             offset = tld_pos
             tld_pos = tmp_text.find(tld)
-            if tld_pos != -1 and self.__validate_tld_match(text, tld, offset+tld_pos):
-                urls.append(self.__complete_url(text, offset+tld_pos))
+            if tld_pos != -1 and self._validate_tld_match(text, tld, offset + tld_pos):
+                urls.append(self._complete_url(text, offset + tld_pos))
             tld_pos += len(tld) + offset
         if only_unique:
             return list(set(urls))
