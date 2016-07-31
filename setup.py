@@ -20,7 +20,6 @@ def read(readme):
 setup(
     name='urlextract',
     version=URLExtract.get_version(),
-    packages=['urlextract'],
     scripts=['bin/urlextract'],
     keywords=['url', 'extract', 'find', 'finder', 'collect', 'link', 'tld', 'list'],
     url='https://github.com/lipoja/URLExtract',
