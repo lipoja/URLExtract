@@ -18,7 +18,7 @@ from urllib.error import URLError, HTTPError
 
 import idna
 
-version = "0.2"  #: version of URLExtract class
+__VERSION__ = "0.2.7"  #: version of URLExtract class
 
 
 class URLExtract:
@@ -197,7 +197,8 @@ class URLExtract:
         :return: version number
         :rtype: str
         """
-        return version
+
+        return __VERSION__
 
     def get_stop_chars(self):
         """
