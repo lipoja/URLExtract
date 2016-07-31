@@ -12,6 +12,21 @@ starts from that position to expand boundaries to both sides searching
 for "stop character" (usually whitespace, comma, single or double
 quote).
 
+Installation
+~~~~~~~~~~~~
+
+Package is available on pypi sou you can install it via pip.
+
+::
+
+   pip install urlextract
+
+Documentation
+~~~~~~~~~~~~~
+
+Online documentation is published at http://urlextract.readthedocs.io/
+
+
 Requirements
 ~~~~~~~~~~~~
 
