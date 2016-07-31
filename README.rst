@@ -24,7 +24,7 @@ Requirements
 Example
 ~~~~~~~
 
-You can look at example program *find\_urls.py*.
+You can look at command line program *bin/urlextract*.
 But everything you need to know is this:
 
 .. code:: python
