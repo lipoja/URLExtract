@@ -44,7 +44,7 @@ But everything you need to know is this:
 
 .. code:: python
 
-    from URLExtract import URLExtract
+    from urlextract import URLExtract
 
     extractor = URLExtract()
     urls = extractor.find_urls("Text with URLs. Let's have URL janlipovsky.cz as an example.")
