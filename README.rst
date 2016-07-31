@@ -15,7 +15,7 @@ quote).
 Installation
 ~~~~~~~~~~~~
 
-Package is available on pypi sou you can install it via pip.
+Package is available on PyPI - you can install it via pip.
 
 ::
 
