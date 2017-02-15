@@ -12,6 +12,8 @@ starts from that position to expand boundaries to both sides searching
 for "stop character" (usually whitespace, comma, single or double
 quote).
 
+NOTE: List of TLDs is downloaded from iana.org to keep you up to date with new TLDs.
+
 Installation
 ~~~~~~~~~~~~
 
