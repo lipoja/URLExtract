@@ -1,11 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 urlextract.py - file with definition of URLExtract class
 
 .. Created on 2016-07-29
 .. Licence MIT
-.. codeauthor:: Jan Lipovský (janlipovsky@gmail.com), janlipovsky.cz
+.. codeauthor:: Jan Lipovský <janlipovsky@gmail.com>, janlipovsky.cz
 """
 
 import os
