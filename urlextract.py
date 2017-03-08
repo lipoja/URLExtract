@@ -73,7 +73,7 @@ class URLExtract:
 
         self.stop_chars = list(string.whitespace) + ['\"', '\'', '<', '>', ';', '@']
         # characters that are allowed to be right after TLD
-        self.after_tld_chars = list(string.whitespace) + ['/', '\"', '\'', '<', '?']
+        self.after_tld_chars = list(string.whitespace) + ['/', '\"', '\'', '<', '?', ':', '.', ',']
 
     def _reload_tlds_from_file(self):
         """
@@ -200,6 +200,25 @@ class URLExtract:
 
         return __VERSION__
 
+    def get_after_tld_chars(self):
+        """
+        Returns list of chars that are allowed after TLD
+
+        :return: list of chars that are allowed after TLD
+        :rtype: list
+        """
+
+        return self.after_tld_chars
+
+    def set_after_tld_chars(self, after_tld_chars):
+        """
+        Set chars that are allowed after TLD.
+
+        :param list after_tld_chars: list of characters
+        """
+
+        self.after_tld_chars = after_tld_chars
+
     def get_stop_chars(self):
         """
         Returns list of stop chars.
@@ -286,6 +305,10 @@ class URLExtract:
         >>> extractor = URLExtract()
         >>> extractor.find_urls("Let's have text without URLs.")
         []
+
+        >>> extractor = URLExtract()
+        >>> extractor.find_urls("Get unique URL from: http://janlipovsky.cz http://janlipovsky.cz", True)
+        ['http://janlipovsky.cz']
 
         :param str text: text where we want to find URLs
         :param bool only_unique: return only unique URLs
