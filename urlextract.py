@@ -326,6 +326,5 @@ class URLExtract:
             if tld_pos != -1 and self._validate_tld_match(text, tld, offset + tld_pos):
                 urls.append(self._complete_url(text, offset + tld_pos))
             tld_pos += len(tld) + offset
-        if only_unique:
-            return list(set(urls))
-        return urls
+
+        return urls if not only_unique else list(set(urls))
