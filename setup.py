@@ -18,7 +18,7 @@ def read(readme):
 
 setup(
     name='urlextract',
-    version="0.2.7",
+    version="0.3",
     py_modules=['urlextract'],
     scripts=['bin/urlextract'],
     keywords=['url', 'extract', 'find', 'finder', 'collect', 'link', 'tld', 'list'],
@@ -34,11 +34,13 @@ setup(
                  "Programming Language :: Python",
                  'Programming Language :: Python :: 3.4',
                  'Programming Language :: Python :: 3.5',
+                 'Programming Language :: Python :: 3.6',
                  'Topic :: Text Processing',
                  "Topic :: Text Processing :: Markup :: HTML",
                  "Topic :: Software Development :: Libraries :: Python Modules",
                  ],
     install_requires=[
-        'idna'
+        'idna',
+        'uritools'
     ],
 )
