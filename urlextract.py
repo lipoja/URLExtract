@@ -17,8 +17,9 @@ from datetime import datetime, timedelta
 from urllib.error import URLError, HTTPError
 
 import idna
+import uritools
 
-__VERSION__ = "0.2.7"  #: version of URLExtract class
+__VERSION__ = "0.3"  #: version of URLExtract class
 
 
 class URLExtract:
@@ -70,6 +71,8 @@ class URLExtract:
         self.tlds = None
         self.tlds_re = None
         self._reload_tlds_from_file()
+
+        self.hostname_re = re.compile("^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$")
 
         self.stop_chars = list(string.whitespace) + ['\"', '\'', '<', '>', ';', '@']
         # characters that are allowed to be right after TLD
@@ -271,7 +274,12 @@ class URLExtract:
                         end_pos += 1
                     else:
                         right_ok = False
-        return text[start_pos:end_pos + 1].lstrip('//')
+
+        complete_url = text[start_pos:end_pos + 1].lstrip('/')
+        if not self._is_domain_valid(complete_url):
+            return ""
+
+        return complete_url
 
     def _validate_tld_match(self, text, matched_tld, tld_pos):
         """
@@ -294,6 +302,64 @@ class URLExtract:
 
         return False
 
+    def _is_domain_valid(self, url):
+        """
+        Validate URL match - tells if URL is valid (id domain name is valid; ignores subdomains)
+
+        :param str url: text where we want to find URLs
+        :return: True if URL is valid, False otherwise
+        :rtype: bool
+
+        >>> extractor = URLExtract()
+        >>> extractor._is_domain_valid("janlipovsky.cz")
+        True
+
+        >>> extractor._is_domain_valid("https://janlipovsky.cz")
+        True
+
+        >>> extractor._is_domain_valid("invalid.cz.")
+        False
+
+        >>> extractor._is_domain_valid("in.v_alid.cz")
+        False
+
+        >>> extractor._is_domain_valid("-is.valid.cz")
+        True
+
+        >>> extractor._is_domain_valid("not.valid-.cz")
+        False
+        """
+
+        if len(url) <= 0:
+            return False
+
+        scheme_pos = url.find('://')
+        if scheme_pos != -1:
+            url = url[scheme_pos+3:]
+
+        url = 'http://'+url
+
+        url_parts = uritools.urisplit(url)
+        # <scheme>://<authority>/<path>?<query>#<fragment>
+        host = url_parts.host
+        if not host:
+            return False
+
+        host_parts = host.split('.')
+        if len(host) <= 1:
+            return False
+
+        tld = '.'+host_parts[-1]
+        if tld not in self.tlds:
+            return False
+
+        top = host_parts[-2]
+
+        if self.hostname_re.match(top) is None:
+            return False
+
+        return True
+
     def find_urls(self, text, only_unique=False):
         """
         Find all URLs in given text.
@@ -302,11 +368,9 @@ class URLExtract:
         >>> extractor.find_urls("Let's have URL http://janlipovsky.cz as an example.")
         ['http://janlipovsky.cz']
 
-        >>> extractor = URLExtract()
         >>> extractor.find_urls("Let's have text without URLs.")
         []
 
-        >>> extractor = URLExtract()
         >>> extractor.find_urls("Get unique URL from: http://janlipovsky.cz http://janlipovsky.cz", True)
         ['http://janlipovsky.cz']
 
