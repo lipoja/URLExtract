@@ -33,10 +33,12 @@ Requirements
 ~~~~~~~~~~~~
 
 -  IDNA for converting links to IDNA format
+- uritools for
 
    ::
 
        pip install idna
+       pip install uritools
 
 Example
 ~~~~~~~
