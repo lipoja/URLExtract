@@ -304,7 +304,7 @@ class URLExtract:
 
     def _is_domain_valid(self, url):
         """
-        Validate URL match - tells if URL is valid (id domain name is valid; ignores subdomains)
+        Checks if given URL has valid domain name (ignores subdomains)
 
         :param str url: text where we want to find URLs
         :return: True if URL is valid, False otherwise
