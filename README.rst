@@ -32,8 +32,8 @@ Online documentation is published at http://urlextract.readthedocs.io/
 Requirements
 ~~~~~~~~~~~~
 
--  IDNA for converting links to IDNA format
-- uritools for
+- IDNA for converting links to IDNA format
+- uritools for domain name validation
 
    ::
 
