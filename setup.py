@@ -18,7 +18,7 @@ def read(readme):
 
 setup(
     name='urlextract',
-    version="0.3",
+    version="0.3.1",
     py_modules=['urlextract'],
     scripts=['bin/urlextract'],
     keywords=['url', 'extract', 'find', 'finder', 'collect', 'link', 'tld', 'list'],

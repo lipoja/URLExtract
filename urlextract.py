@@ -19,7 +19,7 @@ from urllib.error import URLError, HTTPError
 import idna
 import uritools
 
-__VERSION__ = "0.3"  #: version of URLExtract class
+__VERSION__ = "0.3.1"  #: version of URLExtract class
 
 
 class URLExtract:
