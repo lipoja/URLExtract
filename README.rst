@@ -4,6 +4,9 @@ URLExtract
 URLExtract is python class for collecting (extracting) URLs from given
 text.
 
+.. image:: https://travis-ci.org/lipoja/URLExtract.svg?branch=master
+    :target: https://travis-ci.org/lipoja/URLExtract
+
 How does it work
 ~~~~~~~~~~~~~~~~
 
