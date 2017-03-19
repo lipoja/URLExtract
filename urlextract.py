@@ -346,7 +346,7 @@ class URLExtract:
             return False
 
         host_parts = host.split('.')
-        if len(host) <= 1:
+        if len(host_parts) <= 1:
             return False
 
         tld = '.'+host_parts[-1]
