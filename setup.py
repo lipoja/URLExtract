@@ -11,6 +11,7 @@ setup for urlextract
 import os
 from distutils.core import setup
 
+from urlextract import __VERSION__
 
 def read(readme):
     return open(os.path.join(os.path.dirname(__file__), readme)).read()
@@ -18,7 +19,7 @@ def read(readme):
 
 setup(
     name='urlextract',
-    version="0.3.1",
+    version=__VERSION__,
     py_modules=['urlextract'],
     scripts=['bin/urlextract'],
     keywords=['url', 'extract', 'find', 'finder', 'collect', 'link', 'tld', 'list'],

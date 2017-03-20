@@ -6,6 +6,7 @@ urlextract.py - file with definition of URLExtract class
 .. Created on 2016-07-29
 .. Licence MIT
 .. codeauthor:: Jan Lipovský <janlipovsky@gmail.com>, janlipovsky.cz
+.. contributors: Rui Silva
 """
 
 import os
@@ -19,7 +20,7 @@ from urllib.error import URLError, HTTPError
 import idna
 import uritools
 
-__VERSION__ = "0.3.1"  #: version of URLExtract class
+__VERSION__ = "0.3.2"  #: version of URLExtract class
 
 
 class URLExtract:
@@ -328,6 +329,9 @@ class URLExtract:
 
         >>> extractor._is_domain_valid("not.valid-.cz")
         False
+
+        >>> extractor._is_domain_valid("http://blog/media/reflect.io.jpg")
+        False
         """
 
         if len(url) <= 0:
@@ -346,7 +350,7 @@ class URLExtract:
             return False
 
         host_parts = host.split('.')
-        if len(host) <= 1:
+        if len(host_parts) <= 1:
             return False
 
         tld = '.'+host_parts[-1]
