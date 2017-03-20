@@ -19,7 +19,7 @@ from urllib.error import URLError, HTTPError
 import idna
 import uritools
 
-__VERSION__ = "0.3.1"  #: version of URLExtract class
+__VERSION__ = "0.3.2"  #: version of URLExtract class
 
 
 class URLExtract:
@@ -327,6 +327,9 @@ class URLExtract:
         True
 
         >>> extractor._is_domain_valid("not.valid-.cz")
+        False
+
+        >>> extractor._is_domain_valid("http://blog/media/reflect.io.jpg")
         False
         """
 
