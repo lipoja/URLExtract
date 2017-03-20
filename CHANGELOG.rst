@@ -2,7 +2,7 @@ Changelog
 ~~~~~~~~~
 
 - 0.3.2
-    - Bug fix of incorrect validation of URL (e.g. 'http://blog/media/reflect.io.jpg')
+    - Bug fix of incorrect validation of URL (e.g. 'http://blog/media/reflect.io.jpg') by Rui Silva
 - 0.3.1
     - Adding badges to README.rst
 - 0.3
