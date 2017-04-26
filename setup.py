@@ -11,11 +11,11 @@ setup for urlextract
 import os
 from distutils.core import setup
 
-from urlextract import __VERSION__
+from version import __VERSION__
+
 
 def read(readme):
     return open(os.path.join(os.path.dirname(__file__), readme)).read()
-
 
 setup(
     name='urlextract',

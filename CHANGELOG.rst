@@ -1,6 +1,8 @@
 Changelog
 ~~~~~~~~~
 
+- 0.3.2.1
+    - Centralized version number (fixed bug when installing via pip on system where uritools are not yet installed)
 - 0.3.2
     - Bug fix of incorrect validation of URL (e.g. 'http://blog/media/reflect.io.jpg') by Rui Silva
 - 0.3.1
