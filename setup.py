@@ -17,7 +17,7 @@ script_dirname = os.path.join(os.path.dirname(__file__))
 
 # get __VERSION__ variable
 version_file = os.path.join(script_dirname, 'version.py')
-exec(open(version_file, 'r').read())
+exec(open(version_file).read())
 
 
 def read(readme):
@@ -26,7 +26,7 @@ def read(readme):
 setup(
     name='urlextract',
     version=__VERSION__,
-    py_modules=['urlextract'],
+    py_modules=['urlextract', 'version'],
     scripts=['bin/urlextract'],
     keywords=['url', 'extract', 'find', 'finder', 'collect', 'link', 'tld', 'list'],
     url='https://github.com/lipoja/URLExtract',
