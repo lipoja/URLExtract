@@ -1,7 +1,7 @@
 Changelog
 ~~~~~~~~~
 
-- 0.3.2.1 - 0.3.2.4
+- 0.3.2.1 - 0.3.2.6
     - Centralized version number (fixed bug when installing via pip on system where uritools are not yet installed)
     - I am so good, that I messed up every commit what I did :D
 - 0.3.2
