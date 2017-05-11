@@ -9,4 +9,4 @@
 """
 
 # version of urlextract / URLExtract class
-__VERSION__ = "0.3.2.1"
+__VERSION__ = "0.3.2.2"
