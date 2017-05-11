@@ -21,7 +21,7 @@ exec(open(version_file, 'r').read())
 
 
 def read(readme):
-    return open(script_dirname, readme).read()
+    return open(os.path.join(script_dirname, readme)).read()
 
 setup(
     name='urlextract',
