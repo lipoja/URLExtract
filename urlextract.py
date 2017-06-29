@@ -8,7 +8,7 @@ urlextract.py - file with definition of URLExtract class
 .. codeauthor:: Jan Lipovský <janlipovsky@gmail.com>, janlipovsky.cz
 .. contributors: Rui Silva
 """
-
+import hashlib
 import os
 import re
 import string
@@ -34,13 +34,18 @@ class URLExtract:
         from urlextract import URLExtract
 
         extractor = URLExtract()
-        urls = extractor.find_urls("Let's have URL janlipovsky.cz as an example.")
-        print(urls) # prints: ['janlipovsky.cz']
+        example_text = "Let's have URL janlipovsky.cz as an example."
+        # You can use has_urls method if you need to check if text contains URL
+        if extractor.has_urls(example_text):
+            print("Given text contains at least one URL.")
 
+        # You do not have to check text for urls if you want to extract them
+        urls = extractor.find_urls(example_text)
+        print(urls) # prints: ['janlipovsky.cz']
 
     """
     # file name of cached list of TLDs downloaded from IANA
-    cache_file_name = '.tlds'
+    _cache_file_name = '.tlds'
 
     def __init__(self):
         """
@@ -55,40 +60,47 @@ class URLExtract:
             dir_path = os.path.expanduser('~')
 
         # full path for cached file with list of TLDs
-        self.tld_list_path = os.path.join(dir_path, self.cache_file_name)
-        if not os.access(self.tld_list_path, os.F_OK):
+        self._tld_list_path = os.path.join(dir_path, self._cache_file_name)
+        if not os.access(self._tld_list_path, os.F_OK):
             if not self._download_tlds_list():
                 sys.exit(-1)
 
         # check if cached file is readable
-        if not os.access(self.tld_list_path, os.R_OK):
-            print("ERROR: Cached file is not readable for current user. ({})".format(self.tld_list_path))
+        if not os.access(self._tld_list_path, os.R_OK):
+            print("ERROR: Cached file is not readable for current user. ({})".format(self._tld_list_path))
             sys.exit(-2)
 
         # try to update cache file when cache is older than 7 days
         if not self.update_when_older(7):
-            print("WARNING: Could not update file, using old version of TLDs list. ({})".format(self.tld_list_path))
+            print("WARNING: Could not update file, using old version of TLDs list. ({})".format(self._tld_list_path))
 
-        self.tlds = None
-        self.tlds_re = None
+        self._tlds = None
+        self._tlds_re = None
         self._reload_tlds_from_file()
 
-        self.hostname_re = re.compile("^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$")
+        self._hostname_re = re.compile("^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$")
 
         self.stop_chars = list(string.whitespace) + ['\"', '\'', '<', '>', ';', '@']
         # characters that are allowed to be right after TLD
         self.after_tld_chars = list(string.whitespace) + ['/', '\"', '\'', '<', '?', ':', '.', ',']
+
+        # this parameter is set to True when we want to use has_urls method only
+        self._break_after_first = False
+        # matched TLDs by regexp in given text
+        self._matched_tlds = None
+        # hash of text
+        self._text_hash = None
 
     def _reload_tlds_from_file(self):
         """
         Reloads TLDs from file and compile regexp.
         """
         # check if cached file is readable
-        if not os.access(self.tld_list_path, os.R_OK):
-            print("ERROR: Cached file is not readable for current user. ({})".format(self.tld_list_path))
+        if not os.access(self._tld_list_path, os.R_OK):
+            print("ERROR: Cached file is not readable for current user. ({})".format(self._tld_list_path))
         else:
-            self.tlds = sorted(self._load_cached_tlds(), key=len, reverse=True)
-            self.tlds_re = re.compile('|'.join([re.escape(tld) for tld in self.tlds]))
+            self._tlds = sorted(self._load_cached_tlds(), key=len, reverse=True)
+            self._tlds_re = re.compile('|'.join([re.escape(str(tld)) for tld in self._tlds]))
 
     def _download_tlds_list(self):
         """
@@ -100,13 +112,13 @@ class URLExtract:
         url_list = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt'
 
         # check if we can write cache file
-        if os.access(self.tld_list_path, os.F_OK) and not os.access(self.tld_list_path, os.W_OK):
-            print("ERROR: Cache file is not writable for current user. ({})".format(self.tld_list_path))
+        if os.access(self._tld_list_path, os.F_OK) and not os.access(self._tld_list_path, os.W_OK):
+            print("ERROR: Cache file is not writable for current user. ({})".format(self._tld_list_path))
             return False
 
         req = urllib.request.Request(url_list)
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0')
-        with open(self.tld_list_path, 'w') as ftld:
+        with open(self._tld_list_path, 'w') as ftld:
             try:
                 with urllib.request.urlopen(req) as f:
                     page = f.read().decode('utf-8')
@@ -128,7 +140,7 @@ class URLExtract:
         """
 
         list_of_tlds = set()
-        with open(self.tld_list_path, 'r') as f:
+        with open(self._tld_list_path, 'r') as f:
             for line in f:
                 tld = line.strip().lower()
                 # skip empty lines
@@ -152,7 +164,7 @@ class URLExtract:
         """
 
         try:
-            mtime = os.path.getmtime(self.tld_list_path)
+            mtime = os.path.getmtime(self._tld_list_path)
         except OSError:
             return None
 
@@ -307,7 +319,7 @@ class URLExtract:
         """
         Checks if given URL has valid domain name (ignores subdomains)
 
-        :param str url: text where we want to find URLs
+        :param str url: complete URL that we want to check
         :return: True if URL is valid, False otherwise
         :rtype: bool
 
@@ -334,7 +346,7 @@ class URLExtract:
         False
         """
 
-        if len(url) <= 0:
+        if not url:
             return False
 
         scheme_pos = url.find('://')
@@ -354,12 +366,12 @@ class URLExtract:
             return False
 
         tld = '.'+host_parts[-1]
-        if tld not in self.tlds:
+        if tld not in self._tlds:
             return False
 
         top = host_parts[-2]
 
-        if self.hostname_re.match(top) is None:
+        if self._hostname_re.match(top) is None:
             return False
 
         return True
@@ -385,14 +397,38 @@ class URLExtract:
         """
         urls = []
         tld_pos = 0
-        matched_tlds = self.tlds_re.findall(text)
+        if not self._text_hash or self._text_hash != hashlib.md5(text.encode()).hexdigest():
+            self._matched_tlds = self._tlds_re.findall(text)
 
-        for tld in matched_tlds:
+        for tld in self._matched_tlds:
             tmp_text = text[tld_pos:]
             offset = tld_pos
             tld_pos = tmp_text.find(tld)
             if tld_pos != -1 and self._validate_tld_match(text, tld, offset + tld_pos):
                 urls.append(self._complete_url(text, offset + tld_pos))
+                if self._break_after_first:
+                    self._break_after_first = False
+                    break
             tld_pos += len(tld) + offset
-
         return urls if not only_unique else list(set(urls))
+
+    def has_urls(self, text):
+        """
+        Checks if text contains any valid URL. Returns True if text contains at least one URL.
+
+        >>> extractor = URLExtract()
+        >>> extractor.has_urls("Get unique URL from: http://janlipovsky.cz")
+        True
+
+        >>> extractor.has_urls("Clean text")
+        False
+
+        :param text: text where we want to find URLs
+        :return: True if et least one URL was found, False otherwise
+        :rtype: bool
+        """
+
+        self._break_after_first = True
+        ret = True if self.find_urls(text) else False
+        self._text_hash = hashlib.md5(text.encode()).hexdigest()
+        return ret
