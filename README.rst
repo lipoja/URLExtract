@@ -69,6 +69,41 @@ But everything you need to know is this:
     urls = extractor.find_urls("Text with URLs. Let's have URL janlipovsky.cz as an example.")
     print(urls) # prints: ['janlipovsky.cz']
 
+Or you can check if the text contains any URL at all and if it does then you can parse them.
+
+.. code:: python
+
+    from urlextract import URLExtract
+
+    extractor = URLExtract()
+    example_text = "Text with URLs. Let's have URL janlipovsky.cz as an example."
+    if extractor.has_urls(example_text):
+        urls = extractor.find_urls(example_text)
+        print(urls) # prints: ['janlipovsky.cz']
+
+Known issues
+~~~~~~~~~~~~
+
+Since TLD can be not only shortcut but also some meaningful word we might see false matches when we are searching
+for URL in some HTML pages. The false match can occur for example in css or JS when you are referring to HTML item
+using its classes.
+
+Example HTML code:
+
+.. code-block:: html
+
+  <p class="bold name">Jan</p>
+  <style>
+    p.bold.name {
+      font-weight: bold;
+    }
+  </style>
+
+If this HTML snippet is on the input of ``urlextract.find_urls()`` it will return ``a.bold.name`` as an URL.
+Behavior of urlextract is correct, because ``.name`` is valid TLD and urlextract just see that there is ``bold.name``
+valid domain name and ``p`` is valid sub-domain.
+
+
 License
 ~~~~~~~
 
