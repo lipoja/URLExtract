@@ -11,11 +11,10 @@ setup for urlextract
 import os
 from distutils.core import setup
 
-from version import __VERSION__
-
 script_dirname = os.path.join(os.path.dirname(__file__))
 
-# get __VERSION__ variable
+__VERSION__ = None
+# get __VERSION__ variable from file
 version_file = os.path.join(script_dirname, 'version.py')
 exec(open(version_file).read())
 
