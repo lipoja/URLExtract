@@ -8,7 +8,6 @@ urlextract.py - file with definition of URLExtract class
 .. codeauthor:: Jan Lipovský <janlipovsky@gmail.com>, janlipovsky.cz
 .. contributors: Rui Silva
 """
-import hashlib
 import os
 import re
 import string
@@ -34,15 +33,12 @@ class URLExtract:
         from urlextract import URLExtract
 
         extractor = URLExtract()
-        example_text = "Let's have URL janlipovsky.cz as an example."
-        # You can use has_urls method if you need to check if text contains URL
-        if extractor.has_urls(example_text):
-            print("Given text contains at least one URL.")
-
-        # You do not have to check text for urls if you want to extract them
-        urls = extractor.find_urls(example_text)
+        urls = extractor.find_urls("Let's have URL janlipovsky.cz as an example.")
         print(urls) # prints: ['janlipovsky.cz']
 
+        # Another way is to get a generator over found URLs in text
+        for url in extractor.gen_urls(example_text):
+            print(url) # prints: ['janlipovsky.cz']
     """
     # file name of cached list of TLDs downloaded from IANA
     _cache_file_name = '.tlds'
@@ -83,13 +79,6 @@ class URLExtract:
         self.stop_chars = list(string.whitespace) + ['\"', '\'', '<', '>', ';', '@']
         # characters that are allowed to be right after TLD
         self.after_tld_chars = list(string.whitespace) + ['/', '\"', '\'', '<', '?', ':', '.', ',']
-
-        # this parameter is set to True when we want to use has_urls method only
-        self._break_after_first = False
-        # matched TLDs by regexp in given text
-        self._matched_tlds = None
-        # hash of text
-        self._text_hash = None
 
     def _reload_tlds_from_file(self):
         """
@@ -376,6 +365,28 @@ class URLExtract:
 
         return True
 
+    def gen_urls(self, text):
+        """
+        Creates generator over found URLs in given text.
+
+        :param str text: text where we want to find URLs
+        :yields: URL found in text or empty string if no found
+        :rtype: str
+        """
+        tld_pos = 0
+        matched_tlds = self._tlds_re.findall(text)
+
+        for tld in matched_tlds:
+            tmp_text = text[tld_pos:]
+            offset = tld_pos
+            tld_pos = tmp_text.find(tld)
+            if tld_pos != -1 and self._validate_tld_match(text, tld, offset + tld_pos):
+                tmp_url = self._complete_url(text, offset + tld_pos)
+                if tmp_url:
+                    yield tmp_url
+
+            tld_pos += len(tld) + offset
+
     def find_urls(self, text, only_unique=False):
         """
         Find all URLs in given text.
@@ -389,46 +400,14 @@ class URLExtract:
 
         >>> extractor.find_urls("Get unique URL from: http://janlipovsky.cz http://janlipovsky.cz", True)
         ['http://janlipovsky.cz']
+        
+        >>> extractor.find_urls("Get unique URL from: in.v_alid.cz", True)
+        []
 
         :param str text: text where we want to find URLs
         :param bool only_unique: return only unique URLs
         :return: list of URLs found in text
         :rtype: list
         """
-        urls = []
-        tld_pos = 0
-        if not self._text_hash or self._text_hash != hashlib.md5(text.encode()).hexdigest():
-            self._matched_tlds = self._tlds_re.findall(text)
-
-        for tld in self._matched_tlds:
-            tmp_text = text[tld_pos:]
-            offset = tld_pos
-            tld_pos = tmp_text.find(tld)
-            if tld_pos != -1 and self._validate_tld_match(text, tld, offset + tld_pos):
-                urls.append(self._complete_url(text, offset + tld_pos))
-                if self._break_after_first:
-                    self._break_after_first = False
-                    break
-            tld_pos += len(tld) + offset
+        urls = [url for url in self.gen_urls(text)]
         return urls if not only_unique else list(set(urls))
-
-    def has_urls(self, text):
-        """
-        Checks if text contains any valid URL. Returns True if text contains at least one URL.
-
-        >>> extractor = URLExtract()
-        >>> extractor.has_urls("Get unique URL from: http://janlipovsky.cz")
-        True
-
-        >>> extractor.has_urls("Clean text")
-        False
-
-        :param text: text where we want to find URLs
-        :return: True if et least one URL was found, False otherwise
-        :rtype: bool
-        """
-
-        self._break_after_first = True
-        ret = True if self.find_urls(text) else False
-        self._text_hash = hashlib.md5(text.encode()).hexdigest()
-        return ret

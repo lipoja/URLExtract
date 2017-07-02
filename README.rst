@@ -69,7 +69,7 @@ But everything you need to know is this:
     urls = extractor.find_urls("Text with URLs. Let's have URL janlipovsky.cz as an example.")
     print(urls) # prints: ['janlipovsky.cz']
 
-Or you can check if the text contains any URL at all and if it does then you can parse them.
+Or you can get generator over URLs in text by:
 
 .. code:: python
 
@@ -77,9 +77,9 @@ Or you can check if the text contains any URL at all and if it does then you can
 
     extractor = URLExtract()
     example_text = "Text with URLs. Let's have URL janlipovsky.cz as an example."
-    if extractor.has_urls(example_text):
-        urls = extractor.find_urls(example_text)
-        print(urls) # prints: ['janlipovsky.cz']
+
+    for url in extractor.gen_urls(example_text):
+        print(url) # prints: ['janlipovsky.cz']
 
 Known issues
 ~~~~~~~~~~~~
