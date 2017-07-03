@@ -27,7 +27,7 @@ def get_args():
                         version='%(prog)s - version {}'.format(URLExtract.get_version()))
 
     parser.add_argument("-u", "--unique", dest='unique', action='store_true',
-                        help='Print out only unique URLs found in file.')
+                        help='print out only unique URLs found in file.')
 
     parser.add_argument(type=str, default=None, metavar='<input_file>', dest='input_file',
                         help='input text file with URLs to extract. [UTF-8]')

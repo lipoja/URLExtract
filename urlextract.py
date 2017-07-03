@@ -24,9 +24,9 @@ from version import __VERSION__
 
 class URLExtract:
     """
-    Class for finding and extracting URLs from given string
+    Class for finding and extracting URLs from given string.
 
-    **Example**
+    **Examples:**
 
     .. code-block:: python
 
@@ -36,9 +36,13 @@ class URLExtract:
         urls = extractor.find_urls("Let's have URL janlipovsky.cz as an example.")
         print(urls) # prints: ['janlipovsky.cz']
 
-        # Another way is to get a generator over found URLs in text
+        # Another way is to get a generator over found URLs in text:
         for url in extractor.gen_urls(example_text):
             print(url) # prints: ['janlipovsky.cz']
+
+        # Or you if you want to just check if there is at least one URL in text you can do:
+        if extractor.has_urls(example_text):
+            print("Given text contains some URL")
     """
     # file name of cached list of TLDs downloaded from IANA
     _cache_file_name = '.tlds'
@@ -146,7 +150,7 @@ class URLExtract:
 
     def _get_last_cachefile_modification(self):
         """
-        Get last modification of cache file with tlds.
+        Get last modification of cache file with TLDs.
 
         :return: Date and time of last modification or None when file does not exist
         :rtype: datetime|None
@@ -161,7 +165,7 @@ class URLExtract:
 
     def update(self):
         """
-        Update tld list cache file.
+        Update TLD list cache file.
 
         :return: True if update was successfull False otherwise
         :rtype: bool
@@ -176,7 +180,7 @@ class URLExtract:
 
     def update_when_older(self, days):
         """
-        Update tld list cache file if the list is older than number of days given in parameter `days`.
+        Update TLD list cache file if the list is older than number of days given in parameter `days`.
 
         :param int days: number of days from last change
         :return: True if update was successfull, False otherwise
@@ -248,7 +252,7 @@ class URLExtract:
         Expand string in both sides to match whole URL.
 
         :param str text: text where we want to find URL
-        :param int tld_pos: position of tld
+        :param int tld_pos: position of TLD
         :return: returns URL
         :rtype: str
         """
@@ -285,11 +289,11 @@ class URLExtract:
 
     def _validate_tld_match(self, text, matched_tld, tld_pos):
         """
-        Validate tld match - tells if at found position is really tld.
+        Validate TLD match - tells if at found position is really TLD.
 
         :param str text: text where we want to find URLs
-        :param str matched_tld: matched tld
-        :param int tld_pos: position of matched tld
+        :param str matched_tld: matched TLD
+        :param int tld_pos: position of matched TLD
         :return: True if match is valid, False otherwise
         :rtype: bool
         """
