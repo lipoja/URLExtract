@@ -81,10 +81,22 @@ Or you can get generator over URLs in text by:
     for url in extractor.gen_urls(example_text):
         print(url) # prints: ['janlipovsky.cz']
 
+Or you if you want to just check if there is at least one URL you can do:
+
+.. code:: python
+
+    from urlextract import URLExtract
+
+    extractor = URLExtract()
+    example_text = "Text with URLs. Let's have URL janlipovsky.cz as an example."
+
+    if extractor.has_urls(example_text):
+        print("Given text contains some URL")
+
 Known issues
 ~~~~~~~~~~~~
 
-Since TLD can be not only shortcut but also some meaningful word we might see false matches when we are searching
+Since TLD can be not only shortcut but also some meaningful word we might see "false matches" when we are searching
 for URL in some HTML pages. The false match can occur for example in css or JS when you are referring to HTML item
 using its classes.
 
@@ -102,7 +114,6 @@ Example HTML code:
 If this HTML snippet is on the input of ``urlextract.find_urls()`` it will return ``a.bold.name`` as an URL.
 Behavior of urlextract is correct, because ``.name`` is valid TLD and urlextract just see that there is ``bold.name``
 valid domain name and ``p`` is valid sub-domain.
-
 
 License
 ~~~~~~~
