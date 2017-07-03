@@ -400,7 +400,7 @@ class URLExtract:
 
         >>> extractor.find_urls("Get unique URL from: http://janlipovsky.cz http://janlipovsky.cz", True)
         ['http://janlipovsky.cz']
-        
+
         >>> extractor.find_urls("Get unique URL from: in.v_alid.cz", True)
         []
 
@@ -409,5 +409,23 @@ class URLExtract:
         :return: list of URLs found in text
         :rtype: list
         """
-        urls = [url for url in self.gen_urls(text)]
+        urls = list(self.gen_urls(text))
         return urls if not only_unique else list(set(urls))
+
+    def has_urls(self, text):
+        """
+        Checks if text contains any valid URL. Returns True if text contains at least one URL.
+
+        >>> extractor = URLExtract()
+        >>> extractor.has_urls("Get unique URL from: http://janlipovsky.cz")
+        True
+
+        >>> extractor.has_urls("Clean text")
+        False
+
+        :param text: text where we want to find URLs
+        :return: True if et least one URL was found, False otherwise
+        :rtype: bool
+        """
+
+        return any(self.gen_urls(text))
