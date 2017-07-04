@@ -6,11 +6,12 @@
 Welcome to urlextract's documentation!
 ======================================
 
-Contents:
+urlextract is package with python class and command line script used for extraction of URLs from given text.
 
 .. toctree::
    :maxdepth: 3
 
+   urlextract_cmd
    urlextract
 
 

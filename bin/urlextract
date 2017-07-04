@@ -26,6 +26,9 @@ def get_args():
     parser.add_argument("-v", "--version", action="version",
                         version='%(prog)s - version {}'.format(URLExtract.get_version()))
 
+    parser.add_argument("-u", "--unique", dest='unique', action='store_true',
+                        help='print out only unique URLs found in file.')
+
     parser.add_argument(type=str, default=None, metavar='<input_file>', dest='input_file',
                         help='input text file with URLs to extract. [UTF-8]')
 
@@ -39,4 +42,5 @@ if __name__ == '__main__':
     urlextract = URLExtract()
     with open(args.input_file, "r", encoding="UTF-8") as f:
         content = f.read()
-        print(urlextract.find_urls(content))
+        for url in urlextract.find_urls(content, args.unique):
+            print(url)
