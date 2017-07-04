@@ -413,8 +413,9 @@ class URLExtract:
         :return: list of URLs found in text
         :rtype: list
         """
-        urls = list(self.gen_urls(text))
-        return urls if not only_unique else list(set(urls))
+        urls = self.gen_urls(text)
+        urls = set(urls) if only_unique else urls
+        return list(urls)
 
     def has_urls(self, text):
         """
