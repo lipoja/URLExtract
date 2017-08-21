@@ -1,7 +1,10 @@
 Changelog
 ~~~~~~~~~
 
-- 0.4.1 - efficient use of memory in find_urls() method
+- 0.5
+    - Fix issue #5 - URL is extracted when it ends with TLD + after_tld_chars (usually: comma, dot, ...)
+- 0.4.1
+    - efficient use of memory in find_urls() method
 - 0.4
     - Adding features:
         - has_urls() - returns True if in text is at least one URL

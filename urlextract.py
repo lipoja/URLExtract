@@ -247,12 +247,13 @@ class URLExtract:
 
         self.stop_chars = stop_chars
 
-    def _complete_url(self, text, tld_pos):
+    def _complete_url(self, text, tld_pos, tld):
         """
         Expand string in both sides to match whole URL.
 
         :param str text: text where we want to find URL
         :param int tld_pos: position of TLD
+        :param str tld: matched TLD which should be in text
         :return: returns URL
         :rtype: str
         """
@@ -282,6 +283,11 @@ class URLExtract:
                         right_ok = False
 
         complete_url = text[start_pos:end_pos + 1].lstrip('/')
+        # remove last character from url when it is allowed character right after TLD (e.g. dot, comma)
+        temp_tlds = tld.join(self.after_tld_chars)
+        if complete_url[len(complete_url)-len(tld)-1:] in temp_tlds:  # get only dot+tld+one_char and compare
+            complete_url = complete_url[:-1]
+
         if not self._is_domain_valid(complete_url):
             return ""
 
@@ -324,6 +330,9 @@ class URLExtract:
         True
 
         >>> extractor._is_domain_valid("invalid.cz.")
+        False
+
+        >>> extractor._is_domain_valid("invalid.cz,")
         False
 
         >>> extractor._is_domain_valid("in.v_alid.cz")
@@ -385,7 +394,7 @@ class URLExtract:
             offset = tld_pos
             tld_pos = tmp_text.find(tld)
             if tld_pos != -1 and self._validate_tld_match(text, tld, offset + tld_pos):
-                tmp_url = self._complete_url(text, offset + tld_pos)
+                tmp_url = self._complete_url(text, offset + tld_pos, tld)
                 if tmp_url:
                     yield tmp_url
 
@@ -403,6 +412,9 @@ class URLExtract:
         []
 
         >>> extractor.find_urls("Get unique URL from: http://janlipovsky.cz http://janlipovsky.cz", True)
+        ['http://janlipovsky.cz']
+
+        >>> extractor.find_urls("Get unique URL with dot after TLD: http://janlipovsky.cz.")
         ['http://janlipovsky.cz']
 
         >>> extractor.find_urls("Get unique URL from: in.v_alid.cz", True)
