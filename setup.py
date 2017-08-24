@@ -6,6 +6,7 @@ setup for urlextract
 .. Created on 2016-07-29
 .. Licence MIT
 .. codeauthor:: Jan Lipovský <janlipovsky@gmail.com>, janlipovsky.cz
+.. contributors:: Dave Pretty
 """
 
 import os
