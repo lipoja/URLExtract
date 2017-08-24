@@ -6,6 +6,7 @@ setup for urlextract
 .. Created on 2016-07-29
 .. Licence MIT
 .. codeauthor:: Jan Lipovský <janlipovsky@gmail.com>, janlipovsky.cz
+.. contributors:: Dave Pretty
 """
 
 import os
@@ -16,11 +17,11 @@ script_dirname = os.path.join(os.path.dirname(__file__))
 __VERSION__ = None
 # get __VERSION__ variable from file
 version_file = os.path.join(script_dirname, 'version.py')
-exec(open(version_file).read())
+exec(open(version_file, "rb").read().decode("utf-8"))
 
 
 def read(readme):
-    return open(os.path.join(script_dirname, readme)).read()
+    return open(os.path.join(script_dirname, readme), "rb").read().decode("utf-8")
 
 setup(
     name='urlextract',
