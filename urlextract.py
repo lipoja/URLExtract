@@ -13,6 +13,7 @@ import re
 import string
 import sys
 import urllib.request
+import warnings
 from datetime import datetime, timedelta
 from urllib.error import URLError, HTTPError
 
@@ -80,9 +81,12 @@ class URLExtract:
 
         self._hostname_re = re.compile("^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$")
 
-        self.stop_chars = list(string.whitespace) + ['\"', '\'', '<', '>', ';', '@']
+        self._stop_chars_left = set(string.whitespace) | {'\"', '\'', '<', '>', ';'} | {'|', '@'}
+        self._stop_chars_right = set(string.whitespace) | {'\"', '\'', '<', '>', ';'}
+        # preprocessed union _stop_chars is used in _validate_tld_match
+        self._stop_chars = self._stop_chars_left | self._stop_chars_right
         # characters that are allowed to be right after TLD
-        self.after_tld_chars = list(string.whitespace) + ['/', '\"', '\'', '<', '?', ':', '.', ',']
+        self._after_tld_chars = set(string.whitespace) | {'/', '\"', '\'', '<', '?', ':', '.', ','}
 
     def _reload_tlds_from_file(self):
         """
@@ -217,7 +221,7 @@ class URLExtract:
         :rtype: list
         """
 
-        return self.after_tld_chars
+        return list(self._after_tld_chars)
 
     def set_after_tld_chars(self, after_tld_chars):
         """
@@ -226,26 +230,83 @@ class URLExtract:
         :param list after_tld_chars: list of characters
         """
 
-        self.after_tld_chars = after_tld_chars
+        self._after_tld_chars = set(after_tld_chars)
 
     def get_stop_chars(self):
         """
         Returns list of stop chars.
 
+        .. deprecated:: 0.7
+           Use :func:`get_stop_chars_left` or :func:`get_stop_chars_right` instead.
+
         :return: list of stop chars
         :rtype: list
         """
-
-        return self.stop_chars
+        warnings.warn("Method get_stop_chars is deprecated, "
+                      "use `get_stop_chars_left` or `get_stop_chars_right` instead", DeprecationWarning)
+        return list(self._stop_chars)
 
     def set_stop_chars(self, stop_chars):
         """
         Set stop characters used when determining end of URL.
 
+        .. deprecated:: 0.7
+           Use :func:`set_stop_chars_left` or :func:`set_stop_chars_right` instead.
+
         :param list stop_chars: list of characters
         """
 
-        self.stop_chars = stop_chars
+        warnings.warn("Method set_stop_chars is deprecated, "
+                      "use `set_stop_chars_left` or `set_stop_chars_right` instead", DeprecationWarning)
+        self._stop_chars = set(stop_chars)
+        self._stop_chars_left = self._stop_chars
+        self._stop_chars_right = self._stop_chars
+
+    def get_stop_chars_left(self):
+        """
+        Returns set of stop chars for text on left from TLD.
+
+        :return: set of stop chars
+        :rtype: set
+        """
+        return self._stop_chars_left
+
+    def set_stop_chars_left(self, stop_chars):
+        """
+        Set stop characters for text on left from TLD.
+        Stop characters are used when determining end of URL.
+
+        :param set stop_chars: set of characters
+        :raises: TypeError
+        """
+        if not isinstance(stop_chars, set):
+            raise TypeError("stop_chars should be type set but {} was given".format(type(stop_chars)))
+
+        self._stop_chars_left = stop_chars
+        self._stop_chars = self._stop_chars_left | self._stop_chars_right
+
+    def get_stop_chars_right(self):
+        """
+        Returns set of stop chars for text on right from TLD.
+
+        :return: set of stop chars
+        :rtype: set
+        """
+        return self._stop_chars_right
+
+    def set_stop_chars_right(self, stop_chars):
+        """
+        Set stop characters for text on right from TLD.
+        Stop characters are used when determining end of URL.
+
+        :param set stop_chars: set of characters
+        :raises: TypeError
+        """
+        if not isinstance(stop_chars, set):
+            raise TypeError("stop_chars should be type set but {} was given".format(type(stop_chars)))
+
+        self._stop_chars_right = stop_chars
+        self._stop_chars = self._stop_chars_left | self._stop_chars_right
 
     def _complete_url(self, text, tld_pos, tld):
         """
@@ -269,7 +330,7 @@ class URLExtract:
                 if start_pos <= 0:
                     left_ok = False
                 else:
-                    if text[start_pos - 1] not in self.stop_chars:
+                    if text[start_pos - 1] not in self._stop_chars_left:
                         start_pos -= 1
                     else:
                         left_ok = False
@@ -277,14 +338,14 @@ class URLExtract:
                 if end_pos >= max_len:
                     right_ok = False
                 else:
-                    if text[end_pos + 1] not in self.stop_chars:
+                    if text[end_pos + 1] not in self._stop_chars_right:
                         end_pos += 1
                     else:
                         right_ok = False
 
         complete_url = text[start_pos:end_pos + 1].lstrip('/')
         # remove last character from url when it is allowed character right after TLD (e.g. dot, comma)
-        temp_tlds = tld.join(self.after_tld_chars)
+        temp_tlds = tld.join(self._after_tld_chars)
         if complete_url[len(complete_url)-len(tld)-1:] in temp_tlds:  # get only dot+tld+one_char and compare
             complete_url = complete_url[:-1]
 
@@ -305,11 +366,11 @@ class URLExtract:
         """
         right_tld_pos = tld_pos + len(matched_tld)
         if len(text) > right_tld_pos:
-            if text[right_tld_pos] in self.after_tld_chars:
-                if tld_pos > 0 and text[tld_pos - 1] not in self.stop_chars:
+            if text[right_tld_pos] in self._after_tld_chars:
+                if tld_pos > 0 and text[tld_pos - 1] not in self._stop_chars_left:
                     return True
         else:
-            if tld_pos > 0 and text[tld_pos - 1] not in self.stop_chars:
+            if tld_pos > 0 and text[tld_pos - 1] not in self._stop_chars_left:
                 return True
 
         return False
@@ -416,6 +477,9 @@ class URLExtract:
 
         >>> extractor.find_urls("Get unique URL with dot after TLD: http://janlipovsky.cz.")
         ['http://janlipovsky.cz']
+
+        >>> extractor.find_urls("Get unique URL https://example.com/@eon01/asdsd-dummy")
+        ['https://example.com/@eon01/asdsd-dummy']
 
         >>> extractor.find_urls("Get unique URL from: in.v_alid.cz", True)
         []
