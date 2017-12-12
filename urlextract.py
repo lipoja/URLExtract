@@ -81,7 +81,7 @@ class URLExtract:
 
         self._hostname_re = re.compile("^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$")
 
-        self._stop_chars_left = set(string.whitespace) | {'\"', '\'', '<', '>', ';'} | {'|', '@'}
+        self._stop_chars_left = set(string.whitespace) | {'\"', '\'', '<', '>', ';'} | {'|', '@', '='}
         self._stop_chars_right = set(string.whitespace) | {'\"', '\'', '<', '>', ';'}
         # preprocessed union _stop_chars is used in _validate_tld_match
         self._stop_chars = self._stop_chars_left | self._stop_chars_right
