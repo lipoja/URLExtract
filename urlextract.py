@@ -349,7 +349,7 @@ class URLExtract:
         if complete_url[len(complete_url)-len(tld)-1:] in temp_tlds:  # get only dot+tld+one_char and compare
             complete_url = complete_url[:-1]
 
-        if not self._is_domain_valid(complete_url):
+        if not self._is_domain_valid(complete_url, tld):
             return ""
 
         return complete_url
@@ -375,37 +375,38 @@ class URLExtract:
 
         return False
 
-    def _is_domain_valid(self, url):
+    def _is_domain_valid(self, url, tld):
         """
         Checks if given URL has valid domain name (ignores subdomains)
 
         :param str url: complete URL that we want to check
+        :param str tld: TLD that should be found at the end of URL (hostname)
         :return: True if URL is valid, False otherwise
         :rtype: bool
 
         >>> extractor = URLExtract()
-        >>> extractor._is_domain_valid("janlipovsky.cz")
+        >>> extractor._is_domain_valid("janlipovsky.cz", "cz")
         True
 
-        >>> extractor._is_domain_valid("https://janlipovsky.cz")
+        >>> extractor._is_domain_valid("https://janlipovsky.cz", "cz")
         True
 
-        >>> extractor._is_domain_valid("invalid.cz.")
+        >>> extractor._is_domain_valid("invalid.cz.", "cz")
         False
 
-        >>> extractor._is_domain_valid("invalid.cz,")
+        >>> extractor._is_domain_valid("invalid.cz,", "cz")
         False
 
-        >>> extractor._is_domain_valid("in.v_alid.cz")
+        >>> extractor._is_domain_valid("in.v_alid.cz", "cz")
         False
 
-        >>> extractor._is_domain_valid("-is.valid.cz")
+        >>> extractor._is_domain_valid("-is.valid.cz", "cz")
         True
 
-        >>> extractor._is_domain_valid("not.valid-.cz")
+        >>> extractor._is_domain_valid("not.valid-.cz", "cz")
         False
 
-        >>> extractor._is_domain_valid("http://blog/media/reflect.io.jpg")
+        >>> extractor._is_domain_valid("http://blog/media/path.io.jpg", "cz")
         False
         """
 
@@ -428,8 +429,8 @@ class URLExtract:
         if len(host_parts) <= 1:
             return False
 
-        tld = '.'+host_parts[-1]
-        if tld not in self._tlds:
+        host_tld = '.'+host_parts[-1]
+        if host_tld != tld:
             return False
 
         top = host_parts[-2]
@@ -483,6 +484,9 @@ class URLExtract:
 
         >>> extractor.find_urls("Get unique URL from: in.v_alid.cz", True)
         []
+
+        >>> extractor.find_urls("ukrainian news pravda.com.ua")
+        ['pravda.com.ua']
 
         :param str text: text where we want to find URLs
         :param bool only_unique: return only unique URLs
