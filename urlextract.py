@@ -385,28 +385,28 @@ class URLExtract:
         :rtype: bool
 
         >>> extractor = URLExtract()
-        >>> extractor._is_domain_valid("janlipovsky.cz", "cz")
+        >>> extractor._is_domain_valid("janlipovsky.cz", ".cz")
         True
 
-        >>> extractor._is_domain_valid("https://janlipovsky.cz", "cz")
+        >>> extractor._is_domain_valid("https://janlipovsky.cz", ".cz")
         True
 
-        >>> extractor._is_domain_valid("invalid.cz.", "cz")
+        >>> extractor._is_domain_valid("invalid.cz.", ".cz")
         False
 
-        >>> extractor._is_domain_valid("invalid.cz,", "cz")
+        >>> extractor._is_domain_valid("invalid.cz,", ".cz")
         False
 
-        >>> extractor._is_domain_valid("in.v_alid.cz", "cz")
+        >>> extractor._is_domain_valid("in.v_alid.cz", ".cz")
         False
 
-        >>> extractor._is_domain_valid("-is.valid.cz", "cz")
+        >>> extractor._is_domain_valid("-is.valid.cz", ".cz")
         True
 
-        >>> extractor._is_domain_valid("not.valid-.cz", "cz")
+        >>> extractor._is_domain_valid("not.valid-.cz", ".cz")
         False
 
-        >>> extractor._is_domain_valid("http://blog/media/path.io.jpg", "cz")
+        >>> extractor._is_domain_valid("http://blog/media/path.io.jpg", ".cz")
         False
         """
 
