@@ -547,3 +547,44 @@ class URLExtract:
         """
 
         return any(self.gen_urls(text))
+
+
+if __name__ == '__main__':
+    """
+    urlextract - command line program that will print all URLs to stdout
+    Usage: urlextract INPUT_FILE
+
+    INPUT FILE - text file with URLs to extract
+    """
+    import argparse
+
+    def get_args():
+        """
+        Parse programs arguments
+        """
+        parser = argparse.ArgumentParser(
+            description='urlextract - prints out all URLs that were '
+                        'found in input file based on locating their TLDs')
+
+        ver = URLExtract.get_version()
+        parser.add_argument("-v", "--version", action="version",
+                            version='%(prog)s - version {}'.format(ver))
+
+        parser.add_argument(
+            "-u", "--unique", dest='unique', action='store_true',
+            help='print out only unique URLs found in file.')
+
+        parser.add_argument(
+            type=str, default=None, metavar='<input_file>', dest='input_file',
+            help='input text file with URLs to extract. [UTF-8]')
+
+        parsed_args = parser.parse_args()
+        return parsed_args
+
+    args = get_args()
+
+    urlextract = URLExtract()
+    with open(args.input_file, "r", encoding="UTF-8") as f:
+        content = f.read()
+        for url in urlextract.find_urls(content, args.unique):
+            print(url)

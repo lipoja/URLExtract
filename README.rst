@@ -2,7 +2,7 @@ URLExtract
 ----------
 
 URLExtract is python class for collecting (extracting) URLs from given
-text.
+text based on locating TLD.
 
 .. image:: https://img.shields.io/travis/lipoja/URLExtract/master.svg
     :target: https://travis-ci.org/lipoja/URLExtract
@@ -58,7 +58,7 @@ Requirements
 Example
 ~~~~~~~
 
-You can look at command line program *bin/urlextract*.
+You can look at command line program at the end of *urlextract.py*.
 But everything you need to know is this:
 
 .. code:: python

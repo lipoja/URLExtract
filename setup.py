@@ -27,7 +27,11 @@ setup(
     name='urlextract',
     version=__VERSION__,
     py_modules=['urlextract', 'version'],
-    scripts=['bin/urlextract'],
+    entry_points={
+              'console_scripts': [
+                  'urlextract = urlextract.__main__'
+              ]
+    },
     keywords=['url', 'extract', 'find', 'finder', 'collect', 'link', 'tld', 'list'],
     url='https://github.com/lipoja/URLExtract',
     license='MIT',
