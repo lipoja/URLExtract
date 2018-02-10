@@ -28,31 +28,30 @@ class URLExtract:
     Class for finding and extracting URLs from given string.
 
     **Examples:**
-
     .. code-block:: python
 
         from urlextract import URLExtract
 
         extractor = URLExtract()
-        urls = extractor.find_urls("Let's have URL janlipovsky.cz as an example.")
-        print(urls) # prints: ['janlipovsky.cz']
+        urls = extractor.find_urls("Let's have URL example.com example.")
+        print(urls) # prints: ['example.com']
 
         # Another way is to get a generator over found URLs in text:
         for url in extractor.gen_urls(example_text):
-            print(url) # prints: ['janlipovsky.cz']
+            print(url) # prints: ['example.com']
 
-        # Or you if you want to just check if there is at least one URL in text you can do:
+        # Or if you want to just check if there is at least one URL in text:
         if extractor.has_urls(example_text):
             print("Given text contains some URL")
     """
     # file name of cached list of TLDs downloaded from IANA
-    _cache_file_name = '.tlds'
+    _CACHE_FILE_NAME = '.urlextract_tlds'
 
     def __init__(self):
         """
         Initialize function for URLExtract class.
-        Tries to get cached .tlds, if cached file does not exist it will try to download new list from IANNA
-        and save it to users home directory.
+        Tries to get cached .tlds, if cached file does not exist it will try
+        to download new list from IANNA and save it to users home directory.
         """
         # get directory for cached file
         dir_path = os.path.dirname(__file__)
@@ -61,32 +60,43 @@ class URLExtract:
             dir_path = os.path.expanduser('~')
 
         # full path for cached file with list of TLDs
-        self._tld_list_path = os.path.join(dir_path, self._cache_file_name)
+        self._tld_list_path = os.path.join(dir_path, self._CACHE_FILE_NAME)
         if not os.access(self._tld_list_path, os.F_OK):
             if not self._download_tlds_list():
                 sys.exit(-1)
 
         # check if cached file is readable
         if not os.access(self._tld_list_path, os.R_OK):
-            print("ERROR: Cached file is not readable for current user. ({})".format(self._tld_list_path))
+            print("ERROR: Cached file is not readable for current "
+                  "user. ({})".format(self._tld_list_path))
             sys.exit(-2)
 
         # try to update cache file when cache is older than 7 days
         if not self.update_when_older(7):
-            print("WARNING: Could not update file, using old version of TLDs list. ({})".format(self._tld_list_path))
+            print("WARNING: Could not update file, using old version "
+                  "of TLDs list. ({})".format(self._tld_list_path))
 
         self._tlds = None
         self._tlds_re = None
         self._reload_tlds_from_file()
 
-        self._hostname_re = re.compile("^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$")
+        host_re_txt = "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$"
+        self._hostname_re = re.compile(host_re_txt)
 
-        self._stop_chars_left = set(string.whitespace) | {'\"', '\'', '<', '>', ';'} | {'|', '@', '='}
-        self._stop_chars_right = set(string.whitespace) | {'\"', '\'', '<', '>', ';'}
+        # defining default stop chars left
+        self._stop_chars_left = set(string.whitespace)
+        self._stop_chars_left |= {'\"', '\'', '<', '>', ';'} | {'|', '@', '='}
+
+        # defining default stop chars left
+        self._stop_chars_right = set(string.whitespace)
+        self._stop_chars_right |= {'\"', '\'', '<', '>', ';'}
+
         # preprocessed union _stop_chars is used in _validate_tld_match
         self._stop_chars = self._stop_chars_left | self._stop_chars_right
+
         # characters that are allowed to be right after TLD
-        self._after_tld_chars = set(string.whitespace) | {'/', '\"', '\'', '<', '?', ':', '.', ','}
+        self._after_tld_chars = set(string.whitespace)
+        self._after_tld_chars |= {'/', '\"', '\'', '<', '?', ':', '.', ','}
 
     def _reload_tlds_from_file(self):
         """
@@ -94,14 +104,18 @@ class URLExtract:
         """
         # check if cached file is readable
         if not os.access(self._tld_list_path, os.R_OK):
-            print("ERROR: Cached file is not readable for current user. ({})".format(self._tld_list_path))
+            print("ERROR: Cached file is not readable "
+                  "for current user. ({})".format(self._tld_list_path))
         else:
-            self._tlds = sorted(self._load_cached_tlds(), key=len, reverse=True)
-            self._tlds_re = re.compile('|'.join([re.escape(str(tld)) for tld in self._tlds]))
+            self._tlds = sorted(self._load_cached_tlds(),
+                                key=len, reverse=True)
+            re_escaped = [re.escape(str(tld)) for tld in self._tlds]
+            self._tlds_re = re.compile('|'.join(re_escaped))
 
     def _download_tlds_list(self):
         """
-        Function downloads list of TLDs from IANA 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt'.
+        Function downloads list of TLDs from IANA.
+        LINK: https://data.iana.org/TLD/tlds-alpha-by-domain.txt
 
         :return: True if list was downloaded, False in case of an error
         :rtype: bool
@@ -109,22 +123,28 @@ class URLExtract:
         url_list = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt'
 
         # check if we can write cache file
-        if os.access(self._tld_list_path, os.F_OK) and not os.access(self._tld_list_path, os.W_OK):
-            print("ERROR: Cache file is not writable for current user. ({})".format(self._tld_list_path))
+        if os.access(self._tld_list_path, os.F_OK) and \
+                not os.access(self._tld_list_path, os.W_OK):
+            print("ERROR: Cache file is not writable "
+                  "for current user. ({})".format(self._tld_list_path))
             return False
 
         req = urllib.request.Request(url_list)
-        req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0')
+        req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; '
+                                     'WOW64; rv:24.0) Gecko/20100101 '
+                                     'Firefox/24.0')
         with open(self._tld_list_path, 'w') as ftld:
             try:
                 with urllib.request.urlopen(req) as f:
                     page = f.read().decode('utf-8')
                     ftld.write(page)
             except HTTPError as e:
-                print("ERROR: Can not download list ot TLDs. (HTTPError: {})".format(e.reason))
+                print("ERROR: Can not download list ot TLDs. "
+                      "(HTTPError: {})".format(e.reason))
                 return False
             except URLError as e:
-                print("ERROR: Can not download list ot TLDs. (URLError: {})".format(e.reason))
+                print("ERROR: Can not download list ot TLDs. "
+                      "(URLError: {})".format(e.reason))
                 return False
         return True
 
@@ -156,7 +176,8 @@ class URLExtract:
         """
         Get last modification of cache file with TLDs.
 
-        :return: Date and time of last modification or None when file does not exist
+        :return: Date and time of last modification or
+                 None when file does not exist
         :rtype: datetime|None
         """
 
@@ -184,7 +205,8 @@ class URLExtract:
 
     def update_when_older(self, days):
         """
-        Update TLD list cache file if the list is older than number of days given in parameter `days`.
+        Update TLD list cache file if the list is older than
+        number of days given in parameter `days`.
 
         :param int days: number of days from last change
         :return: True if update was successfull, False otherwise
@@ -237,13 +259,15 @@ class URLExtract:
         Returns list of stop chars.
 
         .. deprecated:: 0.7
-           Use :func:`get_stop_chars_left` or :func:`get_stop_chars_right` instead.
+        Use :func:`get_stop_chars_left` or :func:`get_stop_chars_right`
+        instead.
 
         :return: list of stop chars
         :rtype: list
         """
         warnings.warn("Method get_stop_chars is deprecated, "
-                      "use `get_stop_chars_left` or `get_stop_chars_right` instead", DeprecationWarning)
+                      "use `get_stop_chars_left` or "
+                      "`get_stop_chars_right` instead", DeprecationWarning)
         return list(self._stop_chars)
 
     def set_stop_chars(self, stop_chars):
@@ -251,13 +275,15 @@ class URLExtract:
         Set stop characters used when determining end of URL.
 
         .. deprecated:: 0.7
-           Use :func:`set_stop_chars_left` or :func:`set_stop_chars_right` instead.
+        Use :func:`set_stop_chars_left` or :func:`set_stop_chars_right`
+        instead.
 
         :param list stop_chars: list of characters
         """
 
         warnings.warn("Method set_stop_chars is deprecated, "
-                      "use `set_stop_chars_left` or `set_stop_chars_right` instead", DeprecationWarning)
+                      "use `set_stop_chars_left` or "
+                      "`set_stop_chars_right` instead", DeprecationWarning)
         self._stop_chars = set(stop_chars)
         self._stop_chars_left = self._stop_chars
         self._stop_chars_right = self._stop_chars
@@ -280,7 +306,8 @@ class URLExtract:
         :raises: TypeError
         """
         if not isinstance(stop_chars, set):
-            raise TypeError("stop_chars should be type set but {} was given".format(type(stop_chars)))
+            raise TypeError("stop_chars should be type set "
+                            "but {} was given".format(type(stop_chars)))
 
         self._stop_chars_left = stop_chars
         self._stop_chars = self._stop_chars_left | self._stop_chars_right
@@ -303,7 +330,8 @@ class URLExtract:
         :raises: TypeError
         """
         if not isinstance(stop_chars, set):
-            raise TypeError("stop_chars should be type set but {} was given".format(type(stop_chars)))
+            raise TypeError("stop_chars should be type set "
+                            "but {} was given".format(type(stop_chars)))
 
         self._stop_chars_right = stop_chars
         self._stop_chars = self._stop_chars_left | self._stop_chars_right
@@ -344,9 +372,11 @@ class URLExtract:
                         right_ok = False
 
         complete_url = text[start_pos:end_pos + 1].lstrip('/')
-        # remove last character from url when it is allowed character right after TLD (e.g. dot, comma)
+        # remove last character from url
+        # when it is allowed character right after TLD (e.g. dot, comma)
         temp_tlds = tld.join(self._after_tld_chars)
-        if complete_url[len(complete_url)-len(tld)-1:] in temp_tlds:  # get only dot+tld+one_char and compare
+        # get only dot+tld+one_char and compare
+        if complete_url[len(complete_url)-len(tld)-1:] in temp_tlds:
             complete_url = complete_url[:-1]
 
         if not self._is_domain_valid(complete_url, tld):
@@ -367,7 +397,8 @@ class URLExtract:
         right_tld_pos = tld_pos + len(matched_tld)
         if len(text) > right_tld_pos:
             if text[right_tld_pos] in self._after_tld_chars:
-                if tld_pos > 0 and text[tld_pos - 1] not in self._stop_chars_left:
+                if tld_pos > 0 and text[tld_pos - 1] \
+                        not in self._stop_chars_left:
                     return True
         else:
             if tld_pos > 0 and text[tld_pos - 1] not in self._stop_chars_left:
@@ -455,7 +486,8 @@ class URLExtract:
             tmp_text = text[tld_pos:]
             offset = tld_pos
             tld_pos = tmp_text.find(tld)
-            if tld_pos != -1 and self._validate_tld_match(text, tld, offset + tld_pos):
+            validated = self._validate_tld_match(text, tld, offset + tld_pos)
+            if tld_pos != -1 and validated:
                 tmp_url = self._complete_url(text, offset + tld_pos, tld)
                 if tmp_url:
                     yield tmp_url
@@ -467,19 +499,19 @@ class URLExtract:
         Find all URLs in given text.
 
         >>> extractor = URLExtract()
-        >>> extractor.find_urls("Let's have URL http://janlipovsky.cz as an example.")
+        >>> extractor.find_urls("Let's have URL http://janlipovsky.cz")
         ['http://janlipovsky.cz']
 
         >>> extractor.find_urls("Let's have text without URLs.")
         []
 
-        >>> extractor.find_urls("Get unique URL from: http://janlipovsky.cz http://janlipovsky.cz", True)
+        >>> extractor.find_urls("http://unique.com http://unique.com", True)
         ['http://janlipovsky.cz']
 
-        >>> extractor.find_urls("Get unique URL with dot after TLD: http://janlipovsky.cz.")
+        >>> extractor.find_urls("Dot after TLD: http://janlipovsky.cz.")
         ['http://janlipovsky.cz']
 
-        >>> extractor.find_urls("Get unique URL https://example.com/@eon01/asdsd-dummy")
+        >>> extractor.find_urls("URL https://example.com/@eon01/asdsd-dummy")
         ['https://example.com/@eon01/asdsd-dummy']
 
         >>> extractor.find_urls("Get unique URL from: in.v_alid.cz", True)
@@ -499,7 +531,8 @@ class URLExtract:
 
     def has_urls(self, text):
         """
-        Checks if text contains any valid URL. Returns True if text contains at least one URL.
+        Checks if text contains any valid URL.
+        Returns True if text contains at least one URL.
 
         >>> extractor = URLExtract()
         >>> extractor.has_urls("Get unique URL from: http://janlipovsky.cz")
