@@ -23,6 +23,15 @@ import uritools
 from version import __VERSION__
 
 
+class CacheFileError(Exception):
+    """
+
+    """
+    def __init__(self, message):
+        # Call the base class constructor with the parameters it needs
+        self.message = message
+
+
 class URLExtract:
     """
     Class for finding and extracting URLs from given string.
@@ -52,6 +61,8 @@ class URLExtract:
         Initialize function for URLExtract class.
         Tries to get cached .tlds, if cached file does not exist it will try
         to download new list from IANNA and save it to users home directory.
+
+        :raises: CacheFileError when cached file is not readable for user
         """
         # get directory for cached file
         dir_path = os.path.dirname(__file__)
@@ -63,13 +74,12 @@ class URLExtract:
         self._tld_list_path = os.path.join(dir_path, self._CACHE_FILE_NAME)
         if not os.access(self._tld_list_path, os.F_OK):
             if not self._download_tlds_list():
-                sys.exit(-1)
+                raise CacheFileError("Can not download list of TLDs.")
 
         # check if cached file is readable
         if not os.access(self._tld_list_path, os.R_OK):
-            print("ERROR: Cached file is not readable for current "
-                  "user. ({})".format(self._tld_list_path))
-            sys.exit(-2)
+            raise CacheFileError("Cached file is not readable for current "
+                                 "user. ({})".format(self._tld_list_path))
 
         # try to update cache file when cache is older than 7 days
         if not self.update_when_older(7):
@@ -583,8 +593,12 @@ if __name__ == '__main__':
 
     args = get_args()
 
-    urlextract = URLExtract()
-    with open(args.input_file, "r", encoding="UTF-8") as f:
-        content = f.read()
-        for url in urlextract.find_urls(content, args.unique):
-            print(url)
+    try:
+        urlextract = URLExtract()
+        with open(args.input_file, encoding="UTF-8") as f:
+            content = f.read()
+            for url in urlextract.find_urls(content, args.unique):
+                print(url)
+    except CacheFileError as e:
+        print("Error: {}".find(e.message))
+        sys.exit(-1)
