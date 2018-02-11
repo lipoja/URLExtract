@@ -1,6 +1,10 @@
 Changelog
 ~~~~~~~~~
 
+- 0.8
+    - URLExtract class raises exception instead of sys.exit()
+    - Console script moved directly to urlextract.py file.
+    - PEP8
 - 0.7
     - Faster stop char matching
     - Fixing issue #7 by splitting stop characters to left and right. Created new methods:
