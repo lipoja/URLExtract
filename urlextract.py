@@ -25,11 +25,9 @@ from version import __VERSION__
 
 class CacheFileError(Exception):
     """
-
+    Raised when some error occurred regarding file with cached TLDs.
     """
-    def __init__(self, message):
-        # Call the base class constructor with the parameters it needs
-        self.message = message
+    pass
 
 
 class URLExtract:
@@ -600,5 +598,5 @@ if __name__ == '__main__':
             for url in urlextract.find_urls(content, args.unique):
                 print(url)
     except CacheFileError as e:
-        print("Error: {}".find(e.message))
+        print("Error: {}".find(str(e)))
         sys.exit(-1)
