@@ -514,7 +514,7 @@ class URLExtract:
         []
 
         >>> extractor.find_urls("http://unique.com http://unique.com", True)
-        ['http://janlipovsky.cz']
+        ['http://unique.com']
 
         >>> extractor.find_urls("Dot after TLD: http://janlipovsky.cz.")
         ['http://janlipovsky.cz']
@@ -560,9 +560,9 @@ class URLExtract:
 if __name__ == '__main__':
     """
     urlextract - command line program that will print all URLs to stdout
-    Usage: urlextract INPUT_FILE
+    Usage: urlextract [input_file] [-u] [-v]
 
-    INPUT FILE - text file with URLs to extract
+    input_file - text file with URLs to extract
     """
     import argparse
 
@@ -572,7 +572,8 @@ if __name__ == '__main__':
         """
         parser = argparse.ArgumentParser(
             description='urlextract - prints out all URLs that were '
-                        'found in input file based on locating their TLDs')
+                        'found in input file or stdin based on locating '
+                        'their TLDs')
 
         ver = URLExtract.get_version()
         parser.add_argument("-v", "--version", action="version",
@@ -583,7 +584,8 @@ if __name__ == '__main__':
             help='print out only unique URLs found in file.')
 
         parser.add_argument(
-            type=str, default=None, metavar='<input_file>', dest='input_file',
+            'input_file', nargs='?', metavar='<input_file>',
+            type=argparse.FileType(encoding="UTF-8"), default=sys.stdin,
             help='input text file with URLs to extract. [UTF-8]')
 
         parsed_args = parser.parse_args()
@@ -593,10 +595,11 @@ if __name__ == '__main__':
 
     try:
         urlextract = URLExtract()
-        with open(args.input_file, encoding="UTF-8") as f:
-            content = f.read()
-            for url in urlextract.find_urls(content, args.unique):
-                print(url)
+        content = args.input_file.read()
+        for url in urlextract.find_urls(content, args.unique):
+            print(url)
     except CacheFileError as e:
         print("Error: {}".find(str(e)))
         sys.exit(-1)
+    finally:
+        args.input_file.close()
