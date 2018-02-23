@@ -36,6 +36,7 @@ class URLExtract:
     Class for finding and extracting URLs from given string.
 
     **Examples:**
+
     .. code-block:: python
 
         from urlextract import URLExtract
@@ -270,8 +271,8 @@ class URLExtract:
         Returns list of stop chars.
 
         .. deprecated:: 0.7
-        Use :func:`get_stop_chars_left` or :func:`get_stop_chars_right`
-        instead.
+            Use :func:`get_stop_chars_left` or :func:`get_stop_chars_right`
+            instead.
 
         :return: list of stop chars
         :rtype: list
@@ -286,8 +287,8 @@ class URLExtract:
         Set stop characters used when determining end of URL.
 
         .. deprecated:: 0.7
-        Use :func:`set_stop_chars_left` or :func:`set_stop_chars_right`
-        instead.
+            Use :func:`set_stop_chars_left` or :func:`set_stop_chars_right`
+            instead.
 
         :param list stop_chars: list of characters
         """
