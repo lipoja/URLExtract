@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-urlextract.py - file with definition of URLExtract class
+urlextract.py - file with definition of URLExtract class and urlextract cli
 
 .. Created on 2016-07-29
 .. Licence MIT
@@ -12,6 +12,7 @@ import os
 import re
 import string
 import sys
+import logging
 import urllib.request
 import warnings
 from datetime import datetime, timedelta
@@ -62,6 +63,7 @@ class URLExtract:
 
         :raises: CacheFileError when cached file is not readable for user
         """
+        self._logger = logging.getLogger(__name__)
         # get directory for cached file
         dir_path = os.path.dirname(__file__)
         if not os.access(dir_path, os.W_OK):
@@ -81,8 +83,9 @@ class URLExtract:
 
         # try to update cache file when cache is older than 7 days
         if not self.update_when_older(7):
-            print("WARNING: Could not update file, using old version "
-                  "of TLDs list. ({})".format(self._tld_list_path))
+            self._logger.warning(
+                "Could not update file, using old version "
+                "of TLDs list. ({})".format(self._tld_list_path))
 
         self._tlds = None
         self._tlds_re = None
@@ -112,8 +115,8 @@ class URLExtract:
         """
         # check if cached file is readable
         if not os.access(self._tld_list_path, os.R_OK):
-            print("ERROR: Cached file is not readable "
-                  "for current user. ({})".format(self._tld_list_path))
+            self._logger.error("Cached file is not readable for current "
+                               "user. ({})".format(self._tld_list_path))
         else:
             self._tlds = sorted(self._load_cached_tlds(),
                                 key=len, reverse=True)
@@ -133,8 +136,8 @@ class URLExtract:
         # check if we can write cache file
         if os.access(self._tld_list_path, os.F_OK) and \
                 not os.access(self._tld_list_path, os.W_OK):
-            print("ERROR: Cache file is not writable "
-                  "for current user. ({})".format(self._tld_list_path))
+            self._logger.error("ERROR: Cache file is not writable for current "
+                               "user. ({})".format(self._tld_list_path))
             return False
 
         req = urllib.request.Request(url_list)
@@ -147,12 +150,12 @@ class URLExtract:
                     page = f.read().decode('utf-8')
                     ftld.write(page)
             except HTTPError as e:
-                print("ERROR: Can not download list ot TLDs. "
-                      "(HTTPError: {})".format(e.reason))
+                self._logger.error("ERROR: Can not download list ot TLDs. "
+                                   "(HTTPError: {})".format(e.reason))
                 return False
             except URLError as e:
-                print("ERROR: Can not download list ot TLDs. "
-                      "(URLError: {})".format(e.reason))
+                self._logger.error("ERROR: Can not download list ot TLDs. "
+                                   "(URLError: {})".format(e.reason))
                 return False
         return True
 
@@ -592,6 +595,10 @@ if __name__ == '__main__':
         return parsed_args
 
     args = get_args()
+    logging.basicConfig(
+        level=logging.INFO, stream=sys.stderr,
+        format='%(asctime)s - %(levelname)s (%(name)s): %(message)s')
+    logger = logging.getLogger('urlextract')
 
     try:
         urlextract = URLExtract()
@@ -599,7 +606,7 @@ if __name__ == '__main__':
         for url in urlextract.find_urls(content, args.unique):
             print(url)
     except CacheFileError as e:
-        print("Error: {}".find(str(e)))
+        logger.error(str(e))
         sys.exit(-1)
     finally:
         args.input_file.close()

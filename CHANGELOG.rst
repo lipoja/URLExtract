@@ -2,9 +2,13 @@ Changelog
 ~~~~~~~~~
 
 - 0.8
+    - urlextract command line tool takes stdin as input when no parameter is set (issue #11).
     - URLExtract class raises exception instead of sys.exit()
-    - Console script moved directly to urlextract.py file.
-    - PEP8
+    - Fixed issue #9; wrong result for several urls
+    - Replaced print with logging module
+    - code changes:
+        - Console script moved directly to urlextract.py file.
+        - PEP8 support
 - 0.7
     - Faster stop char matching
     - Fixing issue #7 by splitting stop characters to left and right. Created new methods:
