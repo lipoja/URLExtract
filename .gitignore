@@ -61,3 +61,4 @@ target/
 .pypirc
 .tlds
 .idea
+.urlextract_tlds

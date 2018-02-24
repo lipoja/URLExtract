@@ -1,7 +1,7 @@
 Changelog
 ~~~~~~~~~
 
-- 0.8
+- 0.8.3
     - urlextract command line tool takes stdin as input when no parameter is set (issue #11).
     - URLExtract class raises exception instead of sys.exit()
     - Fixed issue #9; wrong result for several urls

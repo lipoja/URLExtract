@@ -29,7 +29,7 @@ setup(
     py_modules=['urlextract', 'version'],
     entry_points={
               'console_scripts': [
-                  'urlextract = urlextract.__main__'
+                  'urlextract = urlextract:_urlextract_cli'
               ]
     },
     keywords=['url', 'extract', 'find', 'finder', 'collect', 'link', 'tld', 'list'],

@@ -561,7 +561,7 @@ class URLExtract:
         return any(self.gen_urls(text))
 
 
-if __name__ == '__main__':
+def _urlextract_cli():
     """
     urlextract - command line program that will print all URLs to stdout
     Usage: urlextract [input_file] [-u] [-v]
@@ -611,3 +611,7 @@ if __name__ == '__main__':
         sys.exit(-1)
     finally:
         args.input_file.close()
+
+
+if __name__ == '__main__':
+    _urlextract_cli()
