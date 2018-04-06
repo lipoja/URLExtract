@@ -95,13 +95,15 @@ class URLExtract:
         host_re_txt = "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$"
         self._hostname_re = re.compile(host_re_txt)
 
+        # general stop characters
+        general_stop_chars = {'\"', '\'', '<', '>', ';'}
         # defining default stop chars left
         self._stop_chars_left = set(string.whitespace)
-        self._stop_chars_left |= {'\"', '\'', '<', '>', ';'} | {'|', '@', '='}
+        self._stop_chars_left |= general_stop_chars | {'|', '@', '=', '[', ']'}
 
         # defining default stop chars left
         self._stop_chars_right = set(string.whitespace)
-        self._stop_chars_right |= {'\"', '\'', '<', '>', ';'}
+        self._stop_chars_right |= general_stop_chars
 
         # preprocessed union _stop_chars is used in _validate_tld_match
         self._stop_chars = self._stop_chars_left | self._stop_chars_right
