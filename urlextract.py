@@ -512,28 +512,6 @@ class URLExtract:
         """
         Find all URLs in given text.
 
-        >>> extractor = URLExtract()
-        >>> extractor.find_urls("Let's have URL http://janlipovsky.cz")
-        ['http://janlipovsky.cz']
-
-        >>> extractor.find_urls("Let's have text without URLs.")
-        []
-
-        >>> extractor.find_urls("http://unique.com http://unique.com", True)
-        ['http://unique.com']
-
-        >>> extractor.find_urls("Dot after TLD: http://janlipovsky.cz.")
-        ['http://janlipovsky.cz']
-
-        >>> extractor.find_urls("URL https://example.com/@eon01/asdsd-dummy")
-        ['https://example.com/@eon01/asdsd-dummy']
-
-        >>> extractor.find_urls("Get unique URL from: in.v_alid.cz", True)
-        []
-
-        >>> extractor.find_urls("ukrainian news pravda.com.ua")
-        ['pravda.com.ua']
-
         :param str text: text where we want to find URLs
         :param bool only_unique: return only unique URLs
         :return: list of URLs found in text
