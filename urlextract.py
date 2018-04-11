@@ -99,7 +99,7 @@ class URLExtract:
         general_stop_chars = {'\"', '\'', '<', '>', ';'}
         # defining default stop chars left
         self._stop_chars_left = set(string.whitespace)
-        self._stop_chars_left |= general_stop_chars | {'|', '@', '=', '[', ']'}
+        self._stop_chars_left |= general_stop_chars | {'|', '=', '[', ']'}
 
         # defining default stop chars left
         self._stop_chars_right = set(string.whitespace)

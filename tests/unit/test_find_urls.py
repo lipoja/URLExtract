@@ -32,6 +32,10 @@ def urlextract():
     ("ukrainian news pravda.com.ua",
      ['pravda.com.ua']),
 
+    ("URI with User info in Authority ftp://jan@example.com:123/test",
+     ['ftp://jan@example.com:123/test']),
+
+
 ])
 def test_find_urls(urlextract, text, expected):
     """
