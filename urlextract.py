@@ -56,6 +56,21 @@ class URLExtract:
     # file name of cached list of TLDs downloaded from IANA
     _CACHE_FILE_NAME = '.urlextract_tlds'
 
+    # compiled regexp for naive validation of host name
+    _hostname_re = re.compile(
+        "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$")
+
+    # list of enclosure of URL that should be removed
+    _enclosure = {
+        ("(", ")"),
+        ("{", "}"),
+        ("[", "]"),
+        ("\"", "\""),
+        ("\\", "\\"),
+        ("'", "'"),
+        ("`", "`"),
+    }
+
     def __init__(self):
         """
         Initialize function for URLExtract class.
@@ -95,7 +110,7 @@ class URLExtract:
         general_stop_chars = {'\"', '\'', '<', '>', ';'}
         # defining default stop chars left
         self._stop_chars_left = set(string.whitespace)
-        self._stop_chars_left |= general_stop_chars | {'|', '=', '[', ']'}
+        self._stop_chars_left |= general_stop_chars | {'|', '=', ']'}
 
         # defining default stop chars left
         self._stop_chars_right = set(string.whitespace)
@@ -346,6 +361,45 @@ class URLExtract:
         self._stop_chars_right = stop_chars
         self._stop_chars = self._stop_chars_left | self._stop_chars_right
 
+    def get_enclosures(self):
+        """
+        Returns set of enclosure pairs that might be used to enclosure URL.
+        For example brackets (example.com), [example.com], {example.com}
+
+        :return: set of tuple of enclosure characters
+        :rtype: set(tuple(str,str))
+        """
+        return self._enclosure
+
+    def add_enclosure(self, left_char, right_char):
+        """
+        Add new enclosure pair of characters. That and should be removed
+        when their presence is detected at beginning and end of found URL
+
+        :param str left_char: left character of enclosure pair - e.g. "("
+        :param str right_char: right character of enclosure pair - e.g. ")"
+        """
+        assert len(left_char) == 1, \
+            "Parameter left_char must be character not string"
+        assert len(right_char) == 1, \
+            "Parameter right_char must be character not string"
+        self._enclosure.add((left_char, right_char))
+
+    def remove_enclosure(self, left_char, right_char):
+        """
+        Remove enclosure pair from set of enclosures.
+
+        :param str left_char: left character of enclosure pair - e.g. "("
+        :param str right_char: right character of enclosure pair - e.g. ")"
+        """
+        assert len(left_char) == 1, \
+            "Parameter left_char must be character not string"
+        assert len(right_char) == 1, \
+            "Parameter right_char must be character not string"
+        rm_enclosure = (left_char, right_char)
+        if rm_enclosure in self._enclosure:
+            self._enclosure.remove(rm_enclosure)
+
     def _complete_url(self, text, tld_pos, tld):
         """
         Expand string in both sides to match whole URL.
@@ -389,6 +443,7 @@ class URLExtract:
         if complete_url[len(complete_url)-len(tld)-1:] in temp_tlds:
             complete_url = complete_url[:-1]
 
+        complete_url = self._remove_enclosure_from_url(complete_url)
         if not self._is_domain_valid(complete_url, tld):
             return ""
 
@@ -479,6 +534,20 @@ class URLExtract:
             return False
 
         return True
+
+    def _remove_enclosure_from_url(self, text_url):
+        """
+        Removes enclosure from URL given in text_url
+
+        :param str text_url: URL that we want to extract from enclosure
+        :return: URL that has removed enclosure
+        :rtype: str
+        """
+
+        for left, right in self._enclosure:
+            if left == text_url[0] and right == text_url[-1]:
+                return text_url[1:-1]
+        return text_url
 
     def gen_urls(self, text):
         """
