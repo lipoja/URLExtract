@@ -91,9 +91,6 @@ class URLExtract:
         self._tlds_re = None
         self._reload_tlds_from_file()
 
-        host_re_txt = "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$"
-        self._hostname_re = re.compile(host_re_txt)
-
         # general stop characters
         general_stop_chars = {'\"', '\'', '<', '>', ';'}
         # defining default stop chars left
@@ -109,7 +106,8 @@ class URLExtract:
 
         # characters that are allowed to be right after TLD
         self._after_tld_chars = set(string.whitespace)
-        self._after_tld_chars |= {'/', '\"', '\'', '<', '?', ':', '.', ','}
+        self._after_tld_chars |= {'/', '\"', '\'', '<', '>', '?', ':', '.',
+                                  ','}
 
     def _reload_tlds_from_file(self):
         """
