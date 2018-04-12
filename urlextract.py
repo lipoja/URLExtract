@@ -88,7 +88,6 @@ class URLExtract:
                 "Could not update file, using old version "
                 "of TLDs list. ({})".format(self._tld_list_path))
 
-        self._tlds = None
         self._tlds_re = None
         self._reload_tlds_from_file()
 
@@ -121,9 +120,8 @@ class URLExtract:
             self._logger.error("Cached file is not readable for current "
                                "user. ({})".format(self._tld_list_path))
         else:
-            self._tlds = sorted(self._load_cached_tlds(),
-                                key=len, reverse=True)
-            re_escaped = [re.escape(str(tld)) for tld in self._tlds]
+            tlds = sorted(self._load_cached_tlds(), key=len, reverse=True)
+            re_escaped = [re.escape(str(tld)) for tld in tlds]
             self._tlds_re = re.compile('|'.join(re_escaped))
 
     def _download_tlds_list(self):
@@ -170,21 +168,21 @@ class URLExtract:
         :rtype: set
         """
 
-        list_of_tlds = set()
-        with open(self._tld_list_path, 'r') as f:
-            for line in f:
+        set_of_tlds = set()
+        with open(self._tld_list_path, 'r') as f_cache_tld:
+            for line in f_cache_tld:
                 tld = line.strip().lower()
                 # skip empty lines
-                if len(tld) <= 0:
+                if not tld:
                     continue
                 # skip comments
                 if tld[0] == '#':
                     continue
 
-                list_of_tlds.add("." + tld)
-                list_of_tlds.add("." + idna.decode(tld))
+                set_of_tlds.add("." + tld)
+                set_of_tlds.add("." + idna.decode(tld))
 
-        return list_of_tlds
+        return set_of_tlds
 
     def _get_last_cachefile_modification(self):
         """
@@ -459,14 +457,13 @@ class URLExtract:
             return False
 
         scheme_pos = url.find('://')
-        if scheme_pos != -1:
-            url = url[scheme_pos+3:]
-
-        url = 'http://'+url
+        if scheme_pos == -1:
+            url = 'http://' + url
 
         url_parts = uritools.urisplit(url)
         # <scheme>://<authority>/<path>?<query>#<fragment>
-        host = url_parts.host
+
+        host = url_parts.gethost()
         if not host:
             return False
 
