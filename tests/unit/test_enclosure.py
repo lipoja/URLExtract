@@ -16,6 +16,8 @@ def urlextract():
 
 @pytest.mark.parametrize("text, expected", [
 
+    ("a(sa\"enclosure.net/bracketext\"as)asd",
+     ['enclosure.net/bracketext']),
     ("<email@address.net>",
      ['email@address.net']),
     ("`https://coala.io/200`",
@@ -32,6 +34,8 @@ def urlextract():
      ['enclosure.net/slash']),
     ("'enclosure.net/qoute'",
      ['enclosure.net/qoute']),
+    ("asd(enclosure.net/bracketext)asd",
+     ['enclosure.net/bracketext']),
 
 ])
 def test_find_urls(urlextract, text, expected):
@@ -76,6 +80,3 @@ def test_remove_enclosure(urlextract):
 
     with pytest.raises(AssertionError):
         urlextract.remove_enclosure("", "")
-
-
-

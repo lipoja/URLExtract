@@ -443,7 +443,8 @@ class URLExtract:
         if complete_url[len(complete_url)-len(tld)-1:] in temp_tlds:
             complete_url = complete_url[:-1]
 
-        complete_url = self._remove_enclosure_from_url(complete_url)
+        complete_url = self._remove_enclosure_from_url(
+            complete_url, tld_pos-start_pos)
         if not self._is_domain_valid(complete_url, tld):
             return ""
 
@@ -535,18 +536,29 @@ class URLExtract:
 
         return True
 
-    def _remove_enclosure_from_url(self, text_url):
+    def _remove_enclosure_from_url(self, text_url, tld_pos):
         """
         Removes enclosure from URL given in text_url
 
-        :param str text_url: URL that we want to extract from enclosure
+        :param str text_url: text with URL that we want to extract from
+        enclosure of two characters
         :return: URL that has removed enclosure
         :rtype: str
         """
 
         for left, right in self._enclosure:
-            if left == text_url[0] and right == text_url[-1]:
-                return text_url[1:-1]
+            left_pos = text_url.find(left)
+            # subtract 3 because URL is never shorter than 3 characters
+            if left_pos > tld_pos - 3:
+                continue
+            'enclosure.net/bracketext'
+            right_pos = text_url.find(right, left_pos+1)
+            if right_pos < tld_pos:
+                continue
+
+            new_url = text_url[left_pos + 1:right_pos]
+            return self._remove_enclosure_from_url(new_url, tld_pos - left_pos)
+
         return text_url
 
     def gen_urls(self, text):
