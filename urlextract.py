@@ -443,6 +443,7 @@ class URLExtract:
         if complete_url[len(complete_url)-len(tld)-1:] in temp_tlds:
             complete_url = complete_url[:-1]
 
+        complete_url = self._split_markdown(complete_url, tld_pos-start_pos)
         complete_url = self._remove_enclosure_from_url(
             complete_url, tld_pos-start_pos)
         if not self._is_domain_valid(complete_url, tld):
@@ -549,16 +550,45 @@ class URLExtract:
         for left, right in self._enclosure:
             left_pos = text_url.find(left)
             # subtract 3 because URL is never shorter than 3 characters
-            if left_pos > tld_pos - 3:
+            if left_pos < 0 or left_pos > tld_pos - 3:
                 continue
             'enclosure.net/bracketext'
             right_pos = text_url.find(right, left_pos+1)
-            if right_pos < tld_pos:
+            if right_pos < 0 or right_pos < tld_pos:
                 continue
 
             new_url = text_url[left_pos + 1:right_pos]
             return self._remove_enclosure_from_url(new_url, tld_pos - left_pos)
 
+        return text_url
+
+    @staticmethod
+    def _split_markdown(text_url, tld_pos):
+        """
+        Split markdown URL. There is an issue wen Markdown URL is found.
+        Parsing of the URL does not stop on right place so wrongly found URL
+        has to be split.
+
+        :param str text_url: URL that we want to extract from enclosure
+        :param int tld_pos: position of TLD
+        :return: URL that has removed enclosure
+        :rtype: str
+        """
+        # Markdown url can looks like:
+        # [http://example.com/](http://example.com/status/210)
+
+        left_bracket_pos = text_url.find('[')
+        # subtract 3 because URL is never shorter than 3 characters
+        if left_bracket_pos > tld_pos-3:
+            return text_url
+
+        right_bracket_pos = text_url.find(')')
+        if right_bracket_pos < tld_pos:
+            return text_url
+
+        middle_pos = text_url.rfind("](")
+        if middle_pos > tld_pos:
+            return text_url[left_bracket_pos+1:middle_pos]
         return text_url
 
     def gen_urls(self, text):

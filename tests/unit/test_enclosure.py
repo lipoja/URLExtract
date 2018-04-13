@@ -70,8 +70,8 @@ def test_add_enclosure(urlextract):
 
 def test_remove_enclosure(urlextract):
     old_enclosure = urlextract.get_enclosures().copy()
-    old_enclosure.remove(("(", ")"))
-    urlextract.remove_enclosure("(", ")")
+    old_enclosure.remove(("%", "%"))
+    urlextract.remove_enclosure("%", "%")
 
     assert old_enclosure == urlextract.get_enclosures()
 
