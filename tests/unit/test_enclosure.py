@@ -36,6 +36,10 @@ def urlextract():
      ['enclosure.net/qoute']),
     ("asd(enclosure.net/bracketext)asd",
      ['enclosure.net/bracketext']),
+    ("Foo (http://de.wikipedia.org/wiki/Agilit%C3%A4t_(Management)) Bar",
+     ["http://de.wikipedia.org/wiki/Agilit%C3%A4t_(Management)"]),
+    ("asd(http://de.wikipedia.org/wiki/(Agilit%C3(%A4t_(Manag)ement))) Bar",
+     ["http://de.wikipedia.org/wiki/(Agilit%C3(%A4t_(Manag)ement))"])
 
 ])
 def test_find_urls(urlextract, text, expected):
