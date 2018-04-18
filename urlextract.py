@@ -110,7 +110,7 @@ class URLExtract:
         general_stop_chars = {'\"', '\'', '<', '>', ';'}
         # defining default stop chars left
         self._stop_chars_left = set(string.whitespace)
-        self._stop_chars_left |= general_stop_chars | {'|', '=', ']'}
+        self._stop_chars_left |= general_stop_chars | {'|', '=', ']', ')', '}'}
 
         # defining default stop chars left
         self._stop_chars_right = set(string.whitespace)
@@ -550,21 +550,15 @@ class URLExtract:
 
         for left_char, right_char in self._enclosure:
             left_pos = text_url.find(left_char)
-            # subtract 3 because URL is never shorter than 3 characters
-            if left_pos < 0 or left_pos > tld_pos - 3:
+            if left_pos < 0 or left_pos > tld_pos:
                 continue
 
             right_pos = text_url.rfind(right_char)
-            if right_pos < 0 or right_pos < tld_pos:
+            if right_pos < 0:
+                right_pos = len(text_url)
+
+            if right_pos < tld_pos:
                 continue
-
-            l_count = text_url.count(left_char)
-            r_count = text_url.count(right_char)
-
-            if l_count != r_count:
-                self._logger.debug(
-                    "Count of left and right enclosure character does not "
-                    "match [%s, %s] in URL:  %s", l_count, r_count, text_url)
 
             new_url = text_url[left_pos + 1:right_pos]
             return self._remove_enclosure_from_url(new_url, tld_pos - left_pos)

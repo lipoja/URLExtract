@@ -39,7 +39,20 @@ def urlextract():
     ("Foo (http://de.wikipedia.org/wiki/Agilit%C3%A4t_(Management)) Bar",
      ["http://de.wikipedia.org/wiki/Agilit%C3%A4t_(Management)"]),
     ("asd(http://de.wikipedia.org/wiki/(Agilit%C3(%A4t_(Manag)ement))) Bar",
-     ["http://de.wikipedia.org/wiki/(Agilit%C3(%A4t_(Manag)ement))"])
+     ["http://de.wikipedia.org/wiki/(Agilit%C3(%A4t_(Manag)ement))"]),
+    ("asd(enclosure.net/rbracketless",
+     ['enclosure.net/rbracketless']),
+    ("asd)enclosure.net/lbracketless",
+     ['enclosure.net/lbracketless']),
+    ("asd{enclosure.net",
+     ['enclosure.net']),
+    ("asd}enclosure.net",
+     ['enclosure.net']),
+    ("asd[enclosure.net",
+     ['enclosure.net']),
+    ("asd]enclosure.net",
+     ['enclosure.net']),
+
 
 ])
 def test_find_urls(urlextract, text, expected):
