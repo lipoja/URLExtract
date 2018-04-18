@@ -111,7 +111,7 @@ Example HTML code:
     }
   </style>
 
-If this HTML snippet is on the input of ``urlextract.find_urls()`` it will return ``a.bold.name`` as an URL.
+If this HTML snippet is on the input of ``urlextract.find_urls()`` it will return ``p.bold.name`` as an URL.
 Behavior of urlextract is correct, because ``.name`` is valid TLD and urlextract just see that there is ``bold.name``
 valid domain name and ``p`` is valid sub-domain.
 

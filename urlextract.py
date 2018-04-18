@@ -56,6 +56,21 @@ class URLExtract:
     # file name of cached list of TLDs downloaded from IANA
     _CACHE_FILE_NAME = '.urlextract_tlds'
 
+    # compiled regexp for naive validation of host name
+    _hostname_re = re.compile(
+        "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$")
+
+    # list of enclosure of URL that should be removed
+    _enclosure = {
+        ("(", ")"),
+        ("{", "}"),
+        ("[", "]"),
+        ("\"", "\""),
+        ("\\", "\\"),
+        ("'", "'"),
+        ("`", "`"),
+    }
+
     def __init__(self):
         """
         Initialize function for URLExtract class.
@@ -88,18 +103,14 @@ class URLExtract:
                 "Could not update file, using old version "
                 "of TLDs list. ({})".format(self._tld_list_path))
 
-        self._tlds = None
         self._tlds_re = None
         self._reload_tlds_from_file()
-
-        host_re_txt = "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$"
-        self._hostname_re = re.compile(host_re_txt)
 
         # general stop characters
         general_stop_chars = {'\"', '\'', '<', '>', ';'}
         # defining default stop chars left
         self._stop_chars_left = set(string.whitespace)
-        self._stop_chars_left |= general_stop_chars | {'|', '@', '=', '[', ']'}
+        self._stop_chars_left |= general_stop_chars | {'|', '=', ']', ')', '}'}
 
         # defining default stop chars left
         self._stop_chars_right = set(string.whitespace)
@@ -110,7 +121,8 @@ class URLExtract:
 
         # characters that are allowed to be right after TLD
         self._after_tld_chars = set(string.whitespace)
-        self._after_tld_chars |= {'/', '\"', '\'', '<', '?', ':', '.', ','}
+        self._after_tld_chars |= {'/', '\"', '\'', '<', '>', '?', ':', '.',
+                                  ','}
 
     def _reload_tlds_from_file(self):
         """
@@ -121,9 +133,8 @@ class URLExtract:
             self._logger.error("Cached file is not readable for current "
                                "user. ({})".format(self._tld_list_path))
         else:
-            self._tlds = sorted(self._load_cached_tlds(),
-                                key=len, reverse=True)
-            re_escaped = [re.escape(str(tld)) for tld in self._tlds]
+            tlds = sorted(self._load_cached_tlds(), key=len, reverse=True)
+            re_escaped = [re.escape(str(tld)) for tld in tlds]
             self._tlds_re = re.compile('|'.join(re_escaped))
 
     def _download_tlds_list(self):
@@ -170,21 +181,21 @@ class URLExtract:
         :rtype: set
         """
 
-        list_of_tlds = set()
-        with open(self._tld_list_path, 'r') as f:
-            for line in f:
+        set_of_tlds = set()
+        with open(self._tld_list_path, 'r') as f_cache_tld:
+            for line in f_cache_tld:
                 tld = line.strip().lower()
                 # skip empty lines
-                if len(tld) <= 0:
+                if not tld:
                     continue
                 # skip comments
                 if tld[0] == '#':
                     continue
 
-                list_of_tlds.add("." + tld)
-                list_of_tlds.add("." + idna.decode(tld))
+                set_of_tlds.add("." + tld)
+                set_of_tlds.add("." + idna.decode(tld))
 
-        return list_of_tlds
+        return set_of_tlds
 
     def _get_last_cachefile_modification(self):
         """
@@ -350,6 +361,45 @@ class URLExtract:
         self._stop_chars_right = stop_chars
         self._stop_chars = self._stop_chars_left | self._stop_chars_right
 
+    def get_enclosures(self):
+        """
+        Returns set of enclosure pairs that might be used to enclosure URL.
+        For example brackets (example.com), [example.com], {example.com}
+
+        :return: set of tuple of enclosure characters
+        :rtype: set(tuple(str,str))
+        """
+        return self._enclosure
+
+    def add_enclosure(self, left_char, right_char):
+        """
+        Add new enclosure pair of characters. That and should be removed
+        when their presence is detected at beginning and end of found URL
+
+        :param str left_char: left character of enclosure pair - e.g. "("
+        :param str right_char: right character of enclosure pair - e.g. ")"
+        """
+        assert len(left_char) == 1, \
+            "Parameter left_char must be character not string"
+        assert len(right_char) == 1, \
+            "Parameter right_char must be character not string"
+        self._enclosure.add((left_char, right_char))
+
+    def remove_enclosure(self, left_char, right_char):
+        """
+        Remove enclosure pair from set of enclosures.
+
+        :param str left_char: left character of enclosure pair - e.g. "("
+        :param str right_char: right character of enclosure pair - e.g. ")"
+        """
+        assert len(left_char) == 1, \
+            "Parameter left_char must be character not string"
+        assert len(right_char) == 1, \
+            "Parameter right_char must be character not string"
+        rm_enclosure = (left_char, right_char)
+        if rm_enclosure in self._enclosure:
+            self._enclosure.remove(rm_enclosure)
+
     def _complete_url(self, text, tld_pos, tld):
         """
         Expand string in both sides to match whole URL.
@@ -393,6 +443,9 @@ class URLExtract:
         if complete_url[len(complete_url)-len(tld)-1:] in temp_tlds:
             complete_url = complete_url[:-1]
 
+        complete_url = self._split_markdown(complete_url, tld_pos-start_pos)
+        complete_url = self._remove_enclosure_from_url(
+            complete_url, tld_pos-start_pos)
         if not self._is_domain_valid(complete_url, tld):
             return ""
 
@@ -459,14 +512,13 @@ class URLExtract:
             return False
 
         scheme_pos = url.find('://')
-        if scheme_pos != -1:
-            url = url[scheme_pos+3:]
-
-        url = 'http://'+url
+        if scheme_pos == -1:
+            url = 'http://' + url
 
         url_parts = uritools.urisplit(url)
         # <scheme>://<authority>/<path>?<query>#<fragment>
-        host = url_parts.host
+
+        host = url_parts.gethost()
         if not host:
             return False
 
@@ -484,6 +536,63 @@ class URLExtract:
             return False
 
         return True
+
+    def _remove_enclosure_from_url(self, text_url, tld_pos):
+        """
+        Removes enclosure characters from URL given in text_url.
+        For example: (example.com) -> example.com
+
+        :param str text_url: text with URL that we want to extract from
+        enclosure of two characters
+        :return: URL that has removed enclosure
+        :rtype: str
+        """
+
+        for left_char, right_char in self._enclosure:
+            left_pos = text_url.find(left_char)
+            if left_pos < 0 or left_pos > tld_pos:
+                continue
+
+            right_pos = text_url.rfind(right_char)
+            if right_pos < 0:
+                right_pos = len(text_url)
+
+            if right_pos < tld_pos:
+                continue
+
+            new_url = text_url[left_pos + 1:right_pos]
+            return self._remove_enclosure_from_url(new_url, tld_pos - left_pos)
+
+        return text_url
+
+    @staticmethod
+    def _split_markdown(text_url, tld_pos):
+        """
+        Split markdown URL. There is an issue wen Markdown URL is found.
+        Parsing of the URL does not stop on right place so wrongly found URL
+        has to be split.
+
+        :param str text_url: URL that we want to extract from enclosure
+        :param int tld_pos: position of TLD
+        :return: URL that has removed enclosure
+        :rtype: str
+        """
+        # Markdown url can looks like:
+        # [http://example.com/](http://example.com/status/210)
+
+        left_bracket_pos = text_url.find('[')
+        # subtract 3 because URL is never shorter than 3 characters
+        if left_bracket_pos > tld_pos-3:
+            return text_url
+
+        right_bracket_pos = text_url.find(')')
+        if right_bracket_pos < tld_pos:
+            return text_url
+
+        middle_pos = text_url.rfind("](")
+        if middle_pos > tld_pos:
+            return text_url[left_bracket_pos+1:middle_pos]
+        return text_url
 
     def gen_urls(self, text):
         """
@@ -511,28 +620,6 @@ class URLExtract:
     def find_urls(self, text, only_unique=False):
         """
         Find all URLs in given text.
-
-        >>> extractor = URLExtract()
-        >>> extractor.find_urls("Let's have URL http://janlipovsky.cz")
-        ['http://janlipovsky.cz']
-
-        >>> extractor.find_urls("Let's have text without URLs.")
-        []
-
-        >>> extractor.find_urls("http://unique.com http://unique.com", True)
-        ['http://unique.com']
-
-        >>> extractor.find_urls("Dot after TLD: http://janlipovsky.cz.")
-        ['http://janlipovsky.cz']
-
-        >>> extractor.find_urls("URL https://example.com/@eon01/asdsd-dummy")
-        ['https://example.com/@eon01/asdsd-dummy']
-
-        >>> extractor.find_urls("Get unique URL from: in.v_alid.cz", True)
-        []
-
-        >>> extractor.find_urls("ukrainian news pravda.com.ua")
-        ['pravda.com.ua']
 
         :param str text: text where we want to find URLs
         :param bool only_unique: return only unique URLs

@@ -1,2 +1,3 @@
 idna
 uritools
+pytest
