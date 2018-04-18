@@ -1,6 +1,17 @@
 Changelog
 ~~~~~~~~~
 
+- WORK IN PROGRESS
+    - urlextract will now return URLs with Authority (e.g. emails)
+    - added extracting URL surrounded by enclosure characters; (example.com) -> example.com (issue #14)
+    - added methods for setting enclosure pairs
+        - ``get_enclosures()``
+        - ``add_enclosure()``
+        - ``remove_enclosure()``
+    - fixing extraction of URLs from markdown (issue #15)
+    - code changes:
+        - using pytest for unit testing
+        - removed python3.3 from automatic testing (unsupported by pytest)
 - 0.8.3
     - urlextract command line tool takes stdin as input when no parameter is set (issue #11).
     - URLExtract class raises exception instead of sys.exit()
