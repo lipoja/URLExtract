@@ -10,5 +10,4 @@ install:
 - pip install -e .
 # commands to run tests
 script:
-- python3 -m doctest urlextract.py
-- pytest
+- pytest --doctest-modules --ignore setup.py
