@@ -593,7 +593,7 @@ class URLExtract:
         # the end URL it self therefore we remove the rest
         after_tld_pos = tld_pos + len(tld)
         if after_tld_pos < len(text_url):
-            _, right_enclosures = zip(*self._enclosure)
+            right_enclosures = {right_e for _, right_e in self._enclosure}
             if text_url[after_tld_pos] in right_enclosures:
                 new_url = text_url[:after_tld_pos]
                 return self._remove_enclosure_from_url(
