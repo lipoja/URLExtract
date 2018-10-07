@@ -71,7 +71,7 @@ class URLExtract:
         ("`", "`"),
     }
 
-    def __init__(self, cache_dir=os.path.dirname(__file__)):
+    def __init__(self, cache_dir=None):
         """
         Initialize function for URLExtract class.
         Tries to get cached .tlds, if cached file does not exist it will try
@@ -81,6 +81,11 @@ class URLExtract:
         :raises: CacheFileError when cached file is not readable for user
         """
         self._logger = logging.getLogger(__name__)
+
+        # default to the current directory for cache
+        if cache_dir is None:
+            cache_dir = os.path.dirname(__file__)
+
         # get directory for cached file
         dir_path = cache_dir
         if not os.access(dir_path, os.W_OK):
