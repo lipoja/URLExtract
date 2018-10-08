@@ -71,17 +71,23 @@ class URLExtract:
         ("`", "`"),
     }
 
-    def __init__(self):
+    def __init__(self, cache_dir=None):
         """
         Initialize function for URLExtract class.
         Tries to get cached .tlds, if cached file does not exist it will try
         to download new list from IANNA and save it to users home directory.
 
+        :param str cache_dir: base path for tld cache, defaults to os.path.dirname(__file__)
         :raises: CacheFileError when cached file is not readable for user
         """
         self._logger = logging.getLogger(__name__)
+
+        # default to the current directory for cache
+        if cache_dir is None:
+            cache_dir = os.path.dirname(__file__)
+
         # get directory for cached file
-        dir_path = os.path.dirname(__file__)
+        dir_path = cache_dir
         if not os.access(dir_path, os.W_OK):
             # get path to home dir
             dir_path = os.path.expanduser('~')
