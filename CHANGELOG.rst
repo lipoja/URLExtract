@@ -2,6 +2,7 @@ Changelog
 ~~~~~~~~~
 
 - WORK IN PROGRESS
+    - updated parsing of URL surrounded with parenthesis (issue #23)
     - urlextract will now return URLs with Authority (e.g. emails)
     - added extracting URL surrounded by enclosure characters; (example.com) -> example.com (issue #14)
     - added methods for setting enclosure pairs

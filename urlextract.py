@@ -126,9 +126,21 @@ class URLExtract:
         self._stop_chars = self._stop_chars_left | self._stop_chars_right
 
         # characters that are allowed to be right after TLD
-        self._after_tld_chars = set(string.whitespace)
-        self._after_tld_chars |= {'/', '\"', '\'', '<', '>', '?', ':', '.',
-                                  ','}
+        self._after_tld_chars = self._get_after_tld_chars()
+
+    def _get_after_tld_chars(self):
+        """
+        Initialize after tld characters
+        """
+        after_tld_chars = set(string.whitespace)
+        after_tld_chars |= {'/', '\"', '\'', '<', '>', '?', ':', '.', ','}
+        # get left enclosure characters
+        _, right_enclosure = zip(*self._enclosure)
+        # add right enclosure characters to be valid after TLD
+        # for correct parsing of URL e.g. (example.com)
+        after_tld_chars |= set(right_enclosure)
+
+        return after_tld_chars
 
     def _reload_tlds_from_file(self):
         """
@@ -391,6 +403,8 @@ class URLExtract:
             "Parameter right_char must be character not string"
         self._enclosure.add((left_char, right_char))
 
+        self._after_tld_chars = self._get_after_tld_chars()
+
     def remove_enclosure(self, left_char, right_char):
         """
         Remove enclosure pair from set of enclosures.
@@ -405,6 +419,8 @@ class URLExtract:
         rm_enclosure = (left_char, right_char)
         if rm_enclosure in self._enclosure:
             self._enclosure.remove(rm_enclosure)
+
+        self._after_tld_chars = self._get_after_tld_chars()
 
     def _complete_url(self, text, tld_pos, tld):
         """
@@ -451,7 +467,7 @@ class URLExtract:
 
         complete_url = self._split_markdown(complete_url, tld_pos-start_pos)
         complete_url = self._remove_enclosure_from_url(
-            complete_url, tld_pos-start_pos)
+            complete_url, tld_pos-start_pos, tld)
         if not self._is_domain_valid(complete_url, tld):
             return ""
 
@@ -543,13 +559,15 @@ class URLExtract:
 
         return True
 
-    def _remove_enclosure_from_url(self, text_url, tld_pos):
+    def _remove_enclosure_from_url(self, text_url, tld_pos, tld):
         """
         Removes enclosure characters from URL given in text_url.
         For example: (example.com) -> example.com
 
         :param str text_url: text with URL that we want to extract from
         enclosure of two characters
+        :param int tld_pos: position of TLD in text_url
+        :param str tld: matched TLD which should be in text
         :return: URL that has removed enclosure
         :rtype: str
         """
@@ -567,7 +585,19 @@ class URLExtract:
                 continue
 
             new_url = text_url[left_pos + 1:right_pos]
-            return self._remove_enclosure_from_url(new_url, tld_pos - left_pos)
+            return self._remove_enclosure_from_url(
+                new_url, tld_pos - left_pos, tld)
+
+        # Get valid domain when we have input as: example.com)/path
+        # we assume that if there is enclosure character after TLD it is
+        # the end URL it self therefore we remove the rest
+        after_tld_pos = tld_pos + len(tld)
+        if after_tld_pos < len(text_url):
+            right_enclosures = {right_e for _, right_e in self._enclosure}
+            if text_url[after_tld_pos] in right_enclosures:
+                new_url = text_url[:after_tld_pos]
+                return self._remove_enclosure_from_url(
+                    new_url, tld_pos, tld)
 
         return text_url
 
