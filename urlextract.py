@@ -21,6 +21,8 @@ from urllib.error import URLError, HTTPError
 import idna
 import uritools
 
+import tempfile
+
 from version import __VERSION__
 
 
@@ -89,8 +91,13 @@ class URLExtract:
         # get directory for cached file
         dir_path = cache_dir
         if not os.access(dir_path, os.W_OK):
-            # get path to home dir
-            dir_path = os.path.expanduser('~')
+            self._logger.warning(
+                "Cache directory '{}' not available, "
+                "falling back to temp directory.".format(cache_dir)
+            )
+            # get path to temp dir
+            dir_path = tempfile.gettempdir()
+
 
         # full path for cached file with list of TLDs
         self._tld_list_path = os.path.join(dir_path, self._CACHE_FILE_NAME)
