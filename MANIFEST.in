@@ -1,3 +1,4 @@
 include README.rst
 include CHANGELOG.rst
 include LICENSE
+include data/tlds-alpha-by-domain.txt

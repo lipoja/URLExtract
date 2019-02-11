@@ -2,6 +2,13 @@ Changelog
 ~~~~~~~~~
 
 - WORK IN PROGRESS
+    - include list of TLDs to package
+    - added 3 level fallback to cache directory
+        - data directory inside package
+        - users cache directory (using appdirs)
+        - global temp directory
+    - removed auto-updates from initialization of class
+        - use ``update()`` or ``update_when_older()`` after creating object
     - updated parsing of URL surrounded with parenthesis (issue #23)
     - urlextract will now return URLs with Authority (e.g. emails)
     - added extracting URL surrounded by enclosure characters; (example.com) -> example.com (issue #14)
@@ -39,7 +46,8 @@ Changelog
         - ``has_urls()`` - returns True if in text is at least one URL
         - ``gen_urls()`` - returns generator over found URLs
 - 0.3.2.6
-    - Centralized version number (fixed bug when installing via pip on system where uritools are not yet installed)
+    - Centralized version number
+    - fixed bug when installing via pip on system without uritools installed
 - 0.3.2
     - Bug fix of incorrect validation of URL (e.g. 'http://blog/media/reflect.io.jpg') by Rui Silva
 - 0.3.1

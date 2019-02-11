@@ -32,12 +32,14 @@ setup(
                   'urlextract = urlextract:_urlextract_cli'
               ]
     },
+
     keywords=['url', 'extract', 'find', 'finder', 'collect', 'link', 'tld', 'list'],
     url='https://github.com/lipoja/URLExtract',
     project_urls={
         "Documentation": "https://urlextract.readthedocs.io/en/latest/",
         "Source Code": "https://github.com/lipoja/URLExtract",
     },
+    include_package_data=True,
     license='MIT',
     author='Jan Lipovský',
     author_email='janlipovsky@gmail.com',
@@ -59,6 +61,7 @@ setup(
                  ],
     install_requires=[
         'idna',
-        'uritools'
+        'uritools',
+        'appdirs'
     ],
 )
