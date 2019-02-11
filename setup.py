@@ -43,6 +43,7 @@ setup(
     author_email='janlipovsky@gmail.com',
     description='Collects and extracts URLs from given text.',
     long_description=read('README.rst'),
+    long_description_content_type='text/x-rst',
     classifiers=["Development Status :: 4 - Beta",
                  "Intended Audience :: Developers",
                  "License :: OSI Approved :: MIT License",
