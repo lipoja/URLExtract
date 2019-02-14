@@ -14,10 +14,8 @@ from distutils.core import setup
 
 script_dirname = os.path.join(os.path.dirname(__file__))
 
-__VERSION__ = None
-# get __VERSION__ variable from file
-version_file = os.path.join(script_dirname, 'version.py')
-exec(open(version_file, "rb").read().decode("utf-8"))
+# version of URLExtract (do not forget to change it in urlextract.py as well)
+__version__ = '0.8.3'
 
 
 def read(readme):
@@ -25,8 +23,8 @@ def read(readme):
 
 setup(
     name='urlextract',
-    version=__VERSION__,
-    py_modules=['urlextract', 'version'],
+    version=__version__,
+    py_modules=['urlextract'],
     entry_points={
               'console_scripts': [
                   'urlextract = urlextract:_urlextract_cli'

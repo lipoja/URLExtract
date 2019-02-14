@@ -23,7 +23,8 @@ from appdirs import user_cache_dir
 import idna
 import uritools
 
-from version import __VERSION__
+# version of URLExtract (do not forget to change it in setup.py as well)
+__version__ = '0.8.3'
 
 
 class CacheFileError(Exception):
@@ -364,7 +365,7 @@ class URLExtract:
         :rtype: str
         """
 
-        return __VERSION__
+        return __version__
 
     def get_after_tld_chars(self):
         """
