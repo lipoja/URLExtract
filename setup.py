@@ -10,7 +10,7 @@ setup for urlextract
 """
 
 from os.path import join, dirname
-from distutils.core import setup
+from setuptools import setup
 
 script_dirname = join(dirname(__file__))
 
