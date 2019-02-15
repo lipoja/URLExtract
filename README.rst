@@ -49,11 +49,13 @@ Requirements
 
 - IDNA for converting links to IDNA format
 - uritools for domain name validation
+- appdirs for determining users cache directory
 
    ::
 
        pip install idna
        pip install uritools
+       pip install appdirs
 
 Example
 ~~~~~~~
@@ -92,6 +94,24 @@ Or you if you want to just check if there is at least one URL you can do:
 
     if extractor.has_urls(example_text):
         print("Given text contains some URL")
+
+If you want to have up to date list of TLDs you can use ``update()``:
+
+.. code:: python
+
+    from urlextract import URLExtract
+
+    extractor = URLExtract()
+    extractor.update()
+
+or ``update_when_older()`` method:
+
+.. code:: python
+
+    from urlextract import URLExtract
+
+    extractor = URLExtract()
+    extractor.update_when_older(7) # updates when list is older that 7 days
 
 Known issues
 ~~~~~~~~~~~~
