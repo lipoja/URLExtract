@@ -1,7 +1,7 @@
 Changelog
 ~~~~~~~~~
 
-- WORK IN PROGRESS
+- 0.9
     - include list of TLDs to package
     - added 3 level fallback to cache directory
         - data directory inside package

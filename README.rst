@@ -50,7 +50,7 @@ Requirements
 
 - IDNA for converting links to IDNA format
 - uritools for domain name validation
-- appdirs for determining users cache directory
+- appdirs for determining user's cache directory
 
    ::
 
