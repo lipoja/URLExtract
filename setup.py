@@ -10,7 +10,7 @@ setup for urlextract
 """
 
 from os.path import join, dirname
-from setuptools import setup
+from setuptools import setup, find_packages
 
 script_dirname = join(dirname(__file__))
 
@@ -31,6 +31,7 @@ setup(
             'urlextract = urlextract:_urlextract_cli'
         ]
     },
+    packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     include_package_data=True,
     keywords=[
         'url', 'extract', 'find', 'finder',

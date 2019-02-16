@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-urlextract.py - file with definition of URLExtract class and urlextract cli
+urlextract_core.py - file with definition of URLExtract class and urlextract cli
 
 .. Created on 2016-07-29
 .. Licence MIT
@@ -24,7 +24,7 @@ import idna
 import uritools
 
 # version of URLExtract (do not forget to change it in setup.py as well)
-__version__ = '0.8.3'
+__version__ = '0.9'
 
 
 class CacheFileError(Exception):

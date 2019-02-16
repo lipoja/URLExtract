@@ -34,6 +34,7 @@ Package is available on PyPI - you can install it via pip.
     :target: https://pypi.python.org/pypi/urlextract
 .. image:: https://img.shields.io/pypi/status/urlextract.svg
     :target: https://pypi.python.org/pypi/urlextract
+
 ::
 
    pip install urlextract
