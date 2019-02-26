@@ -549,7 +549,7 @@ class URLExtract:
         complete_url = text[start_pos:end_pos + 1].lstrip('/')
         # remove last character from url
         # when it is allowed character right after TLD (e.g. dot, comma)
-        temp_tlds = tld.join(self._after_tld_chars)
+        temp_tlds = {tld + c for c in self._after_tld_chars}
         # get only dot+tld+one_char and compare
         if complete_url[len(complete_url)-len(tld)-1:] in temp_tlds:
             complete_url = complete_url[:-1]
