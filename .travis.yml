@@ -12,4 +12,9 @@ install:
 - pip install -e .
 # commands to run tests
 script:
-- pytest --doctest-modules --ignore setup.py
+- |
+  # we run test script multiple times to make nondeterministic bugs due to ordering of sets and maps more apparent
+  set -e # fail on first error
+  for _ in {1..50}; do
+      pytest --doctest-modules --ignore setup.py
+  done
