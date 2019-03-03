@@ -1,6 +1,9 @@
 Changelog
 ~~~~~~~~~
 
+- WIP
+    - code refactoring (created separate classes for urlextract logic and cache file manipulation)
+    - Fixed non deterministic extraction - issue #33 by Dmitrii Gerasimov
 - 0.9
     - include list of TLDs to package
     - added 3 level fallback to cache directory
