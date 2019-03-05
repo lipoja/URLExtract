@@ -13,6 +13,7 @@ import re
 import string
 import sys
 import warnings
+from collections import OrderedDict
 from datetime import datetime, timedelta
 
 import uritools
@@ -542,7 +543,7 @@ class URLExtract(CacheFile):
         :rtype: list
         """
         urls = self.gen_urls(text)
-        urls = set(urls) if only_unique else urls
+        urls = OrderedDict.fromkeys(urls) if only_unique else urls
         return list(urls)
 
     def has_urls(self, text):

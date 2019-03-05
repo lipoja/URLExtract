@@ -2,6 +2,7 @@ Changelog
 ~~~~~~~~~
 
 - WIP
+    - order of returned URLs is preserved (same as order in the input text) while retuning unique URLs
     - code refactoring (created separate classes for urlextract logic and cache file manipulation)
     - Fixed non deterministic extraction - issue #33 by Dmitrii Gerasimov
 - 0.9
