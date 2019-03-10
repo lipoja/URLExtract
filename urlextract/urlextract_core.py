@@ -48,7 +48,7 @@ class URLExtract(CacheFile):
     """
     # compiled regexp for naive validation of host name
     _hostname_re = re.compile(
-        "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$")
+        r"^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$")
 
     # list of enclosure of URL that should be removed
     _enclosure = {
