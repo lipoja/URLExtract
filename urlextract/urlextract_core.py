@@ -420,7 +420,15 @@ class URLExtract(CacheFile):
         url_parts = uritools.urisplit(url)
         # <scheme>://<authority>/<path>?<query>#<fragment>
 
-        host = url_parts.gethost()
+        try:
+            host = url_parts.gethost()
+        except ValueError:
+            self._logger.info(
+                "Invalid host '%s'. "
+                "If the host is valid report a bug.", url
+            )
+            return False
+
         if not host:
             return False
 
@@ -452,34 +460,35 @@ class URLExtract(CacheFile):
         :rtype: str
         """
 
-        for left_char, right_char in self._enclosure:
-            left_pos = text_url.find(left_char)
-            if left_pos < 0 or left_pos > tld_pos:
-                continue
+        enclosure_map = {
+            left_char: right_char
+            for left_char, right_char in self._enclosure
+        }
+        # get position of most right left_char of enclosure pairs
+        left_pos = max([
+            text_url.rfind(left_char, 0, tld_pos)
+            for left_char in enclosure_map.keys()
+        ])
+        left_char = text_url[left_pos] if left_pos >= 0 else ''
+        right_char = enclosure_map.get(left_char, '')
+        right_pos = text_url.rfind(right_char) if right_char else len(text_url)
+        if right_pos < 0 or right_pos < tld_pos:
+            right_pos = len(text_url)
 
-            right_pos = text_url.rfind(right_char)
-            if right_pos < 0:
-                right_pos = len(text_url)
-
-            if right_pos < tld_pos:
-                continue
-
-            new_url = text_url[left_pos + 1:right_pos]
-            return self._remove_enclosure_from_url(
-                new_url, tld_pos - left_pos, tld)
+        new_url = text_url[left_pos + 1:right_pos]
+        tld_pos -= left_pos + 1
 
         # Get valid domain when we have input as: example.com)/path
         # we assume that if there is enclosure character after TLD it is
         # the end URL it self therefore we remove the rest
         after_tld_pos = tld_pos + len(tld)
-        if after_tld_pos < len(text_url):
-            right_enclosures = {right_e for _, right_e in self._enclosure}
-            if text_url[after_tld_pos] in right_enclosures:
-                new_url = text_url[:after_tld_pos]
+        if after_tld_pos < len(new_url):
+            if new_url[after_tld_pos] in enclosure_map.values():
+                new_url_tmp = new_url[:after_tld_pos]
                 return self._remove_enclosure_from_url(
-                    new_url, tld_pos, tld)
+                    new_url_tmp, tld_pos, tld)
 
-        return text_url
+        return new_url
 
     @staticmethod
     def _split_markdown(text_url, tld_pos):

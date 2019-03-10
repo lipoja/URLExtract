@@ -2,9 +2,10 @@ Changelog
 ~~~~~~~~~
 
 - WIP
+    - fixed bug ValueError with text from a reference (issue #30)
     - order of returned URLs is preserved (same as order in the input text) while retuning unique URLs
     - code refactoring (created separate classes for urlextract logic and cache file manipulation)
-    - Fixed non deterministic extraction - issue #33 by Dmitrii Gerasimov
+    - fixed non deterministic extraction - issue #33 by Dmitrii Gerasimov
 - 0.9
     - include list of TLDs to package
     - added 3 level fallback to cache directory

@@ -30,6 +30,12 @@ def urlextract():
      ['enclosure.net']),
     ("(enclosure.net)",
      ['enclosure.net']),
+    ("(encl)o(sure.net",
+     ['sure.net']),
+    ("enclosure.net/blah)o(blah",
+     ['enclosure.net/blah)o(blah']),
+    ("(enclosure.net/blah)o(blah",
+     ['enclosure.net/blah']),
     ("stackoverflow.com)/my_account",
      ['stackoverflow.com']),
     ("{enclosure.net/curly}",
@@ -60,8 +66,10 @@ def urlextract():
      ['enclosure.net']),
     ("asd]enclosure.net",
      ['enclosure.net']),
-
-
+    ("(enclo(sure.net",
+     ['sure.net']),
+    ('([smh.com.au])]',
+     ['smh.com.au']),
 ])
 def test_find_urls(urlextract, text, expected):
     """
