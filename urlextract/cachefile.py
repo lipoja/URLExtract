@@ -44,7 +44,7 @@ class CacheFile:
         :raises: CacheFileError when cached file is not readable for user
         """
 
-        self._logger = logging.getLogger(__name__)
+        self._logger = logging.getLogger(self._URLEXTRACT_NAME)
 
         # True if user specified path to cache directory
         self._user_defined_cache = bool(cache_dir)
