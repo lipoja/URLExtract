@@ -1,11 +1,12 @@
 Changelog
 ~~~~~~~~~
 
-- WIP
+- 0.10
+    - only longest URL is returned when URLs contains URLs (issue #17)
     - fixed bug ValueError with text from a reference (issue #30)
-    - order of returned URLs is preserved (same as order in the input text) while retuning unique URLs
+    - order of returned URLs is preserved (same as order in the input text) while retuning unique URLs (issues #31)
     - code refactoring (created separate classes for urlextract logic and cache file manipulation)
-    - fixed non deterministic extraction - issue #33 by Dmitrii Gerasimov
+    - fixed non deterministic extraction - (issue #33) by Dmitrii Gerasimov
 - 0.9
     - include list of TLDs to package
     - added 3 level fallback to cache directory
