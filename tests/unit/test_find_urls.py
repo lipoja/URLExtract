@@ -35,7 +35,14 @@ def urlextract():
     ("URI with User info in Authority ftp://jan@example.com:123/test",
      ['ftp://jan@example.com:123/test']),
 
+    ("https://bladomain.com/bla/?cid=74530889&h=bladomain.com",
+     ['https://bladomain.com/bla/?cid=74530889&h=bladomain.com']),
 
+    ("Hey hou we have URL containing https://example.com/what.com another URL",
+     ['https://example.com/what.com']),
+
+    ("https://i2.wp.com/siliconfilter.com/2011/06/example.jpg",
+     ["https://i2.wp.com/siliconfilter.com/2011/06/example.jpg"]),
 ])
 def test_find_urls(urlextract, text, expected):
     """

@@ -363,6 +363,9 @@ class URLExtract(CacheFile):
         :return: True if match is valid, False otherwise
         :rtype: bool
         """
+        if tld_pos > len(text):
+            return False
+
         right_tld_pos = tld_pos + len(matched_tld)
         if len(text) > right_tld_pos:
             if text[right_tld_pos] in self._after_tld_chars:
@@ -540,6 +543,15 @@ class URLExtract(CacheFile):
                 if tmp_url:
                     yield tmp_url
 
+                    # do not search for TLD in already extracted URL
+                    tld_pos_url = tmp_url.find(tld)
+                    # move cursor right after found TLD
+                    tld_pos += len(tld) + offset
+                    # move cursor after end of found URL
+                    tld_pos += len(tmp_url[tld_pos_url+len(tld):])
+                    continue
+
+            # move cursor right after found TLD
             tld_pos += len(tld) + offset
 
     def find_urls(self, text, only_unique=False):
