@@ -21,7 +21,7 @@ import uritools
 from urlextract.cachefile import CacheFileError, CacheFile
 
 # version of URLExtract (do not forget to change it in setup.py as well)
-__version__ = '0.10-pre-alpha'
+__version__ = '0.10'
 
 
 class URLExtract(CacheFile):
