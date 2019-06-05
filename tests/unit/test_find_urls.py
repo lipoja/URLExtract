@@ -43,6 +43,9 @@ def urlextract():
 
     ("https://i2.wp.com/siliconfilter.com/2011/06/example.jpg",
      ["https://i2.wp.com/siliconfilter.com/2011/06/example.jpg"]),
+
+    ("https://www.test.org/paper/apostrophe'in-url",
+     ["https://www.test.org/paper/apostrophe'in-url"]),
 ])
 def test_find_urls(urlextract, text, expected):
     """

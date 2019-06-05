@@ -73,7 +73,7 @@ class URLExtract(CacheFile):
         self._reload_tlds_from_file()
 
         # general stop characters
-        general_stop_chars = {'\"', '\'', '<', '>', ';'}
+        general_stop_chars = {'\"', '<', '>', ';'}
         # defining default stop chars left
         self._stop_chars_left = set(string.whitespace)
         self._stop_chars_left |= general_stop_chars | {'|', '=', ']', ')', '}'}
