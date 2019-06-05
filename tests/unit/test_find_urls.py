@@ -32,6 +32,12 @@ def urlextract():
     ("ukrainian news pravda.com.ua",
      ['pravda.com.ua']),
 
+    ('<a href="https://www.example.com/">example</a>',
+     ['https://www.example.com/']),
+
+    ('<a href="https://www.example.com/path/">example1</a>',
+     ['https://www.example.com/path/']),
+
     ("URI with User info in Authority ftp://jan@example.com:123/test",
      ['ftp://jan@example.com:123/test']),
 

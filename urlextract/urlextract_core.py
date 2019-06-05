@@ -342,8 +342,11 @@ class URLExtract(CacheFile):
         # when it is allowed character right after TLD (e.g. dot, comma)
         temp_tlds = {tld + c for c in self._after_tld_chars}
         # get only dot+tld+one_char and compare
-        if complete_url[len(complete_url)-len(tld)-1:] in temp_tlds:
-            complete_url = complete_url[:-1]
+        extended_tld = complete_url[len(complete_url)-len(tld)-1:]
+        if extended_tld in temp_tlds:
+            # We do not want o change found URL
+            if not extended_tld.endswith('/'):
+                complete_url = complete_url[:-1]
 
         complete_url = self._split_markdown(complete_url, tld_pos-start_pos)
         complete_url = self._remove_enclosure_from_url(
