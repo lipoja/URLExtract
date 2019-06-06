@@ -6,13 +6,6 @@
 """
 import pytest
 
-from urlextract import URLExtract
-
-
-@pytest.fixture(scope="module")
-def urlextract():
-    return URLExtract()
-
 
 @pytest.mark.parametrize("text, expected", [
 

@@ -8,13 +8,6 @@ This file contains pytests for find_url() method of URLExtract
 """
 import pytest
 
-from urlextract import URLExtract
-
-
-@pytest.fixture(scope="module")
-def urlextract():
-    return URLExtract()
-
 
 @pytest.mark.parametrize("text, expected", [
     ("Let's have URL http://janlipovsky.cz",
