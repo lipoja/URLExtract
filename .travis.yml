@@ -1,16 +1,14 @@
 dist: xenial
 language: python
 python:
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  - "3.7"
-  - "nightly"
-# command to install dependencies
+- '3.4'
+- '3.5'
+- '3.6'
+- '3.7'
+- nightly
 install:
 - pip install -r requirements.txt
 - pip install -e .
-# commands to run tests
 script:
 - |
   # we run test script multiple times to make nondeterministic bugs due to ordering of sets and maps more apparent
@@ -18,3 +16,14 @@ script:
   for _ in {1..50}; do
       pytest --doctest-modules --ignore setup.py
   done
+
+deploy:
+  provider: pypi
+  user: lipoja
+  password:
+    secure: SGs8DAUe0w3E5Prm9tW4YRgKT/GxJQuFW3sTK5IwJjtdymoJSxTDuQxn1jYUbcOEnUmc2NPURgPv7H89/UT0alzzgZL7M9/1kIPUrsG8GuxalnUeHieP0exCZyyTtRCTIVs4O6NSCYl2T4AKMiuwI8RAb0hd9xrdgaRbg55C3mgAwNkonMO7SnoyKL1A+dkTVsM5BKn8qXqD4iTW1RIqEBjte1ALGxEnlUIipCDrRbZIq4VmaG0t+phDhXTxCCO31nC5Rlk6R1FGcYBzEnxMw3qUcaseJR1wXPIWVJ5B00X2E+F9Quqg2dkAuY2AJ5IdOsAsDp1z3Fw30eHXOROaAHh8ALL8eaXaKHI2cHOKPc7lHfL1ZSkCdL5OrrBsdiAqm9yrAHdJh8/u2CzZr7fmoaXS0NtkqrngcsYuBTHAaEbqnyfgJ6BjG+unAZ30fW6iU4gsOFFZ3JLA7hwlkvTizKD3UhcBayLxt2ridokJWXWUSUfehe6S+Sun4QP7H2NPEg8Ve9Dnd++ScAif+Y4tuhNGJxKfSMfspEAiPJQ+qBGwIPvTSNC7MFkH787Q35YpM2Teeq4CCJYOhVf/aLIYYsn0laLUGJca/KQ6XpUfO0Cq91aUxiHsKf09GRKyS0BgtLuZXLCW4BomjFQ/hkg1FArmMZW3G+TWfZ8hRLfWmHQ=
+  on:
+    branch: master
+    tags: true
+  skip_existing: true
+  distributions: "sdist bdist_wheel"
