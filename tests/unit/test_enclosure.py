@@ -8,7 +8,12 @@ import pytest
 
 
 @pytest.mark.parametrize("text, expected", [
-
+    (r"{\url{http://www.google.com}}",
+     ["http://www.google.com"]),
+    (r"{\url{http://www.google.com/file.pdf}}",
+     ["http://www.google.com/file.pdf"]),
+    (r"{\url{http://www.google.com/{file.pdf}}",
+     ["http://www.google.com/{file.pdf"]),
     ("a(sa\"enclosure.net/bracketext\"as)asd",
      ['enclosure.net/bracketext']),
     ("<email@address.net>",

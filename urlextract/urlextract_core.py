@@ -477,7 +477,17 @@ class URLExtract(CacheFile):
         ])
         left_char = text_url[left_pos] if left_pos >= 0 else ''
         right_char = enclosure_map.get(left_char, '')
-        right_pos = text_url.rfind(right_char) if right_char else len(text_url)
+        # get count of left and right enclosure characters and
+        left_char_count = text_url[:left_pos+1].count(left_char)
+        right_char_count = text_url[left_pos:].count(right_char)
+        # we want to find only pairs and ignore rest (more occurrences)
+        min_count = min(left_char_count, right_char_count)
+
+        right_pos = len(text_url)+1
+        # find position of Nth occurrence of right enclosure character
+        for i in range(max(min_count, 1)):
+            right_pos = text_url[:right_pos].rfind(right_char)
+
         if right_pos < 0 or right_pos < tld_pos:
             right_pos = len(text_url)
 
