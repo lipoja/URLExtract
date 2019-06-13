@@ -6,7 +6,7 @@ setup for urlextract
 .. Created on 2016-07-29
 .. Licence MIT
 .. codeauthor:: Jan Lipovský <janlipovsky@gmail.com>, janlipovsky.cz
-.. contributors:: Dave Pretty
+.. contributors: https://github.com/lipoja/URLExtract/graphs/contributors
 """
 
 from os.path import join, dirname
@@ -54,11 +54,10 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Text Processing',
         "Topic :: Text Processing :: Markup :: HTML",
         "Topic :: Software Development :: Libraries :: Python Modules",
