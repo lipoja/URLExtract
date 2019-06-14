@@ -17,7 +17,7 @@ import pytest
     ("a(sa\"enclosure.net/bracketext\"as)asd",
      ['enclosure.net/bracketext']),
     ("<email@address.net>",
-     ['email@address.net']),
+     []),
     ("`https://coala.io/200`",
      ['https://coala.io/200']),
     ("(enclosure.net/bracket)",

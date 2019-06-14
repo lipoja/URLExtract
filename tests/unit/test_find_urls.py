@@ -31,9 +31,6 @@ import pytest
     ('<a href="https://www.example.com/path/">example1</a>',
      ['https://www.example.com/path/']),
 
-    ("URI with User info in Authority ftp://jan@example.com:123/test",
-     ['ftp://jan@example.com:123/test']),
-
     ("https://bladomain.com/bla/?cid=74530889&h=bladomain.com",
      ['https://bladomain.com/bla/?cid=74530889&h=bladomain.com']),
 

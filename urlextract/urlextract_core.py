@@ -61,16 +61,20 @@ class URLExtract(CacheFile):
         ("`", "`"),
     }
 
-    def __init__(self, **kwargs):
+    def __init__(self, extract_email=False, **kwargs):
         """
         Initialize function for URLExtract class.
         Tries to get cached TLDs, if cached file does not exist it will try
         to download new list from IANA and save it to cache file.
+
+        :param bool extract_email: True if we want to extract email from text.
+            Disabled by default
         """
         super(URLExtract, self).__init__(**kwargs)
 
         self._tlds_re = None
         self._reload_tlds_from_file()
+        self._extract_email = extract_email
 
         # general stop characters
         general_stop_chars = {'\"', '<', '>', ';'}
@@ -111,6 +115,24 @@ class URLExtract(CacheFile):
         tlds = sorted(self._load_cached_tlds(), key=len, reverse=True)
         re_escaped = [re.escape(str(tld)) for tld in tlds]
         self._tlds_re = re.compile('|'.join(re_escaped))
+
+    @property
+    def extract_email(self):
+        """
+        If set to True email will be extracted from text
+
+        :rtype: bool
+        """
+        return self._extract_email
+
+    @extract_email.setter
+    def extract_email(self, extract):
+        """
+        Set if emails will be extracted from text
+
+        :param bool extract: True if emails should be extracted False otherwise
+        """
+        self._extract_email = extract
 
     def update(self):
         """
@@ -422,9 +444,29 @@ class URLExtract(CacheFile):
         scheme_pos = url.find('://')
         if scheme_pos == -1:
             url = 'http://' + url
+            added_schema = True
+        else:
+            added_schema = False
 
         url_parts = uritools.urisplit(url)
         # <scheme>://<authority>/<path>?<query>#<fragment>
+
+        # if URI contains user info and schema was automatically added
+        # the url is probably an email
+        if url_parts.getuserinfo() and added_schema:
+            # do not collect emails
+            if not self._extract_email:
+                return False
+            else:
+                # if we want to extract email we have to be sure that it
+                # really is email -> given URL does not have other parts
+                if (
+                        url_parts.getport()
+                        or url_parts.getpath()
+                        or url_parts.getquery()
+                        or url_parts.getfragment()
+                ):
+                    return False
 
         try:
             host = url_parts.gethost()
