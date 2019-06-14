@@ -19,6 +19,8 @@ import os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
+from datetime import datetime
+
 sys.path.insert(0, os.path.abspath('..'))
 
 from urlextract import __version__
@@ -56,7 +58,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'urlextract'
-copyright = u'2017, Jan Lipovský'
+this_year = datetime.now().year
+copyright = u'2016 - {}, Jan Lipovský'.format(this_year)
 author = u'Jan Lipovský'
 
 # The version info for the project you're documenting, acts as replacement for
