@@ -16,7 +16,7 @@ script_dirname = join(dirname(__file__))
 
 # version of URLExtract
 # (do not forget to change it in urlextract_core.py as well)
-__version__ = '0.10'
+__version__ = '0.11'
 
 
 def read(readme):

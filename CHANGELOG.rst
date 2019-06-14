@@ -1,6 +1,12 @@
 Changelog
 ~~~~~~~~~
 
+- 0.11
+    - added ability to turn on/off detecting email addresses (issue #37)
+    - improved excluding of trailing enclosure characters (issue #38)
+    - fixing - Incomplete URL extracted (issue #39)
+    - trailing '/' after TLD is kept as part of found URL
+    - set auto deploy in Travis CI
 - 0.10
     - only longest URL is returned when URLs contains URLs (issue #17)
     - fixed bug ValueError with text from a reference (issue #30)
