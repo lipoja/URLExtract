@@ -42,6 +42,9 @@ import pytest
 
     ("https://www.test.org/paper/apostrophe'in-url",
      ["https://www.test.org/paper/apostrophe'in-url"]),
+
+    ("http://aa.com/b.html https://aa.com/bb.html",
+     ["http://aa.com/b.html", "https://aa.com/bb.html"]),
 ])
 def test_find_urls(urlextract, text, expected):
     """

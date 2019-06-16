@@ -588,7 +588,8 @@ class URLExtract(CacheFile):
         tld_pos = 0
         matched_tlds = self._tlds_re.findall(text)
 
-        for tld in matched_tlds:
+        while matched_tlds:
+            tld = matched_tlds.pop(0)
             tmp_text = text[tld_pos:]
             offset = tld_pos
             tld_pos = tmp_text.find(tld)
@@ -603,11 +604,24 @@ class URLExtract(CacheFile):
                     # move cursor right after found TLD
                     tld_pos += len(tld) + offset
                     # move cursor after end of found URL
-                    tld_pos += len(tmp_url[tld_pos_url+len(tld):])
+                    rest_url = tmp_url[tld_pos_url + len(tld):]
+                    tld_pos += len(rest_url)
+
+                    # remove all matched TLDs that were found in currently
+                    # extracted URL (tmp_url resp. rest_url)
+                    while matched_tlds:
+                        new_tld = matched_tlds[0]
+                        tmp_tld_pos_url = rest_url.find(new_tld)
+                        if tmp_tld_pos_url < 0:
+                            break
+                        rest_url = rest_url[tmp_tld_pos_url+len(new_tld):]
+                        matched_tlds.pop(0)
+
                     continue
 
             # move cursor right after found TLD
             tld_pos += len(tld) + offset
+            print(tld_pos)
 
     def find_urls(self, text, only_unique=False):
         """
