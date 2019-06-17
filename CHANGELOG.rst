@@ -1,6 +1,10 @@
 Changelog
 ~~~~~~~~~
 
+- 0.12.0
+    - fixed missing URLs using find_urls (issue #42)
+    - updated list of TLDs
+    - added config for bump2version
 - 0.11
     - added ability to turn on/off detecting email addresses (issue #37)
     - improved excluding of trailing enclosure characters (issue #38)
