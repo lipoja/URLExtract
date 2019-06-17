@@ -2,3 +2,4 @@ idna
 uritools
 pytest
 appdirs
+bump2version
