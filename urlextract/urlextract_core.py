@@ -621,7 +621,6 @@ class URLExtract(CacheFile):
 
             # move cursor right after found TLD
             tld_pos += len(tld) + offset
-            print(tld_pos)
 
     def find_urls(self, text, only_unique=False):
         """
