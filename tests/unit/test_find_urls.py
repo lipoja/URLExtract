@@ -45,6 +45,10 @@ import pytest
 
     ("http://aa.com/b.html https://aa.com/bb.html",
      ["http://aa.com/b.html", "https://aa.com/bb.html"]),
+
+    ("http://0.0.0.0/a.io",
+     ['http://0.0.0.0/a.io']),
+
 ])
 def test_find_urls(urlextract, text, expected):
     """

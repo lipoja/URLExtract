@@ -8,6 +8,7 @@ urlextract_core.py - file with definition of URLExtract class and urlextract cli
 .. codeauthor:: Jan Lipovský <janlipovsky@gmail.com>, janlipovsky.cz
 .. contributors: https://github.com/lipoja/URLExtract/graphs/contributors
 """
+import ipaddress
 import logging
 import re
 import string
@@ -479,6 +480,10 @@ class URLExtract(CacheFile):
 
         if not host:
             return False
+
+        # IP address are valid hosts
+        if isinstance(host, ipaddress.IPv4Address):
+            return True
 
         host_parts = host.split('.')
         if len(host_parts) <= 1:

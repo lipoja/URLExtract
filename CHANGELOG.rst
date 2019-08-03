@@ -1,6 +1,8 @@
 Changelog
 ~~~~~~~~~
 
+- 0.13.0
+    - fixed IPv4Address object has no attribute split (issue #41)
 - 0.12.0
     - fixed missing URLs using find_urls (issue #42)
     - updated list of TLDs
