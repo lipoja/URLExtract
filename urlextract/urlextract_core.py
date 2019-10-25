@@ -62,6 +62,8 @@ class URLExtract(CacheFile):
         ("`", "`"),
     }
 
+    _ipv4_tld = ['.{}'.format(ip) for ip in range(256)]
+
     def __init__(self, extract_email=False, **kwargs):
         """
         Initialize function for URLExtract class.
@@ -114,6 +116,7 @@ class URLExtract(CacheFile):
         """
 
         tlds = sorted(self._load_cached_tlds(), key=len, reverse=True)
+        tlds += self._ipv4_tld
         re_escaped = [re.escape(str(tld)) for tld in tlds]
         self._tlds_re = re.compile('|'.join(re_escaped))
 
@@ -482,8 +485,11 @@ class URLExtract(CacheFile):
             return False
 
         # IP address are valid hosts
-        if isinstance(host, ipaddress.IPv4Address):
-            return True
+        if tld in self._ipv4_tld:
+            if isinstance(host, ipaddress.IPv4Address):
+                return True
+            else:
+                return False
 
         host_parts = host.split('.')
         if len(host_parts) <= 1:
