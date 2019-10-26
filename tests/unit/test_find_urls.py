@@ -15,6 +15,9 @@ import pytest
 
     ("Let's have text without URLs.",
      []),
+    
+    ("PAYMENT EUR 1,420.00.zip",
+     [])
 
     ("Dot after TLD: http://janlipovsky.cz.",
      ['http://janlipovsky.cz']),

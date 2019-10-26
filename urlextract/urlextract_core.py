@@ -441,7 +441,6 @@ class URLExtract(CacheFile):
         >>> extractor._is_domain_valid("http://blog/media/path.io.jpg", ".cz")
         False
         """
-
         if not url:
             return False
 
@@ -504,6 +503,9 @@ class URLExtract(CacheFile):
         if self._hostname_re.match(top) is None:
             return False
 
+        if re.match('^[\w./&?]+$', url) is None:
+            return False
+        
         return True
 
     def _remove_enclosure_from_url(self, text_url, tld_pos, tld):
