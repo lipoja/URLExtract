@@ -503,7 +503,15 @@ class URLExtract(CacheFile):
         if self._hostname_re.match(top) is None:
             return False
 
-        if re.match('^[\w./&?]+$', url) is None:
+        #if url is http://www.sample.com/forum/read.php
+        #url[:main_domain_end] is 'http://www.sample'
+        main_domain_end =  url.find(tld + "/")
+        
+        #if url doesn't end with slash then we use whole url
+        if main_domain_end == -1: 
+            main_domain_end = len(url)
+            
+        if re.match('^[0-9A-Za-z:./-]+$', url[:main_domain_end]) is None:
             return False
         
         return True
