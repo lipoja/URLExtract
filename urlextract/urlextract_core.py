@@ -408,6 +408,7 @@ class URLExtract(CacheFile):
         return False
 
     def _is_domain_valid(self, url, tld):
+        print(url)
         """
         Checks if given URL has valid domain name (ignores subdomains)
 
@@ -510,8 +511,11 @@ class URLExtract(CacheFile):
         #if url doesn't end with slash then we use whole url
         if main_domain_end == -1: 
             main_domain_end = len(url)
-            
-        if re.match('^[0-9A-Za-z:./-]+$', url[:main_domain_end]) is None:
+
+        pattern = '^[0-9A-Za-z' + (self._extract_email * '@') + ':./-]+$'
+
+        
+        if re.match(pattern, url[:main_domain_end]) is None:
             return False
         
         return True

@@ -35,6 +35,9 @@ def test_extract_email_disabled(urlextract, text, expected):
     ("<email@address.net>",
      ['email@address.net']),
 
+    ("email with comma ema,il@address.net",
+     []),
+
     ("Given URIs are not mail jan@example.com/asdasd jan@example.com:1234",
      []),
 
