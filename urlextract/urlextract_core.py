@@ -63,6 +63,7 @@ class URLExtract(CacheFile):
     }
 
     _ipv4_tld = ['.{}'.format(ip) for ip in range(256)]
+    _ignore_list = set()
 
     def __init__(self, extract_email=False, **kwargs):
         """
@@ -137,6 +138,38 @@ class URLExtract(CacheFile):
         :param bool extract: True if emails should be extracted False otherwise
         """
         self._extract_email = extract
+
+    @property
+    def ignore_list(self):
+        """
+        Returns set of URLs on ignore list
+
+        :return: Returns set of ignored URLs
+        :rtype: set(str)
+        """
+        return self._ignore_list
+
+    @ignore_list.setter
+    def ignore_list(self, ignore_list):
+        """
+        Set of URLs to be ignored (not returned) while extracting from text
+
+        :param set(str) ignore_list: set of URLs
+        """
+        self._ignore_list = ignore_list
+
+    def load_ignore_list(self, file_name):
+        """
+        Load URLs from file into ignore list
+
+        :param str file_name: path to file containing URLs
+        """
+        with open(file_name) as f:
+            for line in f:
+                url = line.strip()
+                if not url:
+                    continue
+                self._ignore_list.add(url)
 
     def update(self):
         """
@@ -484,6 +517,9 @@ class URLExtract(CacheFile):
         if not host:
             return False
 
+        if host in self._ignore_list:
+            return False
+
         # IP address are valid hosts
         if tld in self._ipv4_tld:
             if isinstance(host, ipaddress.IPv4Address):
@@ -690,12 +726,17 @@ def _urlextract_cli():
 
         parser.add_argument(
             "-u", "--unique", dest='unique', action='store_true',
-            help='print out only unique URLs found in file.')
+            help='print out only unique URLs found in file')
+
+        parser.add_argument(
+            '-i', '--ignore-file', metavar='<ignore_file>',
+            type=str, default=None,
+            help='input text file with URLs to exclude from extraction')
 
         parser.add_argument(
             'input_file', nargs='?', metavar='<input_file>',
-            type=argparse.FileType(encoding="UTF-8"), default=sys.stdin,
-            help='input text file with URLs to extract. [UTF-8]')
+            type=argparse.FileType(), default=sys.stdin,
+            help='input text file with URLs to extract')
 
         parsed_args = parser.parse_args()
         return parsed_args
@@ -708,6 +749,8 @@ def _urlextract_cli():
 
     try:
         urlextract = URLExtract()
+        if args.ignore_file:
+            urlextract.load_ignore_list(args.ignore_file)
         urlextract.update_when_older(30)
         content = args.input_file.read()
         for url in urlextract.find_urls(content, args.unique):
