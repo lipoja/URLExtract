@@ -408,7 +408,6 @@ class URLExtract(CacheFile):
         return False
 
     def _is_domain_valid(self, url, tld):
-        print(url)
         """
         Checks if given URL has valid domain name (ignores subdomains)
 
