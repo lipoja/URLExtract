@@ -503,19 +503,17 @@ class URLExtract(CacheFile):
         if self._hostname_re.match(top) is None:
             return False
 
-        #if url is http://www.sample.com/forum/read.php
-        #url[:main_domain_end] is 'http://www.sample'
-        main_domain_end =  url.find(tld + "/")
-        
-        #if url doesn't end with slash then we use whole url
-        if main_domain_end == -1: 
-            main_domain_end = len(url)
+        pattern = '^[0-9A-Za-z:./-]+$'
+        main = url_parts.getauthority()
+        part0 = main[0] or "" # to avoid NoneType and str concatenation
+        part1 = main[1] or ""
 
-        pattern = '^[0-9A-Za-z' + (self._extract_email * '@') + ':./-]+$'
-
-        
-        if re.match(pattern, url[:main_domain_end]) is None:
+        if re.match(pattern,  part0 + part1) is None:
             return False
+        
+        if self.extract_email and not added_schema:
+            return False
+    
         
         return True
 
