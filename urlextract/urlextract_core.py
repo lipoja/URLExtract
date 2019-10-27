@@ -22,7 +22,7 @@ import uritools
 from urlextract.cachefile import CacheFileError, CacheFile
 
 # version of URLExtract (do not forget to change it in setup.py as well)
-__version__ = '0.13.0'
+__version__ = '0.14.0'
 
 
 class URLExtract(CacheFile):
