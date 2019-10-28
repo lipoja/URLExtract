@@ -454,9 +454,21 @@ class URLExtract(CacheFile):
         url_parts = uritools.urisplit(url)
         # <scheme>://<authority>/<path>?<query>#<fragment>
 
+        pattern = '^[0-9A-Za-z:./-]+$'
+        domain_part = url_parts.gethost() or "" # to avoid NoneType and str concatenation
+        credentials_part = url_parts.getuserinfo() or ""
+
+        #checking for invalid characters
+        if re.match(pattern,  domain_part) is None:
+            return False
+
+        # emails don't have schemes 
+        if self.extract_email and not added_schema:
+            return False
+
         # if URI contains user info and schema was automatically added
         # the url is probably an email
-        if url_parts.getuserinfo() and added_schema:
+        if credentials_part and added_schema:
             # do not collect emails
             if not self._extract_email:
                 return False
@@ -469,6 +481,9 @@ class URLExtract(CacheFile):
                         or url_parts.getquery()
                         or url_parts.getfragment()
                 ):
+                    return False
+                #checking for invalid characters in credentials
+                if re.match(pattern,  credentials_part) is None:
                     return False
 
         try:
@@ -503,15 +518,7 @@ class URLExtract(CacheFile):
         if self._hostname_re.match(top) is None:
             return False
 
-        pattern = '^[0-9A-Za-z:./-]+$'
-        main = url_parts.getauthority()
-        domain_part = main[1] or "" # to avoid NoneType and str concatenation
-        
-        if re.match(pattern,  domain_part) is None:
-            return False
-        
-        if self.extract_email and not added_schema:
-            return False
+       
     
         
         return True
