@@ -455,9 +455,9 @@ class URLExtract(CacheFile):
         # <scheme>://<authority>/<path>?<query>#<fragment>
 
         pattern = '^[0-9A-Za-z:./-]+$'
-        domain_part = url_parts.gethost() or "" # to avoid NoneType and str concatenation
-        credentials_part = url_parts.getuserinfo() or ""
-
+        domain_part = str(url_parts.gethost()) or "" # to avoid NoneType and str concatenation
+        credentials_part = str(url_parts.getuserinfo()) or ""
+        
         #checking for invalid characters
         if re.match(pattern,  domain_part) is None:
             return False
