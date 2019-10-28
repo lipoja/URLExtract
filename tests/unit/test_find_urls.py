@@ -16,7 +16,13 @@ import pytest
     ("Let's have text without URLs.",
      []),
     
-    ("comma in URL 1,420.00.zip",
+    ("Comma in URL 1,420.00.zip",
+     []),
+
+    ("Comma in login or password fields ftp://login:pass,word@example.com",
+     ["ftp://login:pass,word@example.com"]),
+    
+    ("Not delimetered credentials ftp://loginpassword@example.com",
      []),
 
     ("Dot after TLD: http://janlipovsky.cz.",
