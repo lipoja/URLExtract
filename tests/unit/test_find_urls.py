@@ -21,9 +21,6 @@ import pytest
 
     ("Comma in login or password fields ftp://login:pass,word@example.com",
      ["ftp://login:pass,word@example.com"]),
-    
-    ("Not delimetered credentials ftp://loginpassword@example.com",
-     []),
 
     ("Dot after TLD: http://janlipovsky.cz.",
      ['http://janlipovsky.cz']),

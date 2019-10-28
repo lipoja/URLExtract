@@ -507,10 +507,7 @@ class URLExtract(CacheFile):
         main = url_parts.getauthority()
         domain_part = main[1] or "" # to avoid NoneType and str concatenation
         
-        credentials_part = main[0] or ""
-        is_delimetered = ":" in credentials_part or not credentials_part
-        
-        if re.match(pattern,  domain_part) is None or not is_delimetered:
+        if re.match(pattern,  domain_part) is None:
             return False
         
         if self.extract_email and not added_schema:
