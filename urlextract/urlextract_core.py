@@ -9,6 +9,7 @@ urlextract_core.py - file with definition of URLExtract class and urlextract cli
 .. contributors: https://github.com/lipoja/URLExtract/graphs/contributors
 """
 import ipaddress
+import json
 import logging
 import re
 import string
@@ -734,6 +735,13 @@ def _urlextract_cli():
             help='input text file with URLs to exclude from extraction')
 
         parser.add_argument(
+            '-c', '--config-file', metavar='<config_file>',
+            type=argparse.FileType(), default=None,
+            help='config file for setting urlextract as JSON. '
+                 'See documentation for more information: '
+                 'https://urlextract.readthedocs.io/en/latest/')
+
+        parser.add_argument(
             'input_file', nargs='?', metavar='<input_file>',
             type=argparse.FileType(), default=sys.stdin,
             help='input text file with URLs to extract')
@@ -751,7 +759,29 @@ def _urlextract_cli():
         urlextract = URLExtract()
         if args.ignore_file:
             urlextract.load_ignore_list(args.ignore_file)
-        urlextract.update_when_older(30)
+
+        update_older = 30
+        if args.config_file:
+            opts = json.loads(args.config_file.read())
+            stop_chars_left = opts.get('stop_chars_left')
+            if stop_chars_left:
+                urlextract.set_stop_chars_left(set(stop_chars_left))
+
+            stop_chars_right = opts.get('stop_chars_right')
+            if stop_chars_right:
+                urlextract.set_stop_chars_right(set(stop_chars_right))
+
+            extract_email = opts.get('extract_email')
+            if extract_email:
+                urlextract.set_stop_chars_right(extract_email)
+
+            after_tld_chars = opts.get('after_tld_chars')
+            if after_tld_chars:
+                urlextract.set_stop_chars_right(set(after_tld_chars))
+
+            update_older = opts.get('update_when_older', update_older)
+
+        urlextract.update_when_older(update_older)
         content = args.input_file.read()
         for url in urlextract.find_urls(content, args.unique):
             print(url)
