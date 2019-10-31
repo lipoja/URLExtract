@@ -63,7 +63,9 @@ class URLExtract(CacheFile):
         ("`", "`"),
     }
 
-    _ipv4_tld = ['.{}'.format(ip) for ip in range(256)]
+    # It is necessary to generate numbers from longest to shortest
+    # to prevent matching smaller numbers in bigger ones (e.g. ".1" in ".127")
+    _ipv4_tld = ['.{}'.format(ip) for ip in range(255, -1, -1)]
     _ignore_list = set()
 
     def __init__(self, extract_email=False, **kwargs):
