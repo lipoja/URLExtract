@@ -3,3 +3,4 @@ uritools
 pytest
 appdirs
 bump2version
+filelock
