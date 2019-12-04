@@ -189,21 +189,22 @@ class CacheFile:
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; '
                                      'WOW64; rv:24.0) Gecko/20100101 '
                                      'Firefox/24.0')
+        try:
+            with urllib.request.urlopen(req) as f:
+                page = f.read().decode('utf-8')
+        except HTTPError as e:
+            self._logger.error("ERROR: Can not download list ot TLDs. "
+                               "(HTTPError: {})".format(e.reason))
+            return False
+        except URLError as e:
+            self._logger.error("ERROR: Can not download list ot TLDs. "
+                               "(URLError: {})".format(e.reason))
+            return False
 
         with filelock.FileLock(self._get_cache_lock_file_path()):
             with open(self._tld_list_path, 'w') as ftld:
-                try:
-                    with urllib.request.urlopen(req) as f:
-                        page = f.read().decode('utf-8')
-                        ftld.write(page)
-                except HTTPError as e:
-                    self._logger.error("ERROR: Can not download list ot TLDs. "
-                                       "(HTTPError: {})".format(e.reason))
-                    return False
-                except URLError as e:
-                    self._logger.error("ERROR: Can not download list ot TLDs. "
-                                       "(URLError: {})".format(e.reason))
-                    return False
+                ftld.write(page)
+
         return True
 
     def _load_cached_tlds(self):
