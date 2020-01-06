@@ -49,6 +49,8 @@ import pytest
     ("http://0.0.0.0/a.io",
      ['http://0.0.0.0/a.io']),
 
+    ("Local development url http://localhost:8000/",
+        ['http://localhost:8000/']),
 ])
 def test_find_urls(urlextract, text, expected):
     """

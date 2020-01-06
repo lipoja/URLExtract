@@ -118,6 +118,7 @@ class URLExtract(CacheFile):
 
         tlds = sorted(self._load_cached_tlds(), key=len, reverse=True)
         tlds += self._ipv4_tld
+        tlds.append('localhost')
         re_escaped = [re.escape(str(tld)) for tld in tlds]
         self._tlds_re = re.compile('|'.join(re_escaped))
 
@@ -528,6 +529,10 @@ class URLExtract(CacheFile):
                 return False
 
         host_parts = host.split('.')
+
+        if host_parts == ['localhost']:
+            return True
+
         if len(host_parts) <= 1:
             return False
 
