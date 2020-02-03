@@ -16,6 +16,7 @@ from datetime import datetime
 from urllib.error import URLError, HTTPError
 
 import idna
+import filelock
 from appdirs import user_cache_dir
 
 
@@ -146,6 +147,17 @@ class CacheFile:
         # get directory for cached file
         return os.path.join(cache_dir, self._CACHE_FILE_NAME)
 
+    def _get_cache_lock_file_path(self, cache_dir=None):
+        """
+        Get path for cache file lock
+
+        :param str cache_dir: base path for TLD cache lock, defaults to data dir
+        :raises: CacheFileError when cached directory is not writable for user
+        :return: Full path to cached file lock
+        :rtype: str
+        """
+        return self._get_cache_file_path(cache_dir)+'.lock'
+
     def _download_tlds_list(self):
         """
         Function downloads list of TLDs from IANA.
@@ -177,19 +189,22 @@ class CacheFile:
         req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; '
                                      'WOW64; rv:24.0) Gecko/20100101 '
                                      'Firefox/24.0')
-        with open(self._tld_list_path, 'w') as ftld:
-            try:
-                with urllib.request.urlopen(req) as f:
-                    page = f.read().decode('utf-8')
-                    ftld.write(page)
-            except HTTPError as e:
-                self._logger.error("ERROR: Can not download list ot TLDs. "
-                                   "(HTTPError: {})".format(e.reason))
-                return False
-            except URLError as e:
-                self._logger.error("ERROR: Can not download list ot TLDs. "
-                                   "(URLError: {})".format(e.reason))
-                return False
+        try:
+            with urllib.request.urlopen(req) as f:
+                page = f.read().decode('utf-8')
+        except HTTPError as e:
+            self._logger.error("ERROR: Can not download list ot TLDs. "
+                               "(HTTPError: {})".format(e.reason))
+            return False
+        except URLError as e:
+            self._logger.error("ERROR: Can not download list ot TLDs. "
+                               "(URLError: {})".format(e.reason))
+            return False
+
+        with filelock.FileLock(self._get_cache_lock_file_path()):
+            with open(self._tld_list_path, 'w') as ftld:
+                ftld.write(page)
+
         return True
 
     def _load_cached_tlds(self):
@@ -209,18 +224,20 @@ class CacheFile:
             )
 
         set_of_tlds = set()
-        with open(self._tld_list_path, 'r') as f_cache_tld:
-            for line in f_cache_tld:
-                tld = line.strip().lower()
-                # skip empty lines
-                if not tld:
-                    continue
-                # skip comments
-                if tld[0] == '#':
-                    continue
 
-                set_of_tlds.add("." + tld)
-                set_of_tlds.add("." + idna.decode(tld))
+        with filelock.FileLock(self._get_cache_lock_file_path()):
+            with open(self._tld_list_path, 'r') as f_cache_tld:
+                for line in f_cache_tld:
+                    tld = line.strip().lower()
+                    # skip empty lines
+                    if not tld:
+                        continue
+                    # skip comments
+                    if tld[0] == '#':
+                        continue
+
+                    set_of_tlds.add("." + tld)
+                    set_of_tlds.add("." + idna.decode(tld))
 
         return set_of_tlds
 
