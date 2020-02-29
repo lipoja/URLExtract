@@ -4,3 +4,4 @@ pytest
 appdirs
 bump2version
 filelock
+dnspython
