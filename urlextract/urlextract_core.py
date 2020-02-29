@@ -66,7 +66,7 @@ class URLExtract(CacheFile):
     _ipv4_tld = ['.{}'.format(ip) for ip in range(256)]
     _ignore_list = set()
 
-    def __init__(self, extract_email=False, **kwargs):
+    def __init__(self, extract_email=False, cache_dns=True, **kwargs):
         """
         Initialize function for URLExtract class.
         Tries to get cached TLDs, if cached file does not exist it will try
@@ -74,12 +74,16 @@ class URLExtract(CacheFile):
 
         :param bool extract_email: True if we want to extract email from text.
             Disabled by default
+        :param bool cache_dns: True replaces socket DNS lookup with caching
+            equivalent provided by dnspython.
+            Enabled by default
         """
         super(URLExtract, self).__init__(**kwargs)
 
         self._tlds_re = None
         self._reload_tlds_from_file()
         self._extract_email = extract_email
+        self._cache_dns = cache_dns
 
         # general stop characters
         general_stop_chars = {'\"', '<', '>', ';'}
@@ -544,6 +548,10 @@ class URLExtract(CacheFile):
             return False
 
         if check_dns:
+            if self._cache_dns is True:
+                dns_cache_install()
+                self._cache_dns = False
+
             try:
                 socket.gethostbyname(host)
             except socket.herror as err:
@@ -787,6 +795,22 @@ def _urlextract_cli():
         sys.exit(-1)
     finally:
         args.input_file.close()
+
+
+def dns_cache_install():
+    try:
+        from dns.resolver import LRUCache, Resolver, override_system_resolver, _resolver, default_resolver
+    except ImportError:
+        return
+
+    if default_resolver and default_resolver.cache:
+        resolver = default_resolver
+    elif _resolver and _resolver.cache:
+        resolver = _resolver
+    else:
+        resolver = Resolver()
+        resolver.cache = LRUCache()
+    override_system_resolver(resolver)
 
 
 if __name__ == '__main__':

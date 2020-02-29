@@ -53,12 +53,14 @@ Requirements
 - IDNA for converting links to IDNA format
 - uritools for domain name validation
 - appdirs for determining user's cache directory
+- dnspython to cache DNS results
 
    ::
 
        pip install idna
        pip install uritools
        pip install appdirs
+       pip install dnspython
 
 Example
 ~~~~~~~
