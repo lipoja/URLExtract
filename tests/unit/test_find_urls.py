@@ -49,6 +49,9 @@ import pytest
     ("http://0.0.0.0/a.io",
      ['http://0.0.0.0/a.io']),
 
+    ("http://123.56.234.210/struts_action.do",
+     ['http://123.56.234.210/struts_action.do']),
+
 ])
 def test_find_urls(urlextract, text, expected):
     """

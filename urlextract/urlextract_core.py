@@ -528,11 +528,13 @@ class URLExtract(CacheFile):
             return False
 
         # IP address are valid hosts
-        if tld in self._ipv4_tld:
-            if isinstance(host, ipaddress.IPv4Address):
-                return True
-            else:
-                return False
+        is_ipv4 = isinstance(host, ipaddress.IPv4Address)
+        if is_ipv4:
+            return True
+
+        # when TLD is a number the host must be IP
+        if tld in self._ipv4_tld and not is_ipv4:
+            return False
 
         host_parts = host.split('.')
         if len(host_parts) <= 1:
