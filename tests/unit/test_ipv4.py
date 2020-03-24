@@ -17,6 +17,9 @@ import pytest
     ("http://192.168.1.255/test.html",
      ['http://192.168.1.255/test.html']),
 
+    ("http://www.test.edu.cn@8.8.8.8:51733/hn35/",
+     ['http://www.test.edu.cn@8.8.8.8:51733/hn35/']),
+
     # square brackets defines IPv6 and later
     # therefore only IP is returned because only valid parts is within []
     ("http://[192.168.1.1]/", ['192.168.1.1']),
