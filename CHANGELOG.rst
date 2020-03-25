@@ -1,6 +1,9 @@
 Changelog
 ~~~~~~~~~
-
+- 0.14.0
+    - added detection of IPv4 addresses (issue #10)
+    - catching PermissionError (issue #25)
+    - support of ignore list - list of url exception (issue #40)
 - 0.13.0
     - fixed IPv4Address object has no attribute split (issue #41)
     - updated list of TLDs

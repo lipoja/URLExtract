@@ -11,6 +11,7 @@ urlextract_core.py - file with definition of URLExtract class and urlextract cli
 import ipaddress
 import logging
 import re
+import socket
 import string
 import sys
 import warnings
@@ -22,7 +23,7 @@ import uritools
 from urlextract.cachefile import CacheFileError, CacheFile
 
 # version of URLExtract (do not forget to change it in setup.py as well)
-__version__ = '0.13.0'
+__version__ = '0.14.0'
 
 
 class URLExtract(CacheFile):
@@ -63,8 +64,9 @@ class URLExtract(CacheFile):
     }
 
     _ipv4_tld = ['.{}'.format(ip) for ip in range(256)]
+    _ignore_list = set()
 
-    def __init__(self, extract_email=False, **kwargs):
+    def __init__(self, extract_email=False, cache_dns=True, **kwargs):
         """
         Initialize function for URLExtract class.
         Tries to get cached TLDs, if cached file does not exist it will try
@@ -72,12 +74,16 @@ class URLExtract(CacheFile):
 
         :param bool extract_email: True if we want to extract email from text.
             Disabled by default
+        :param bool cache_dns: True replaces socket DNS lookup with caching
+            equivalent provided by dnspython.
+            Enabled by default
         """
         super(URLExtract, self).__init__(**kwargs)
 
         self._tlds_re = None
         self._reload_tlds_from_file()
         self._extract_email = extract_email
+        self._cache_dns = cache_dns
 
         # general stop characters
         general_stop_chars = {'\"', '<', '>', ';'}
@@ -137,6 +143,38 @@ class URLExtract(CacheFile):
         :param bool extract: True if emails should be extracted False otherwise
         """
         self._extract_email = extract
+
+    @property
+    def ignore_list(self):
+        """
+        Returns set of URLs on ignore list
+
+        :return: Returns set of ignored URLs
+        :rtype: set(str)
+        """
+        return self._ignore_list
+
+    @ignore_list.setter
+    def ignore_list(self, ignore_list):
+        """
+        Set of URLs to be ignored (not returned) while extracting from text
+
+        :param set(str) ignore_list: set of URLs
+        """
+        self._ignore_list = ignore_list
+
+    def load_ignore_list(self, file_name):
+        """
+        Load URLs from file into ignore list
+
+        :param str file_name: path to file containing URLs
+        """
+        with open(file_name) as f:
+            for line in f:
+                url = line.strip()
+                if not url:
+                    continue
+                self._ignore_list.add(url)
 
     def update(self):
         """
@@ -328,13 +366,14 @@ class URLExtract(CacheFile):
 
         self._after_tld_chars = self._get_after_tld_chars()
 
-    def _complete_url(self, text, tld_pos, tld):
+    def _complete_url(self, text, tld_pos, tld, check_dns=False):
         """
         Expand string in both sides to match whole URL.
 
         :param str text: text where we want to find URL
         :param int tld_pos: position of TLD
         :param str tld: matched TLD which should be in text
+        :param bool check_dns: filter results to valid domains
         :return: returns URL
         :rtype: str
         """
@@ -377,7 +416,7 @@ class URLExtract(CacheFile):
         complete_url = self._split_markdown(complete_url, tld_pos-start_pos)
         complete_url = self._remove_enclosure_from_url(
             complete_url, tld_pos-start_pos, tld)
-        if not self._is_domain_valid(complete_url, tld):
+        if not self._is_domain_valid(complete_url, tld, check_dns):
             return ""
 
         return complete_url
@@ -407,12 +446,13 @@ class URLExtract(CacheFile):
 
         return False
 
-    def _is_domain_valid(self, url, tld):
+    def _is_domain_valid(self, url, tld, check_dns=False):
         """
         Checks if given URL has valid domain name (ignores subdomains)
 
         :param str url: complete URL that we want to check
         :param str tld: TLD that should be found at the end of URL (hostname)
+        :param bool check_dns: filter results to valid domains
         :return: True if URL is valid, False otherwise
         :rtype: bool
 
@@ -498,12 +538,17 @@ class URLExtract(CacheFile):
         if not host:
             return False
 
+        if host in self._ignore_list:
+            return False
+
         # IP address are valid hosts
-        if tld in self._ipv4_tld:
-            if isinstance(host, ipaddress.IPv4Address):
-                return True
-            else:
-                return False
+        is_ipv4 = isinstance(host, ipaddress.IPv4Address)
+        if is_ipv4:
+            return True
+
+        # when TLD is a number the host must be IP
+        if tld in self._ipv4_tld and not is_ipv4:
+            return False
 
         host_parts = host.split('.')
         if len(host_parts) <= 1:
@@ -518,9 +563,25 @@ class URLExtract(CacheFile):
         if self._hostname_re.match(top) is None:
             return False
 
-       
-    
-        
+        if check_dns:
+            if self._cache_dns is True:
+                dns_cache_install()
+                self._cache_dns = False
+
+            try:
+                socket.gethostbyname(host)
+            except socket.herror as err:
+                if err.errno == 0:
+                    self._logger.info("Unable to resolve address {}: {}"
+                                      .format(host, err))
+                else:
+                    self._logger.info(err)
+                return False
+            except Exception as err:
+                self._logger.info(
+                    "Unknown exception during gethostbyname({}) {!r}"
+                    .format(host, err))
+                return False
         return True
 
     def _remove_enclosure_from_url(self, text_url, tld_pos, tld):
@@ -605,11 +666,12 @@ class URLExtract(CacheFile):
             return text_url[left_bracket_pos+1:middle_pos]
         return text_url
 
-    def gen_urls(self, text):
+    def gen_urls(self, text, check_dns=False):
         """
         Creates generator over found URLs in given text.
 
         :param str text: text where we want to find URLs
+        :param bool check_dns: filter results to valid domains
         :yields: URL found in text or empty string if no found
         :rtype: str
         """
@@ -623,7 +685,8 @@ class URLExtract(CacheFile):
             tld_pos = tmp_text.find(tld)
             validated = self._validate_tld_match(text, tld, offset + tld_pos)
             if tld_pos != -1 and validated:
-                tmp_url = self._complete_url(text, offset + tld_pos, tld)
+                tmp_url = self._complete_url(text, offset + tld_pos, tld,
+                                             check_dns)
                 if tmp_url:
                     yield tmp_url
 
@@ -650,20 +713,21 @@ class URLExtract(CacheFile):
             # move cursor right after found TLD
             tld_pos += len(tld) + offset
 
-    def find_urls(self, text, only_unique=False):
+    def find_urls(self, text, only_unique=False, check_dns=False):
         """
         Find all URLs in given text.
 
         :param str text: text where we want to find URLs
         :param bool only_unique: return only unique URLs
+        :param bool check_dns: filter results to valid domains
         :return: list of URLs found in text
         :rtype: list
         """
-        urls = self.gen_urls(text)
+        urls = self.gen_urls(text, check_dns)
         urls = OrderedDict.fromkeys(urls) if only_unique else urls
         return list(urls)
 
-    def has_urls(self, text):
+    def has_urls(self, text, check_dns=False):
         """
         Checks if text contains any valid URL.
         Returns True if text contains at least one URL.
@@ -676,11 +740,12 @@ class URLExtract(CacheFile):
         False
 
         :param text: text where we want to find URLs
+        :param bool check_dns: filter results to valid domains
         :return: True if et least one URL was found, False otherwise
         :rtype: bool
         """
 
-        return any(self.gen_urls(text))
+        return any(self.gen_urls(text, check_dns))
 
 
 def _urlextract_cli():
@@ -707,12 +772,21 @@ def _urlextract_cli():
 
         parser.add_argument(
             "-u", "--unique", dest='unique', action='store_true',
-            help='print out only unique URLs found in file.')
+            help='print out only unique URLs found in file')
+
+        parser.add_argument(
+            "-c", "--check-dns", dest='check_dns', action='store_true',
+            help='print out only URLs for existing domain names')
+
+        parser.add_argument(
+            '-i', '--ignore-file', metavar='<ignore_file>',
+            type=str, default=None,
+            help='input text file with URLs to exclude from extraction')
 
         parser.add_argument(
             'input_file', nargs='?', metavar='<input_file>',
-            type=argparse.FileType(encoding="UTF-8"), default=sys.stdin,
-            help='input text file with URLs to extract. [UTF-8]')
+            type=argparse.FileType(), default=sys.stdin,
+            help='input text file with URLs to extract')
 
         parsed_args = parser.parse_args()
         return parsed_args
@@ -725,15 +799,33 @@ def _urlextract_cli():
 
     try:
         urlextract = URLExtract()
+        if args.ignore_file:
+            urlextract.load_ignore_list(args.ignore_file)
         urlextract.update_when_older(30)
         content = args.input_file.read()
-        for url in urlextract.find_urls(content, args.unique):
+        for url in urlextract.find_urls(content, args.unique, args.check_dns):
             print(url)
     except CacheFileError as e:
         logger.error(str(e))
         sys.exit(-1)
     finally:
         args.input_file.close()
+
+
+def dns_cache_install():
+    try:
+        from dns.resolver import LRUCache, Resolver, override_system_resolver, _resolver, default_resolver
+    except ImportError:
+        return
+
+    if default_resolver and default_resolver.cache:
+        resolver = default_resolver
+    elif _resolver and _resolver.cache:
+        resolver = _resolver
+    else:
+        resolver = Resolver()
+        resolver.cache = LRUCache()
+    override_system_resolver(resolver)
 
 
 if __name__ == '__main__':

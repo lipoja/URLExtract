@@ -16,7 +16,7 @@ script_dirname = join(dirname(__file__))
 
 # version of URLExtract
 # (do not forget to change it in urlextract_core.py as well)
-__version__ = '0.13.0'
+__version__ = '0.14.0'
 
 
 def read(readme):
@@ -65,6 +65,7 @@ setup(
     install_requires=[
         'idna',
         'uritools',
-        'appdirs'
+        'appdirs',
+        'filelock'
     ],
 )

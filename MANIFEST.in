@@ -2,3 +2,8 @@ include README.rst
 include CHANGELOG.rst
 include LICENSE
 include urlextract/data/tlds-alpha-by-domain.txt
+include requirements.txt
+include docs/conf.py
+recursive-include docs *.rst
+recursive-include tests *.py
+exclude .bumpversion.cfg docs/Makefile
