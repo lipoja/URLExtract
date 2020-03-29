@@ -9,6 +9,10 @@ Tests for find_url() method of URLExtract with invalid hostnames.
 import pytest
 
 import dns.resolver
+try:
+    from dns_cache.resolver import ExceptionCachingResolver
+except ImportError:
+    ExceptionCachingResolver = None
 
 import urlextract.urlextract_core as urlextract_core
 from urlextract import URLExtract
@@ -84,7 +88,8 @@ def test_dns_cache_init():
     results = urlextract.find_urls("https://github.com", check_dns=True)
     assert len(results) == 1
 
-    assert dns.resolver.default_resolver is None
+    if not ExceptionCachingResolver:
+        assert dns.resolver.default_resolver is None
 
     resolver = dns.resolver._resolver
     assert resolver is not None
@@ -102,6 +107,9 @@ def test_dns_cache_reuse():
         dns.resolver._resolver = None
 
     default_resolver = dns.resolver.get_default_resolver()
+    if ExceptionCachingResolver:
+        assert default_resolver.__class__ == ExceptionCachingResolver
+
     assert default_resolver == dns.resolver.default_resolver
     cache = dns.resolver.LRUCache()
     default_resolver.cache = cache
@@ -124,6 +132,9 @@ def test_dns_cache_negative(urlextract, dns_resolver):
     """
     Testing negative results are not cached
     """
+    if ExceptionCachingResolver:
+        assert dns_resolver.__class__ == ExceptionCachingResolver
+
     # https://github.com/rthalley/dnspython/pull/238 isnt merged
     results = urlextract.find_urls("https://github.com", check_dns=True)
     assert len(results) == 1
@@ -133,9 +144,13 @@ def test_dns_cache_negative(urlextract, dns_resolver):
     assert len(results) == 1
     assert len(dns_resolver.cache.data) == 2
 
-    results = urlextract.find_urls("https://invalid.invalid", check_dns=True)
+    results = urlextract.find_urls("https://al.fr", check_dns=True)
     assert len(results) == 0
-    assert len(dns_resolver.cache.data) == 2
+    if ExceptionCachingResolver:
+        assert dns_resolver.__class__ == ExceptionCachingResolver
+        assert len(dns_resolver.cache.data) == 3
+    else:
+        assert len(dns_resolver.cache.data) == 2
 
 
 @pytest.mark.parametrize(

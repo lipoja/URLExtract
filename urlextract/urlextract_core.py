@@ -801,11 +801,22 @@ def _urlextract_cli():
 
 def dns_cache_install():
     try:
+        from dns_cache.resolver import ExceptionCachingResolver
+        from dns import resolver as dnspython_resolver_module
+        if not dnspython_resolver_module.default_resolver:
+            dnspython_resolver_module.default_resolver = ExceptionCachingResolver()
+        del dnspython_resolver_module
+    except ImportError:
+        pass
+
+    try:
         from dns.resolver import LRUCache, Resolver, override_system_resolver, _resolver, default_resolver
     except ImportError:
         return
 
-    if default_resolver and default_resolver.cache:
+    if default_resolver:
+        if not default_resolver.cache:
+            default_resolver.cache = LRUCache()
         resolver = default_resolver
     elif _resolver and _resolver.cache:
         resolver = _resolver
