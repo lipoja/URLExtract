@@ -7,7 +7,7 @@ python:
 - '3.8'
 - nightly
 install:
-- pip install travis-tox
+- pip install tox-travis
 script:
 - |
   # we run test script multiple times to make nondeterministic bugs due to ordering of sets and maps more apparent
