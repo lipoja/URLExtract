@@ -51,6 +51,10 @@ import pytest
 
     ("Local development url http://localhost:8000/",
         ['http://localhost:8000/']),
+
+    ("http://123.56.234.210/struts_action.do",
+     ['http://123.56.234.210/struts_action.do']),
+
 ])
 def test_find_urls(urlextract, text, expected):
     """

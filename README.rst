@@ -23,6 +23,8 @@ starts from that position to expand boundaries to both sides searching
 for "stop character" (usually whitespace, comma, single or double
 quote).
 
+A dns check option is available to also reject invalid domain names.
+
 NOTE: List of TLDs is downloaded from iana.org to keep you up to date with new TLDs.
 
 Installation
@@ -51,12 +53,14 @@ Requirements
 - IDNA for converting links to IDNA format
 - uritools for domain name validation
 - appdirs for determining user's cache directory
+- dnspython to cache DNS results
 
    ::
 
        pip install idna
        pip install uritools
        pip install appdirs
+       pip install dnspython
 
 Example
 ~~~~~~~

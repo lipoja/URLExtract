@@ -7,14 +7,13 @@ python:
 - '3.8'
 - nightly
 install:
-- pip install -r requirements.txt
-- pip install -e .
+- pip install tox-travis
 script:
 - |
   # we run test script multiple times to make nondeterministic bugs due to ordering of sets and maps more apparent
   set -e # fail on first error
   for _ in {1..50}; do
-      pytest --doctest-modules --ignore setup.py
+      tox
   done
 
 deploy:
