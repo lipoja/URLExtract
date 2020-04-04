@@ -66,7 +66,13 @@ class URLExtract(CacheFile):
     _ipv4_tld = ['.{}'.format(ip) for ip in range(256)]
     _ignore_list = set()
 
-    def __init__(self, extract_email=False, cache_dns=True, **kwargs):
+    def __init__(
+            self,
+            extract_email=False,
+            cache_dns=True,
+            extract_localhost=True,
+            **kwargs
+    ):
         """
         Initialize function for URLExtract class.
         Tries to get cached TLDs, if cached file does not exist it will try
@@ -77,13 +83,17 @@ class URLExtract(CacheFile):
         :param bool cache_dns: True replaces socket DNS lookup with caching
             equivalent provided by dnspython.
             Enabled by default
+        :param bool extract_localhost: True if we want to extract 'localhost'
+            as URL from text.
+            Enabled by default
         """
         super(URLExtract, self).__init__(**kwargs)
 
         self._tlds_re = None
-        self._reload_tlds_from_file()
+        self._extract_localhost = extract_localhost
         self._extract_email = extract_email
         self._cache_dns = cache_dns
+        self._reload_tlds_from_file()
 
         # general stop characters
         general_stop_chars = {'\"', '<', '>', ';'}
@@ -123,7 +133,8 @@ class URLExtract(CacheFile):
 
         tlds = sorted(self._load_cached_tlds(), key=len, reverse=True)
         tlds += self._ipv4_tld
-        tlds.append('localhost')
+        if self._extract_localhost:
+            tlds.append('localhost')
         re_escaped = [re.escape(str(tld)) for tld in tlds]
         self._tlds_re = re.compile('|'.join(re_escaped))
 
@@ -144,6 +155,25 @@ class URLExtract(CacheFile):
         :param bool extract: True if emails should be extracted False otherwise
         """
         self._extract_email = extract
+
+    @property
+    def extract_localhost(self):
+        """
+        If set to True 'localhost' will be extracted as URL from text
+
+        :rtype: bool
+        """
+        return self._extract_localhost
+
+    @extract_localhost.setter
+    def extract_localhost(self, enable):
+        """
+        Set if 'localhost' will be extracted as URL from text
+
+        :param bool enable: True if localhost' should be extracted
+            False otherwise
+        """
+        self._extract_localhost = enable
 
     @property
     def ignore_list(self):
@@ -539,7 +569,7 @@ class URLExtract(CacheFile):
 
         host_parts = host.split('.')
 
-        if host_parts == ['localhost']:
+        if self._extract_localhost and host_parts == ['localhost']:
             return True
 
         if len(host_parts) <= 1:
@@ -767,6 +797,10 @@ def _urlextract_cli():
             help='print out only unique URLs found in file')
 
         parser.add_argument(
+            "-dl", "--disable-localhost", dest='disable_localhost',
+            action='store_true', help='disable extracting "localhost" as URL')
+
+        parser.add_argument(
             "-c", "--check-dns", dest='check_dns', action='store_true',
             help='print out only URLs for existing domain names')
 
@@ -791,6 +825,8 @@ def _urlextract_cli():
 
     try:
         urlextract = URLExtract()
+        if args.disable_localhost:
+            urlextract.extract_localhost = False
         if args.ignore_file:
             urlextract.load_ignore_list(args.ignore_file)
         urlextract.update_when_older(30)
