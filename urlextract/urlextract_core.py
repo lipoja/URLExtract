@@ -567,7 +567,7 @@ class URLExtract(CacheFile):
         if tld in self._ipv4_tld and not is_ipv4:
             return False
 
-        host_parts = host.split('.')
+        host_parts = str(host).split('.')
 
         if self._extract_localhost and host_parts == ['localhost']:
             return True
