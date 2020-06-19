@@ -25,6 +25,9 @@ from urlextract.cachefile import CacheFileError, CacheFile
 # version of URLExtract (do not forget to change it in setup.py as well)
 __version__ = '0.14.0'
 
+# default value for maximum count of processed URLs by find_url
+DEFAULT_LIMIT = 10000
+
 
 class URLExtract(CacheFile):
     """
@@ -66,11 +69,14 @@ class URLExtract(CacheFile):
     _ipv4_tld = ['.{}'.format(ip) for ip in range(256)]
     _ignore_list = set()
 
+    _limit = DEFAULT_LIMIT
+
     def __init__(
             self,
             extract_email=False,
             cache_dns=True,
             extract_localhost=True,
+            limit=DEFAULT_LIMIT,
             **kwargs
     ):
         """
@@ -93,6 +99,7 @@ class URLExtract(CacheFile):
         self._extract_localhost = extract_localhost
         self._extract_email = extract_email
         self._cache_dns = cache_dns
+        self._limit = limit
         self._reload_tlds_from_file()
 
         # general stop characters
@@ -744,10 +751,34 @@ class URLExtract(CacheFile):
         :param bool check_dns: filter results to valid domains
         :return: list of URLs found in text
         :rtype: list
+
+        :raises URLExtractError: Raised when count of found URLs reaches
+            given limit. Processed URLs are returned in `data` argument.
         """
         urls = self.gen_urls(text, check_dns)
-        urls = OrderedDict.fromkeys(urls) if only_unique else urls
-        return list(urls)
+        if self._limit is None:
+            if only_unique:
+                return list(OrderedDict.fromkeys(urls))
+            return list(urls)
+
+        result_urls = []
+        url = next(urls, '')
+        url_count = 1
+        while url:
+            if url_count > self._limit:
+                err = "Limit for extracting URLs was reached. [{} URLs]".format(
+                    self._limit)
+                self._logger.error(err)
+
+                raise URLExtractError(err, data=result_urls)
+
+            result_urls.append(url)
+            url = next(urls, '')
+            url_count += 1
+
+        if only_unique:
+            return list(OrderedDict.fromkeys(result_urls))
+        return result_urls
 
     def has_urls(self, text, check_dns=False):
         """
@@ -768,6 +799,19 @@ class URLExtract(CacheFile):
         """
 
         return any(self.gen_urls(text, check_dns))
+
+
+class URLExtractError(Exception):
+    """
+    Raised when some error occurred during processing URLs.
+
+    Attributes:
+        message -- explanation of the error
+        data -- input expression in which the error occurred
+    """
+    def __init__(self, message, data):
+        self.data = data
+        self.message = message
 
 
 def _urlextract_cli():
@@ -810,6 +854,13 @@ def _urlextract_cli():
             help='input text file with URLs to exclude from extraction')
 
         parser.add_argument(
+            "-l", "--limit", dest='limit', type=int, default=DEFAULT_LIMIT,
+            help='Maximum count of URLs that can be processed. '
+                 'Set 0 to disable the limit. '
+                 'Default: {}'.format(DEFAULT_LIMIT)
+        )
+
+        parser.add_argument(
             'input_file', nargs='?', metavar='<input_file>',
             type=argparse.FileType(), default=sys.stdin,
             help='input text file with URLs to extract')
@@ -824,15 +875,23 @@ def _urlextract_cli():
     logger = logging.getLogger('urlextract')
 
     try:
-        urlextract = URLExtract()
+        limit = None if args.limit <= 0 else args.limit
+        urlextract = URLExtract(limit=limit)
         if args.disable_localhost:
             urlextract.extract_localhost = False
         if args.ignore_file:
             urlextract.load_ignore_list(args.ignore_file)
         urlextract.update_when_older(30)
         content = args.input_file.read()
-        for url in urlextract.find_urls(content, args.unique, args.check_dns):
-            print(url)
+        try:
+            for url in urlextract.find_urls(content, args.unique, args.check_dns):
+                print(url)
+        except URLExtractError as e:
+            logger.error("You can set limit using --limit parameter. "
+                         "See --help for more details.")
+            for url in e.data:
+                print(url)
+
     except CacheFileError as e:
         logger.error(str(e))
         sys.exit(-1)
