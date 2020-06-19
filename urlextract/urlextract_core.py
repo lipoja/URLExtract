@@ -819,7 +819,7 @@ def _urlextract_cli():
 
     args = get_args()
     logging.basicConfig(
-        level=logging.INFO, stream=sys.stderr,
+        level=logging.WARNING, stream=sys.stderr,
         format='%(asctime)s - %(levelname)s (%(name)s): %(message)s')
     logger = logging.getLogger('urlextract')
 
