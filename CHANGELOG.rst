@@ -1,5 +1,11 @@
 Changelog
 ~~~~~~~~~
+- 1.0.0
+    - new feature: DNS caching - by John Vandenberg
+    - fixed race condition in cache loading and  don't hold lock during download #55 (#56) - by Ben Schmidt
+    - updated MANIFEST.in (issue #56) - by John Vandenberg
+    - fixing 'IPv4Address' object has no attribute 'split' (issue #57)
+    - allow to use localhost as tld (issue #45) - by Diego Mascialino
 - 0.14.0
     - added detection of IPv4 addresses (issue #10)
     - catching PermissionError (issue #25)
