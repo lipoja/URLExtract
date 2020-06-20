@@ -88,7 +88,7 @@ Or you can get generator over URLs in text by:
     for url in extractor.gen_urls(example_text):
         print(url) # prints: ['janlipovsky.cz']
 
-Or you if you want to just check if there is at least one URL you can do:
+Or if you want to just check if there is at least one URL you can do:
 
 .. code:: python
 
