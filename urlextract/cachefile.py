@@ -47,12 +47,11 @@ class CacheFile:
 
         self._logger = logging.getLogger(self._URLEXTRACT_NAME)
 
-        # True if user specified path to cache directory
-        self._user_defined_cache = bool(cache_dir)
+        self._user_defined_cache_dir = cache_dir
         self._default_cache_file = False
 
         # full path for cached file with list of TLDs
-        self._tld_list_path = self._get_cache_file_path(cache_dir)
+        self._tld_list_path = self._get_cache_file_path()
         if not os.access(self._tld_list_path, os.F_OK):
             self._logger.info(
                 "Cache file not found in '%s'. "
@@ -127,36 +126,39 @@ class CacheFile:
 
         raise CacheFileError("Cache directories are not writable.")
 
-    def _get_cache_file_path(self, cache_dir=None):
+    def _get_cache_file_path(self):
         """
         Get path for cache file
 
-        :param str cache_dir: base path for TLD cache, defaults to data dir
         :raises: CacheFileError when cached directory is not writable for user
         :return: Full path to cached file with TLDs
         :rtype: str
         """
-        if cache_dir is None:
+        if self._user_defined_cache_dir is None:
             # Tries to get writable cache dir with fallback to users data dir
             # and temp directory
             cache_dir = self._get_writable_cache_dir()
         else:
-            if not os.access(cache_dir, os.W_OK):
-                raise CacheFileError("None of cache directories is writable.")
+            cache_dir = self._user_defined_cache_dir
+            if not os.access(self._user_defined_cache_dir, os.W_OK):
+                raise CacheFileError(
+                    "Cache directory {} is not writable.".format(
+                        self._user_defined_cache_dir
+                    )
+                )
 
-        # get directory for cached file
+        # get path for cached file
         return os.path.join(cache_dir, self._CACHE_FILE_NAME)
 
-    def _get_cache_lock_file_path(self, cache_dir=None):
+    def _get_cache_lock_file_path(self):
         """
         Get path for cache file lock
 
-        :param str cache_dir: base path for TLD cache lock, defaults to data dir
         :raises: CacheFileError when cached directory is not writable for user
         :return: Full path to cached file lock
         :rtype: str
         """
-        return self._get_cache_file_path(cache_dir)+'.lock'
+        return self._get_cache_file_path()+'.lock'
 
     def _download_tlds_list(self):
         """
@@ -179,7 +181,8 @@ class CacheFile:
                 self._tld_list_path
             )
 
-        if os.access(self._tld_list_path, os.F_OK) and \
+        if os.path.exists(self._tld_list_path) and \
+                os.access(self._tld_list_path, os.F_OK) and \
                 not os.access(self._tld_list_path, os.W_OK):
             self._logger.error("ERROR: Cache file is not writable for current "
                                "user. ({})".format(self._tld_list_path))
