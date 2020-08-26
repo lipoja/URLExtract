@@ -193,11 +193,11 @@ class CacheFile:
             with urllib.request.urlopen(req) as f:
                 page = f.read().decode('utf-8')
         except HTTPError as e:
-            self._logger.error("ERROR: Can not download list ot TLDs. "
+            self._logger.error("ERROR: Can not download list of TLDs. "
                                "(HTTPError: {})".format(e.reason))
             return False
         except URLError as e:
-            self._logger.error("ERROR: Can not download list ot TLDs. "
+            self._logger.error("ERROR: Can not download list of TLDs. "
                                "(URLError: {})".format(e.reason))
             return False
 
