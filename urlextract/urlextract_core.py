@@ -695,14 +695,17 @@ class URLExtract(CacheFile):
             return text_url[left_bracket_pos+1:middle_pos]
         return text_url
 
-    def gen_urls(self, text, check_dns=False):
+    def gen_urls(self, text, check_dns=False, get_indices=False):
         """
         Creates generator over found URLs in given text.
 
         :param str text: text where we want to find URLs
         :param bool check_dns: filter results to valid domains
+        :param bool get_indices: whether to return beginning and
+            ending indices as (<url>, (idx_begin, idx_end))
         :yields: URL found in text or empty string if no found
-        :rtype: str
+        :rtype: - str if not get_indices
+                - Tuple[str, Tuple[int, int]] if get_indices
         """
         tld_pos = 0
         matched_tlds = self._tlds_re.findall(text)
@@ -717,8 +720,6 @@ class URLExtract(CacheFile):
                 tmp_url = self._complete_url(text, offset + tld_pos, tld,
                                              check_dns)
                 if tmp_url:
-                    yield tmp_url
-
                     # do not search for TLD in already extracted URL
                     tld_pos_url = tmp_url.find(tld)
                     # move cursor right after found TLD
@@ -734,15 +735,20 @@ class URLExtract(CacheFile):
                         tmp_tld_pos_url = rest_url.find(new_tld)
                         if tmp_tld_pos_url < 0:
                             break
-                        rest_url = rest_url[tmp_tld_pos_url+len(new_tld):]
+                        rest_url = rest_url[tmp_tld_pos_url + len(new_tld):]
                         matched_tlds.pop(0)
+
+                    if get_indices:
+                        yield tmp_url, (tld_pos - len(tmp_url), tld_pos)
+                    else:
+                        yield tmp_url
 
                     continue
 
             # move cursor right after found TLD
             tld_pos += len(tld) + offset
 
-    def find_urls(self, text, only_unique=False, check_dns=False):
+    def find_urls(self, text, only_unique=False, check_dns=False, get_indices=False):
         """
         Find all URLs in given text.
 
@@ -750,12 +756,14 @@ class URLExtract(CacheFile):
         :param bool only_unique: return only unique URLs
         :param bool check_dns: filter results to valid domains
         :return: list of URLs found in text
+        :param bool get_indices: whether to return beginning and
+            ending indices as (<url>, (idx_begin, idx_end))
         :rtype: list
 
         :raises URLExtractError: Raised when count of found URLs reaches
             given limit. Processed URLs are returned in `data` argument.
         """
-        urls = self.gen_urls(text, check_dns)
+        urls = self.gen_urls(text, check_dns, get_indices)
         if self._limit is None:
             if only_unique:
                 return list(OrderedDict.fromkeys(urls))
