@@ -703,9 +703,8 @@ class URLExtract(CacheFile):
         :param bool check_dns: filter results to valid domains
         :param bool get_indices: whether to return beginning and
             ending indices as (<url>, (idx_begin, idx_end))
-        :yields: URL found in text or empty string if no found
-        :rtype: - str if not get_indices
-                - Tuple[str, Tuple[int, int]] if get_indices
+        :yields: URL or URL with indices found in text or empty string if nothing was found
+        :rtype: str|tuple(str, tuple(int, int))
         """
         tld_pos = 0
         matched_tlds = self._tlds_re.findall(text)
