@@ -1,5 +1,9 @@
 Changelog
 ~~~~~~~~~
+- 1.1.0 (2020-10-01)
+    - possibility to return indices of found URLs - by Benoit Laures (issue #71)
+    - fixed typo in error log message - by Yossi Rafelson
+    - updated list of TLDs
 - 1.0.0
     - new feature: DNS caching - by John Vandenberg
     - fixed race condition in cache loading and  don't hold lock during download #55 (#56) - by Ben Schmidt
