@@ -1,5 +1,7 @@
 Changelog
 ~~~~~~~~~
+- N/A
+    - case insensitive search for TLDs (issue #76)
 - 1.1.0 (2020-10-01)
     - possibility to return indices of found URLs - by Benoit Laures (issue #71)
     - fixed typo in error log message - by Yossi Rafelson
