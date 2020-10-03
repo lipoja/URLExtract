@@ -46,6 +46,8 @@ import pytest
      ['enclosure.net/slash']),
     ("'enclosure.net/qoute'",
      ['enclosure.net/qoute']),
+    ("(( example.net)asd",
+     ['example.net']),
     ("asd(enclosure.net/bracketext)asd",
      ['enclosure.net/bracketext']),
     ("Foo (http://de.wikipedia.org/wiki/Agilit%C3%A4t_(Management)) Bar",
@@ -68,6 +70,12 @@ import pytest
      ['sure.net']),
     ('([smh.com.au])]',
      ['smh.com.au']),
+    ('"some string with urls ( example.com/somepath)"',
+     ['example.com/somepath']),
+    ('"some string with urls example.com/somepa)th)"',
+     ['example.com/somepa)th)']),
+    ("asd( enclosure.net/bracketext)asd",
+     ['enclosure.net/bracketext']),
 ])
 def test_find_urls(urlextract, text, expected):
     """
@@ -77,7 +85,7 @@ def test_find_urls(urlextract, text, expected):
     :param str text: text in which we should find links
     :param list(str) expected: list of URLs that has to be found in text
     """
-    assert expected == urlextract.find_urls(text)
+    assert urlextract.find_urls(text) == expected
 
 
 def test_get_enclosures(urlextract):

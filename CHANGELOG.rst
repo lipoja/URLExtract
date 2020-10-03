@@ -1,6 +1,7 @@
 Changelog
 ~~~~~~~~~
 - N/A
+    - ignore space character before URL inside of enclosure (parenthesis) (issue #77)
     - case insensitive search for TLDs (issue #76)
     - removed methods get_stop_char, set_stop_char (deprecated since 0.7)
 - 1.1.0 (2020-10-01)
