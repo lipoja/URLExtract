@@ -414,6 +414,36 @@ class URLExtract(CacheFile):
         complete_url = self._split_markdown(complete_url, tld_pos-start_pos)
         complete_url = self._remove_enclosure_from_url(
             complete_url, tld_pos-start_pos, tld)
+
+        # search for enclosures before URL ignoring space character " "
+        # when URL contains right enclosure character (issue #77)
+        enclosure_map = {
+            left_char: right_char
+            for left_char, right_char in self._enclosure
+        }
+        if any(enclosure in complete_url[tld_pos-start_pos:]
+               for enclosure in enclosure_map.values()):
+            enclosure_space_char = True
+            enclosure_found = False
+            tmp_start_pos = start_pos
+            while enclosure_space_char:
+                if tmp_start_pos <= 0:
+                    break
+                if text[tmp_start_pos - 1] == ' ':
+                    tmp_start_pos -= 1
+                elif text[tmp_start_pos - 1] in enclosure_map.keys():
+                    tmp_start_pos -= 1
+                    enclosure_found = True
+                else:
+                    enclosure_space_char = False
+
+            if enclosure_found:
+                pre_url = text[tmp_start_pos: start_pos]
+                extended_complete_url = pre_url + complete_url
+                complete_url = self._remove_enclosure_from_url(
+                    extended_complete_url, tld_pos - tmp_start_pos, tld)
+        # URL should not start/end with whitespace
+        complete_url = complete_url.strip()
         if not self._is_domain_valid(complete_url, tld, check_dns):
             return ""
 
