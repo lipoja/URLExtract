@@ -14,7 +14,6 @@ import re
 import socket
 import string
 import sys
-import warnings
 from collections import OrderedDict
 from datetime import datetime, timedelta
 
@@ -111,9 +110,6 @@ class URLExtract(CacheFile):
         # defining default stop chars left
         self._stop_chars_right = set(string.whitespace)
         self._stop_chars_right |= general_stop_chars
-
-        # preprocessed union _stop_chars is used in _validate_tld_match
-        self._stop_chars = self._stop_chars_left | self._stop_chars_right
 
         # characters that are allowed to be right after TLD
         self._after_tld_chars = self._get_after_tld_chars()
@@ -279,40 +275,6 @@ class URLExtract(CacheFile):
 
         self._after_tld_chars = set(after_tld_chars)
 
-    def get_stop_chars(self):
-        """
-        Returns list of stop chars.
-
-        .. deprecated:: 0.7
-            Use :func:`get_stop_chars_left` or :func:`get_stop_chars_right`
-            instead.
-
-        :return: list of stop chars
-        :rtype: list
-        """
-        warnings.warn("Method get_stop_chars is deprecated, "
-                      "use `get_stop_chars_left` or "
-                      "`get_stop_chars_right` instead", DeprecationWarning)
-        return list(self._stop_chars)
-
-    def set_stop_chars(self, stop_chars):
-        """
-        Set stop characters used when determining end of URL.
-
-        .. deprecated:: 0.7
-            Use :func:`set_stop_chars_left` or :func:`set_stop_chars_right`
-            instead.
-
-        :param list stop_chars: list of characters
-        """
-
-        warnings.warn("Method set_stop_chars is deprecated, "
-                      "use `set_stop_chars_left` or "
-                      "`set_stop_chars_right` instead", DeprecationWarning)
-        self._stop_chars = set(stop_chars)
-        self._stop_chars_left = self._stop_chars
-        self._stop_chars_right = self._stop_chars
-
     def get_stop_chars_left(self):
         """
         Returns set of stop chars for text on left from TLD.
@@ -335,7 +297,6 @@ class URLExtract(CacheFile):
                             "but {} was given".format(type(stop_chars)))
 
         self._stop_chars_left = stop_chars
-        self._stop_chars = self._stop_chars_left | self._stop_chars_right
 
     def get_stop_chars_right(self):
         """
@@ -359,7 +320,6 @@ class URLExtract(CacheFile):
                             "but {} was given".format(type(stop_chars)))
 
         self._stop_chars_right = stop_chars
-        self._stop_chars = self._stop_chars_left | self._stop_chars_right
 
     def get_enclosures(self):
         """
