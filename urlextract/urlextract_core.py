@@ -143,7 +143,7 @@ class URLExtract(CacheFile):
         if self._extract_localhost:
             tlds.append('localhost')
         re_escaped = [re.escape(str(tld)) for tld in tlds]
-        self._tlds_re = re.compile('|'.join(re_escaped))
+        self._tlds_re = re.compile('|'.join(re_escaped), flags=re.IGNORECASE)
 
     @property
     def extract_email(self):
@@ -583,7 +583,7 @@ class URLExtract(CacheFile):
             return False
 
         host_tld = '.'+host_parts[-1]
-        if host_tld != tld:
+        if host_tld.lower() != tld.lower():
             return False
 
         top = host_parts[-2]

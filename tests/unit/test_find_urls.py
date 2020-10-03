@@ -64,6 +64,24 @@ def test_find_urls(urlextract, text, expected):
 
 
 @pytest.mark.parametrize("text, expected", [
+    ("http://caseInsensitive.cOM",
+     ['http://caseInsensitive.cOM']),
+
+    ("http://caseInsensitive.COM",
+     ['http://caseInsensitive.COM']),
+])
+def test_find_urls_case_insensitive(urlextract, text, expected):
+    """
+    Testing find_urls returning only unique URLs
+
+    :param fixture urlextract: fixture holding URLExtract object
+    :param str text: text in which we should find links
+    :param list(str) expected: list of URLs that has to be found in text
+    """
+    assert urlextract.find_urls(text, only_unique=True) == expected
+
+
+@pytest.mark.parametrize("text, expected", [
     ("http://unique.com http://unique.com",
      ['http://unique.com']),
 
