@@ -50,7 +50,7 @@ setup(
     long_description=read('README.rst'),
     long_description_content_type='text/x-rst',
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
