@@ -6,9 +6,7 @@ on:
 
 jobs:
   deploy:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -22,7 +20,6 @@ jobs:
     - name: Build dist
       run: |
         python setup.py sdist bdist_wheel
-
     - name: Build and Publish package to PyPI
       uses: pypa/gh-action-pypi-publish@master
       with:
