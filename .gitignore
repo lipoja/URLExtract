@@ -62,3 +62,5 @@ target/
 .tlds
 .idea
 .urlextract_tlds
+tlds-alpha-by-domain.txt
+tlds-alpha-by-domain.txt.lock
