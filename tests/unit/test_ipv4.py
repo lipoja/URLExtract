@@ -17,6 +17,9 @@ import pytest
     ("http://192.168.1.255/test.html",
      ['http://192.168.1.255/test.html']),
 
+    ("http://192.168.81.255/test.html",
+     ['http://192.168.81.255/test.html']),
+
     ("http://www.test.edu.cn@8.8.8.8:51733/hn35/",
      ['http://www.test.edu.cn@8.8.8.8:51733/hn35/']),
 

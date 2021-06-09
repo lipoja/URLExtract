@@ -65,7 +65,7 @@ class URLExtract(CacheFile):
         ("`", "`"),
     }
 
-    _ipv4_tld = ['.{}'.format(ip) for ip in range(256)]
+    _ipv4_tld = ['.{}'.format(ip) for ip in reversed(range(256))]
     _ignore_list = set()
 
     _limit = DEFAULT_LIMIT
