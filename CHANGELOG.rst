@@ -4,6 +4,7 @@ Changelog
     - fixing None of the cache directory is writable (issue #61)
     - fixes RE for IPv4 addresses - by kak-bo-che (issue #86)
     - updated list of TLDs
+    - urlextract cli is telling people to report errors on GitHub
 - 1.2.0 (2020-12-08)
     - ignore space character before URL inside of enclosure (parenthesis) (issue #77)
     - case insensitive search for TLDs (issue #76)

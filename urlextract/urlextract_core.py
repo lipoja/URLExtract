@@ -8,6 +8,7 @@ urlextract_core.py - file with definition of URLExtract class and urlextract cli
 .. codeauthor:: Jan Lipovský <janlipovsky@gmail.com>, janlipovsky.cz
 .. contributors: https://github.com/lipoja/URLExtract/graphs/contributors
 """
+import functools
 import ipaddress
 import logging
 import re
@@ -811,6 +812,25 @@ class URLExtractError(Exception):
         self.message = message
 
 
+def report_issue(func):
+    """Friendly message with link to GitHub for easier reporting"""
+    @functools.wraps(func)
+    def wrapper_urlextract_cli(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception:
+            print(
+                "Error: An unexpected error occurred. "
+                "If you can not resolve this issue please report it to: "
+                "https://github.com/lipoja/URLExtract/issues "
+                "and help us improve urlextract!",
+                file=sys.stderr)
+            raise
+
+    return wrapper_urlextract_cli
+
+
+@report_issue
 def _urlextract_cli():
     """
     urlextract - command line program that will print all URLs to stdout
