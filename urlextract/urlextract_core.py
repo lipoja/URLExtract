@@ -406,15 +406,15 @@ class URLExtract(CacheFile):
         # when it is allowed character right after TLD (e.g. dot, comma)
         temp_tlds = {tld + c for c in self._after_tld_chars}
         # get only dot+tld+one_char and compare
-        extended_tld = complete_url[len(complete_url)-len(tld)-1:]
+        extended_tld = complete_url[len(complete_url) - len(tld) - 1:]
         if extended_tld in temp_tlds:
             # We do not want o change found URL
             if not extended_tld.endswith('/'):
                 complete_url = complete_url[:-1]
 
-        complete_url = self._split_markdown(complete_url, tld_pos-start_pos)
+        complete_url = self._split_markdown(complete_url, tld_pos - start_pos)
         complete_url = self._remove_enclosure_from_url(
-            complete_url, tld_pos-start_pos, tld)
+            complete_url, tld_pos - start_pos, tld)
 
         # search for enclosures before URL ignoring space character " "
         # when URL contains right enclosure character (issue #77)
@@ -422,7 +422,7 @@ class URLExtract(CacheFile):
             left_char: right_char
             for left_char, right_char in self._enclosure
         }
-        if any(enclosure in complete_url[tld_pos-start_pos:]
+        if any(enclosure in complete_url[tld_pos - start_pos:]
                for enclosure in enclosure_map.values()):
             enclosure_space_char = True
             enclosure_found = False
@@ -573,7 +573,7 @@ class URLExtract(CacheFile):
         if len(host_parts) <= 1:
             return False
 
-        host_tld = '.'+host_parts[-1]
+        host_tld = '.' + host_parts[-1]
         if host_tld.lower() != tld.lower():
             return False
 
@@ -598,8 +598,7 @@ class URLExtract(CacheFile):
                 return False
             except Exception as err:
                 self._logger.info(
-                    "Unknown exception during gethostbyname({}) {!r}"
-                    .format(host, err))
+                    "Unknown exception during gethostbyname({}) {!r}".format(host, err))
                 return False
 
         return True
@@ -629,12 +628,12 @@ class URLExtract(CacheFile):
         left_char = text_url[left_pos] if left_pos >= 0 else ''
         right_char = enclosure_map.get(left_char, '')
         # get count of left and right enclosure characters and
-        left_char_count = text_url[:left_pos+1].count(left_char)
+        left_char_count = text_url[:left_pos + 1].count(left_char)
         right_char_count = text_url[left_pos:].count(right_char)
         # we want to find only pairs and ignore rest (more occurrences)
         min_count = min(left_char_count, right_char_count)
 
-        right_pos = len(text_url)+1
+        right_pos = len(text_url) + 1
         # find position of Nth occurrence of right enclosure character
         for i in range(max(min_count, 1)):
             right_pos = text_url[:right_pos].rfind(right_char)
@@ -674,7 +673,7 @@ class URLExtract(CacheFile):
 
         left_bracket_pos = text_url.find('[')
         # subtract 3 because URL is never shorter than 3 characters
-        if left_bracket_pos > tld_pos-3:
+        if left_bracket_pos > tld_pos - 3:
             return text_url
 
         right_bracket_pos = text_url.find(')')
@@ -683,7 +682,7 @@ class URLExtract(CacheFile):
 
         middle_pos = text_url.rfind("](")
         if middle_pos > tld_pos:
-            return text_url[left_bracket_pos+1:middle_pos]
+            return text_url[left_bracket_pos + 1:middle_pos]
         return text_url
 
     def gen_urls(self, text, check_dns=False, get_indices=False):
@@ -807,6 +806,7 @@ class URLExtractError(Exception):
         message -- explanation of the error
         data -- input expression in which the error occurred
     """
+
     def __init__(self, message, data):
         self.data = data
         self.message = message
@@ -814,6 +814,7 @@ class URLExtractError(Exception):
 
 def report_issue(func):
     """Friendly message with link to GitHub for easier reporting"""
+
     @functools.wraps(func)
     def wrapper_urlextract_cli(*args, **kwargs):
         try:
