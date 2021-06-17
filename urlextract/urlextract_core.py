@@ -475,6 +475,30 @@ class URLExtract(CacheFile):
 
         return False
 
+    def _check_dns(self, host: str) -> bool:
+        """
+        Tries to get the IP address from a given host
+        :param str host: the host to get IP from
+        :return: True if the IP was retrieved successfully False otherwise.
+        """
+        if self._cache_dns is True:
+            dns_cache_install()
+            self._cache_dns = False
+
+        try:
+            socket.gethostbyname(host)
+        except socket.herror as err:
+            if err.errno == 0:
+                self._logger.info("Unable to resolve address {}: {}"
+                                  .format(host, err))
+            else:
+                self._logger.info(err)
+            return False
+        except Exception as err:
+            self._logger.info(
+                "Unknown exception during gethostbyname({}) {!r}".format(host, err))
+            return False
+
     def _is_domain_valid(self, url, tld, check_dns=False):
         """
         Checks if given URL has valid domain name (ignores subdomains)
@@ -583,23 +607,7 @@ class URLExtract(CacheFile):
             return False
 
         if check_dns:
-            if self._cache_dns is True:
-                dns_cache_install()
-                self._cache_dns = False
-
-            try:
-                socket.gethostbyname(host)
-            except socket.herror as err:
-                if err.errno == 0:
-                    self._logger.info("Unable to resolve address {}: {}"
-                                      .format(host, err))
-                else:
-                    self._logger.info(err)
-                return False
-            except Exception as err:
-                self._logger.info(
-                    "Unknown exception during gethostbyname({}) {!r}".format(host, err))
-                return False
+            return self._check_dns(host)
 
         return True
 
