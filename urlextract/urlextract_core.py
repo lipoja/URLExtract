@@ -12,7 +12,6 @@ import functools
 import ipaddress
 import logging
 import re
-import socket
 import string
 import sys
 from collections import OrderedDict
@@ -21,6 +20,7 @@ from datetime import datetime, timedelta
 import uritools
 
 from urlextract.cachefile import CacheFileError, CacheFile
+from urlextract.dns_check import DNSCheck
 
 # version of URLExtract (do not forget to change it in setup.py as well)
 __version__ = '1.3.0'
@@ -99,6 +99,7 @@ class URLExtract(CacheFile):
         self._extract_localhost = extract_localhost
         self._extract_email = extract_email
         self._cache_dns = cache_dns
+        self.dns_checker = DNSCheck(cache=self._cache_dns)
         self._limit = limit
         self._reload_tlds_from_file()
 
@@ -372,7 +373,7 @@ class URLExtract(CacheFile):
         :param str text: text where we want to find URL
         :param int tld_pos: position of TLD
         :param str tld: matched TLD which should be in text
-        :param bool check_dns: filter results to valid domains
+        :param bool check_dns: DEPRECATED filter results to valid domains
         :return: returns URL
         :rtype: str
         """
@@ -445,7 +446,7 @@ class URLExtract(CacheFile):
                     extended_complete_url, tld_pos - tmp_start_pos, tld)
         # URL should not start/end with whitespace
         complete_url = complete_url.strip()
-        if not self._is_domain_valid(complete_url, tld, check_dns):
+        if not self._is_domain_valid(complete_url, tld):
             return ""
 
         return complete_url
@@ -475,37 +476,12 @@ class URLExtract(CacheFile):
 
         return False
 
-    def _check_dns(self, host: str) -> bool:
-        """
-        Tries to get the IP address from a given host
-        :param str host: the host to get IP from
-        :return: True if the IP was retrieved successfully False otherwise.
-        """
-        if self._cache_dns is True:
-            dns_cache_install()
-            self._cache_dns = False
-
-        try:
-            socket.gethostbyname(host)
-        except socket.herror as err:
-            if err.errno == 0:
-                self._logger.info("Unable to resolve address {}: {}"
-                                  .format(host, err))
-            else:
-                self._logger.info(err)
-            return False
-        except Exception as err:
-            self._logger.info(
-                "Unknown exception during gethostbyname({}) {!r}".format(host, err))
-            return False
-
-    def _is_domain_valid(self, url, tld, check_dns=False):
+    def _is_domain_valid(self, url, tld):
         """
         Checks if given URL has valid domain name (ignores subdomains)
 
         :param str url: complete URL that we want to check
         :param str tld: TLD that should be found at the end of URL (hostname)
-        :param bool check_dns: filter results to valid domains
         :return: True if URL is valid, False otherwise
         :rtype: bool
 
@@ -606,9 +582,6 @@ class URLExtract(CacheFile):
         if self._hostname_re.match(top) is None:
             return False
 
-        if check_dns:
-            return self._check_dns(host)
-
         return True
 
     def _remove_enclosure_from_url(self, text_url, tld_pos, tld):
@@ -698,7 +671,7 @@ class URLExtract(CacheFile):
         Creates generator over found URLs in given text.
 
         :param str text: text where we want to find URLs
-        :param bool check_dns: filter results to valid domains
+        :param bool check_dns: DEPRECATED filter results to valid domains
         :param bool get_indices: whether to return beginning and
             ending indices as (<url>, (idx_begin, idx_end))
         :yields: URL or URL with indices found in text or empty string if nothing was found
@@ -714,8 +687,7 @@ class URLExtract(CacheFile):
             tld_pos = tmp_text.find(tld)
             validated = self._validate_tld_match(text, tld, offset + tld_pos)
             if tld_pos != -1 and validated:
-                tmp_url = self._complete_url(text, offset + tld_pos, tld,
-                                             check_dns)
+                tmp_url = self._complete_url(text, offset + tld_pos, tld)
                 if tmp_url:
                     # do not search for TLD in already extracted URL
                     tld_pos_url = tmp_url.find(tld)
@@ -745,13 +717,18 @@ class URLExtract(CacheFile):
             # move cursor right after found TLD
             tld_pos += len(tld) + offset
 
-    def find_urls(self, text, only_unique=False, check_dns=False, get_indices=False):
+    def find_urls(self, text, only_unique=False, check_dns=False, get_indices=False, timeout=None,
+                  accept_on_timeout=False, max_workers=None, max_tasks=None):
         """
         Find all URLs in given text.
 
         :param str text: text where we want to find URLs
         :param bool only_unique: return only unique URLs
         :param bool check_dns: filter results to valid domains
+        :param int timeout: if check_dns is True timeout is the max time to check each found URL
+        :param int accept_on_timeout: if check_dns is True defines if an url should be considered valid in case of timeout
+        :param int max_workers: if check_dns is True max_workers is the max numbers of workers(operations) that could spawn
+        :param int max_tasks: if check_dns is True max_tasks is the max numbers of tasks(threads) that could spawn
         :return: list of URLs found in text
         :param bool get_indices: whether to return beginning and
             ending indices as (<url>, (idx_begin, idx_end))
@@ -760,13 +737,24 @@ class URLExtract(CacheFile):
         :raises URLExtractError: Raised when count of found URLs reaches
             given limit. Processed URLs are returned in `data` argument.
         """
+        result_urls = []
+        if check_dns:
+            self.dns_checker.accept_on_timeout = accept_on_timeout
+            if timeout:
+                self.dns_checker.timeout = timeout
+            if max_workers:
+                self.dns_checker.max_workers = max_workers
+            if max_tasks:
+                self.dns_checker.max_tasks = max_tasks
         urls = self.gen_urls(text, check_dns, get_indices)
         if self._limit is None:
+            result_urls = list(urls)
             if only_unique:
-                return list(OrderedDict.fromkeys(urls))
-            return list(urls)
+                result_urls = list(OrderedDict.fromkeys(result_urls))
+            if check_dns:
+                return self.dns_checker.check(hosts=result_urls)
+            return result_urls
 
-        result_urls = []
         url = next(urls, '')
         url_count = 1
         while url:
@@ -782,10 +770,13 @@ class URLExtract(CacheFile):
             url_count += 1
 
         if only_unique:
-            return list(OrderedDict.fromkeys(result_urls))
+            result_urls = list(OrderedDict.fromkeys(result_urls))
+        if check_dns:
+            return self.dns_checker.check(hosts=result_urls)
         return result_urls
 
-    def has_urls(self, text, check_dns=False):
+    def has_urls(self, text, check_dns=False, timeout=None,
+                 accept_on_timeout=False, max_workers=None, max_tasks=None):
         """
         Checks if text contains any valid URL.
         Returns True if text contains at least one URL.
@@ -799,11 +790,24 @@ class URLExtract(CacheFile):
 
         :param text: text where we want to find URLs
         :param bool check_dns: filter results to valid domains
+        :param int timeout: if check_dns is True timeout is the max time to check each found URL
+        :param int accept_on_timeout: if check_dns is True defines if an url should be considered valid in case of timeout
+        :param int max_workers: if check_dns is True max_workers is the max numbers of workers(operations) that could spawn
+        :param int max_tasks: if check_dns is True max_tasks is the max numbers of tasks(threads) that could spawn
         :return: True if et least one URL was found, False otherwise
         :rtype: bool
         """
-
-        return any(self.gen_urls(text, check_dns))
+        urls = list(self.gen_urls(text, check_dns))
+        if check_dns:
+            self.dns_checker.accept_on_timeout = accept_on_timeout
+            if timeout:
+                self.dns_checker.timeout = timeout
+            if max_workers:
+                self.dns_checker.max_workers = max_workers
+            if max_tasks:
+                self.dns_checker.max_tasks = max_tasks
+            return any(self.dns_checker.check(hosts=urls))
+        return any(urls)
 
 
 class URLExtractError(Exception):
@@ -923,33 +927,6 @@ def _urlextract_cli():
         sys.exit(-1)
     finally:
         args.input_file.close()
-
-
-def dns_cache_install():
-    try:
-        from dns_cache.resolver import ExceptionCachingResolver
-        from dns import resolver as dnspython_resolver_module
-        if not dnspython_resolver_module.default_resolver:
-            dnspython_resolver_module.default_resolver = ExceptionCachingResolver()
-        del dnspython_resolver_module
-    except ImportError:
-        pass
-
-    try:
-        from dns.resolver import LRUCache, Resolver, override_system_resolver, _resolver, default_resolver
-    except ImportError:
-        return
-
-    if default_resolver:
-        if not default_resolver.cache:
-            default_resolver.cache = LRUCache()
-        resolver = default_resolver
-    elif _resolver and _resolver.cache:
-        resolver = _resolver
-    else:
-        resolver = Resolver()
-        resolver.cache = LRUCache()
-    override_system_resolver(resolver)
 
 
 if __name__ == '__main__':
