@@ -83,7 +83,9 @@ class DNSCheck(CacheFile):
         """
          Get the IP address from a given host
         :param str host: the host to get IP from
-        :return: The IP address (a string of the form '255.255.255.255') for a host.
+        :return: A tuple with the given host and its IP address (a string of the form '255.255.255.255') if found
+        (e.g: host.com, '255.255.255.255')
+        :rtype: tuple
         """
         try:
             return host, socket.gethostbyname(host)
@@ -95,19 +97,17 @@ class DNSCheck(CacheFile):
         except Exception as err:
             self._logger.info(
                 "Unknown exception during gethostbyname({}) {!r}".format(host, err))
-        return
+        return host, ""
 
-    def check(self, host=None, hosts=None):
+    def check(self, hosts):
         """
         Tries to get the IP address from a given host or list of hosts
-        :param str host: the host to get IP from
         :param list hosts: the list of hosts to get IP from
-        :return: True if the IP was retrieved successfully False otherwise.
+        :return: a list of valid hosts.
+        :rtype: list
         """
         results = list()
         invalid_hosts = list()
-        if not hosts:
-            hosts = [host]
         with ProcessPool(max_workers=self.max_workers, max_tasks=self.max_tasks) as pool:
             future = pool.map(self._get_host, hosts, timeout=self._timeout)
 
@@ -116,7 +116,7 @@ class DNSCheck(CacheFile):
             while True:
                 try:
                     result = next(iterator)
-                    if result:
+                    if result[1]:
                         results.append(result[0])
                         continue
                     invalid_hosts.append(result[0])
@@ -129,7 +129,7 @@ class DNSCheck(CacheFile):
             for host in hosts:
                 if host not in results and host not in invalid_hosts:
                     results.append(host)
-        return True
+        return results
 
     @staticmethod
     def _cache_install():
