@@ -16,6 +16,7 @@ except ImportError:
     ExceptionCachingResolver = None
 
 import urlextract.urlextract_core as urlextract_core
+import urlextract.dns_check as dns_check
 from urlextract import URLExtract
 from urlextract import DNSCheck
 
@@ -24,7 +25,7 @@ def test_check_dns_disabled(urlextract):
     """
     Testing no network, including dns, is used by default
     """
-    socket_module = urlextract_core.socket
+    socket_module = dns_check.socket
 
     urlextract._cache_dns = False
     try:
