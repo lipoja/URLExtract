@@ -366,14 +366,14 @@ class URLExtract(CacheFile):
 
         self._after_tld_chars = self._get_after_tld_chars()
 
-    def _complete_url(self, text, tld_pos, tld, check_dns=False):
+    def complete_url(self, text, tld_pos, tld, check_dns=False):
         """
         Expand string in both sides to match whole URL.
 
         :param str text: text where we want to find URL
         :param int tld_pos: position of TLD
         :param str tld: matched TLD which should be in text
-        :param bool check_dns: DEPRECATED filter results to valid domains
+        :param bool check_dns: filter results to valid domains
         :return: returns URL
         :rtype: str
         """
@@ -446,7 +446,7 @@ class URLExtract(CacheFile):
                     extended_complete_url, tld_pos - tmp_start_pos, tld)
         # URL should not start/end with whitespace
         complete_url = complete_url.strip()
-        if not self._is_domain_valid(complete_url, tld):
+        if not self._is_domain_valid(complete_url, tld, check_dns):
             return ""
 
         return complete_url
@@ -476,7 +476,7 @@ class URLExtract(CacheFile):
 
         return False
 
-    def _is_domain_valid(self, url, tld):
+    def _is_domain_valid(self, url, tld, check_dns=False):
         """
         Checks if given URL has valid domain name (ignores subdomains)
 
@@ -582,6 +582,9 @@ class URLExtract(CacheFile):
         if self._hostname_re.match(top) is None:
             return False
 
+        if check_dns:
+            self.dns_checker.check(hosts=[host])
+
         return True
 
     def _remove_enclosure_from_url(self, text_url, tld_pos, tld):
@@ -671,7 +674,7 @@ class URLExtract(CacheFile):
         Creates generator over found URLs in given text.
 
         :param str text: text where we want to find URLs
-        :param bool check_dns: DEPRECATED filter results to valid domains
+        :param bool check_dns: filter results to valid domains
         :param bool get_indices: whether to return beginning and
             ending indices as (<url>, (idx_begin, idx_end))
         :yields: URL or URL with indices found in text or empty string if nothing was found
@@ -687,7 +690,7 @@ class URLExtract(CacheFile):
             tld_pos = tmp_text.find(tld)
             validated = self._validate_tld_match(text, tld, offset + tld_pos)
             if tld_pos != -1 and validated:
-                tmp_url = self._complete_url(text, offset + tld_pos, tld)
+                tmp_url = self.complete_url(text, offset + tld_pos, tld, check_dns)
                 if tmp_url:
                     # do not search for TLD in already extracted URL
                     tld_pos_url = tmp_url.find(tld)
@@ -746,7 +749,7 @@ class URLExtract(CacheFile):
                 self.dns_checker.max_workers = max_workers
             if max_tasks:
                 self.dns_checker.max_tasks = max_tasks
-        urls = self.gen_urls(text, check_dns, get_indices)
+        urls = self.gen_urls(text=text, check_dns=False, get_indices=get_indices)
         if self._limit is None:
             result_urls = list(urls)
             if only_unique:
@@ -797,7 +800,7 @@ class URLExtract(CacheFile):
         :return: True if et least one URL was found, False otherwise
         :rtype: bool
         """
-        urls = list(self.gen_urls(text, check_dns))
+        urls = list(self.gen_urls(text=text, check_dns=False))
         if check_dns:
             self.dns_checker.accept_on_timeout = accept_on_timeout
             if timeout:
