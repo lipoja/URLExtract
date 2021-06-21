@@ -36,37 +36,37 @@ def test_check_dns_disabled(urlextract):
         results = urlextract.find_urls("https://github.com", check_dns=False)
         assert len(results) == 1
     finally:
-        urlextract_core.socket = socket_module
+        dns_check.socket = socket_module
 
 
 def test_check_dns_enabled(urlextract):
     """
     Testing network is used when check_dns is enabled
     """
-    socket_module = urlextract_core.socket
+    socket_module = dns_check.socket
     network_used = False
 
     urlextract._cache_dns = False
     try:
-        urlextract_core.socket = None
+        dns_check.socket = None
 
         urlextract.find_urls("https://github.com", check_dns=True)
     except AttributeError:
         network_used = True
     finally:
-        urlextract_core.socket = socket_module
+        dns_check.socket = socket_module
 
     assert network_used
 
     urlextract._cache_dns = True
     try:
-        urlextract_core.socket = None
+        dns_check.socket = None
 
         urlextract.find_urls("https://github.com", check_dns=True)
     except AttributeError:
         network_used = True
     finally:
-        urlextract_core.socket = socket_module
+        dns_check.socket = socket_module
 
     assert network_used
 
@@ -84,10 +84,10 @@ def test_dns_cache_init():
     if underscore_resolver:
         dns.resolver._resolver = None
 
-    urlextract = URLExtract()
     assert dns.resolver.default_resolver is None
     assert dns.resolver._resolver is None
 
+    urlextract = URLExtract()
     results = urlextract.find_urls("https://github.com", check_dns=True)
     assert len(results) == 1
 
@@ -160,8 +160,8 @@ def test_dns_cache_negative(urlextract, dns_resolver):
     "text, expected",
     [
         ("foo a.target bar", []),
-        # ("foo invalid.invalid bar", []),
-        # ("foo 127.0.0.2 bar", ["127.0.0.2"]),
+        ("foo invalid.invalid bar", []),
+        ("foo 127.0.0.2 bar", ["127.0.0.2"]),
     ],
 )
 def test_check_dns_find_urls(urlextract, text, expected):
@@ -172,5 +172,4 @@ def test_check_dns_find_urls(urlextract, text, expected):
     :param str text: text in which we should find links
     :param list(str) expected: list of URLs that has to be found in text
     """
-    print(urlextract.find_urls(text, check_dns=True))
     assert expected == urlextract.find_urls(text, check_dns=True)
