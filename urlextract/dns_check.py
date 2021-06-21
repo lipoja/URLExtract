@@ -37,7 +37,7 @@ class DNSCheck(CacheFile):
         Defines if an url should be considered valid in case of timeout
         :rtype: bool
         """
-        return self.accept_on_timeout
+        return self._accept_on_timeout
 
     @accept_on_timeout.setter
     def accept_on_timeout(self, accept: bool):
@@ -45,7 +45,7 @@ class DNSCheck(CacheFile):
         Set if an url should be considered valid in case of timeout
         :param int accept: True if an url is valid on timeout False otherwise
         """
-        self.accept_on_timeout = accept
+        self._accept_on_timeout = accept
 
     @property
     def max_workers(self):
@@ -53,7 +53,7 @@ class DNSCheck(CacheFile):
         The max number of workers used for checking DNS by hostname
         :rtype: int
         """
-        return self.max_workers
+        return self._max_workers
 
     @max_workers.setter
     def max_workers(self, max_workers: int):
@@ -77,7 +77,7 @@ class DNSCheck(CacheFile):
         Set the max number of tasks for checking DNS by hostname
         :param int max_tasks: The max numbers of tasks(threads) DNSCheck could spawn
         """
-        self.max_tasks = max_tasks
+        self._max_tasks = max_tasks
 
     def _get_host(self, host: str):
         """
@@ -89,7 +89,7 @@ class DNSCheck(CacheFile):
             return host, socket.gethostbyname(host)
         except socket.herror as err:
             if err.errno == 0:
-                self._logger.info(f"Unable to resolve address {host}: {err}")
+                self._logger.info("Unable to resolve address {}: {}".format(host, err))
             else:
                 self._logger.info(err)
         except Exception as err:
