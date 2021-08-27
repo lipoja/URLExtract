@@ -1,7 +1,11 @@
-from urlextract.cachefile import CacheFile
+import ipaddress
 import socket
-from pebble import ProcessPool
 from concurrent.futures import TimeoutError
+
+import uritools
+from pebble import ProcessPool
+
+from urlextract.cachefile import CacheFile
 
 
 class DNSCheck(CacheFile):
@@ -83,20 +87,31 @@ class DNSCheck(CacheFile):
         """
          Get the IP address from a given host
         :param str host: the host to get IP from
-        :return: A tuple with the given host and its IP address (a string of the form '255.255.255.255') if found
-        (e.g: host.com, '255.255.255.255')
+        :return: A tuple with the given host and its IP address
+            (a string of the form '255.255.255.255') if found (e.g: host.com, '255.255.255.255')
         :rtype: tuple
         """
+        tmp_url = host
+        scheme_pos = host.find('://')
+        if scheme_pos == -1:
+            tmp_url = 'http://' + host
+
+        url_parts = uritools.urisplit(tmp_url)
+        tmp_host = url_parts.gethost()
+
+        if isinstance(tmp_host, ipaddress.IPv4Address):
+            return host, tmp_host
+
         try:
-            return host, socket.gethostbyname(host)
+            return host, socket.gethostbyname(tmp_host)
         except socket.herror as err:
             if err.errno == 0:
-                self._logger.info("Unable to resolve address {}: {}".format(host, err))
+                self._logger.info("Unable to resolve address {}: {}".format(tmp_host, err))
             else:
                 self._logger.info(err)
         except Exception as err:
             self._logger.info(
-                "Unknown exception during gethostbyname({}) {!r}".format(host, err))
+                "Unknown exception during gethostbyname({}) {!r}".format(tmp_host, err))
         return host, ""
 
     def check(self, hosts):
