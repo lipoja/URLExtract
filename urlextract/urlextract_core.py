@@ -445,6 +445,9 @@ class URLExtract(CacheFile):
                     extended_complete_url, tld_pos - tmp_start_pos, tld)
         # URL should not start/end with whitespace
         complete_url = complete_url.strip()
+        # URL should not start with two backslashes
+        if complete_url.startswith('//'):
+            complete_url = complete_url[2:]
         if not self._is_domain_valid(complete_url, tld, check_dns):
             return ""
 

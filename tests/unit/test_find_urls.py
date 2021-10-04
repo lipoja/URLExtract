@@ -51,6 +51,9 @@ import pytest
 
     ("http://123.56.234.210/struts_action.do",
      ['http://123.56.234.210/struts_action.do']),
+
+    ("<script src='//www.example.com/somejsfile.js'>",
+     ['www.example.com/somejsfile.js']),
 ])
 def test_find_urls(urlextract, text, expected):
     """
@@ -60,7 +63,7 @@ def test_find_urls(urlextract, text, expected):
     :param str text: text in which we should find links
     :param list(str) expected: list of URLs that has to be found in text
     """
-    assert expected == urlextract.find_urls(text)
+    assert  urlextract.find_urls(text) == expected
 
 
 @pytest.mark.parametrize("text, expected", [
