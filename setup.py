@@ -67,6 +67,7 @@ setup(
         'idna',
         'uritools',
         'appdirs',
-        'filelock'
+        'filelock',
+        'Pebble'
     ],
 )
