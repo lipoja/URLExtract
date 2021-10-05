@@ -365,7 +365,7 @@ class URLExtract(CacheFile):
 
         self._after_tld_chars = self._get_after_tld_chars()
 
-    def _complete_url(self, text, tld_pos, tld, check_dns=False):
+    def _complete_url(self, text, tld_pos, tld, check_dns=False, with_schema_only=False):
         """
         Expand string in both sides to match whole URL.
 
@@ -373,6 +373,8 @@ class URLExtract(CacheFile):
         :param int tld_pos: position of TLD
         :param str tld: matched TLD which should be in text
         :param bool check_dns: filter results to valid domains
+        :param bool with_schema_only: get domains with schema only
+            (e.g. https://janlipovsky.cz but not example.com)
         :return: returns URL
         :rtype: str
         """
@@ -448,7 +450,12 @@ class URLExtract(CacheFile):
         # URL should not start with two backslashes
         if complete_url.startswith('//'):
             complete_url = complete_url[2:]
-        if not self._is_domain_valid(complete_url, tld, check_dns):
+        if not self._is_domain_valid(
+                complete_url,
+                tld,
+                check_dns=check_dns,
+                with_schema_only=with_schema_only
+        ):
             return ""
 
         return complete_url
@@ -478,13 +485,15 @@ class URLExtract(CacheFile):
 
         return False
 
-    def _is_domain_valid(self, url, tld, check_dns=False):
+    def _is_domain_valid(self, url, tld, check_dns=False, with_schema_only=False):
         """
         Checks if given URL has valid domain name (ignores subdomains)
 
         :param str url: complete URL that we want to check
         :param str tld: TLD that should be found at the end of URL (hostname)
         :param bool check_dns: filter results to valid domains
+        :param bool with_schema_only: URL must contain schema (protocol)
+            to be considered valid
         :return: True if URL is valid, False otherwise
         :rtype: bool
 
@@ -519,6 +528,8 @@ class URLExtract(CacheFile):
 
         scheme_pos = url.find('://')
         if scheme_pos == -1:
+            if with_schema_only:
+                return False
             url = 'http://' + url
             added_schema = True
         else:
@@ -689,7 +700,7 @@ class URLExtract(CacheFile):
             return text_url[left_bracket_pos+1:middle_pos]
         return text_url
 
-    def gen_urls(self, text, check_dns=False, get_indices=False):
+    def gen_urls(self, text, check_dns=False, get_indices=False, with_schema_only=False):
         """
         Creates generator over found URLs in given text.
 
@@ -697,6 +708,7 @@ class URLExtract(CacheFile):
         :param bool check_dns: filter results to valid domains
         :param bool get_indices: whether to return beginning and
             ending indices as (<url>, (idx_begin, idx_end))
+        :param bool with_schema_only: get domains with schema only
         :yields: URL or URL with indices found in text or empty string if nothing was found
         :rtype: str|tuple(str, tuple(int, int))
         """
@@ -711,7 +723,8 @@ class URLExtract(CacheFile):
             validated = self._validate_tld_match(text, tld, offset + tld_pos)
             if tld_pos != -1 and validated:
                 tmp_url = self._complete_url(text, offset + tld_pos, tld,
-                                             check_dns)
+                                             check_dns=check_dns,
+                                             with_schema_only=with_schema_only)
                 if tmp_url:
                     # do not search for TLD in already extracted URL
                     tld_pos_url = tmp_url.find(tld)
@@ -741,7 +754,7 @@ class URLExtract(CacheFile):
             # move cursor right after found TLD
             tld_pos += len(tld) + offset
 
-    def find_urls(self, text, only_unique=False, check_dns=False, get_indices=False):
+    def find_urls(self, text, only_unique=False, check_dns=False, get_indices=False, with_schema_only=False):
         """
         Find all URLs in given text.
 
@@ -751,12 +764,14 @@ class URLExtract(CacheFile):
         :return: list of URLs found in text
         :param bool get_indices: whether to return beginning and
             ending indices as (<url>, (idx_begin, idx_end))
+        :param bool with_schema_only: get domains with schema only
+            (e.g. https://janlipovsky.cz but not example.com)
         :rtype: list
 
         :raises URLExtractError: Raised when count of found URLs reaches
             given limit. Processed URLs are returned in `data` argument.
         """
-        urls = self.gen_urls(text, check_dns, get_indices)
+        urls = self.gen_urls(text, check_dns=check_dns, get_indices=get_indices, with_schema_only=with_schema_only)
         if self._limit is None:
             if only_unique:
                 return list(OrderedDict.fromkeys(urls))
@@ -781,7 +796,7 @@ class URLExtract(CacheFile):
             return list(OrderedDict.fromkeys(result_urls))
         return result_urls
 
-    def has_urls(self, text, check_dns=False):
+    def has_urls(self, text, check_dns=False, with_schema_only=False):
         """
         Checks if text contains any valid URL.
         Returns True if text contains at least one URL.
@@ -795,11 +810,13 @@ class URLExtract(CacheFile):
 
         :param text: text where we want to find URLs
         :param bool check_dns: filter results to valid domains
+        :param bool with_schema_only: consider domains with schema only
         :return: True if et least one URL was found, False otherwise
         :rtype: bool
         """
 
-        return any(self.gen_urls(text, check_dns))
+        return any(self.gen_urls(
+            text, check_dns=check_dns, with_schema_only=with_schema_only))
 
 
 class URLExtractError(Exception):

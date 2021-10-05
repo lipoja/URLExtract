@@ -116,3 +116,19 @@ def test_find_urls_with_indices(urlextract, text, expected):
     :param list(str) expected: list of URLs that has to be found in text
     """
     assert urlextract.find_urls(text, get_indices=True) == expected
+
+
+@pytest.mark.parametrize("text, expected", [
+    ("Let's have URL http://janlipovsky.cz",
+     ['http://janlipovsky.cz']),
+    ("Without schema janlipovsky.cz", []),
+])
+def test_find_urls_schema_only(urlextract, text, expected):
+    """
+    Testing find_urls returning only unique URLs
+
+    :param fixture urlextract: fixture holding URLExtract object
+    :param str text: text in which we should find links
+    :param list(str) expected: list of URLs that has to be found in text
+    """
+    assert urlextract.find_urls(text, with_schema_only=True) == expected
