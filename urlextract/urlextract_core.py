@@ -801,13 +801,6 @@ class URLExtract(CacheFile):
         Checks if text contains any valid URL.
         Returns True if text contains at least one URL.
 
-        >>> extractor = URLExtract()
-        >>> extractor.has_urls("Get unique URL from: http://janlipovsky.cz")
-        True
-
-        >>> extractor.has_urls("Clean text")
-        False
-
         :param text: text where we want to find URLs
         :param bool check_dns: filter results to valid domains
         :param bool with_schema_only: consider domains with schema only
