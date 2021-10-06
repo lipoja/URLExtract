@@ -2,6 +2,10 @@ Changelog
 ~~~~~~~~~
 - N/A
 
+- 1.4.0 (2021-10-06)
+    - urlextract detects URLs which start with double slash '//' (issue #94)
+    - adding ability to return only URLs with schema (issue #96)
+    - updated list of TLDs
 - 1.3.0 (2021-06-12)
     - fixing None of the cache directory is writable (issue #61)
     - fixes RE for IPv4 addresses - by kak-bo-che (issue #86)
