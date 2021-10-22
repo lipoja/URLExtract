@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 
 import uritools
 
-from urlextract.cachefile import CacheFileError, CacheFile
+from urlextract.cachefile import CacheFile, CacheFileError
 
 # version of URLExtract (do not forget to change it in setup.py as well)
 __version__ = '1.4.0'
@@ -931,8 +931,8 @@ def _urlextract_cli():
 
 def dns_cache_install():
     try:
-        from dns_cache.resolver import ExceptionCachingResolver
         from dns import resolver as dnspython_resolver_module
+        from dns_cache.resolver import ExceptionCachingResolver
         if not dnspython_resolver_module.default_resolver:
             dnspython_resolver_module.default_resolver = ExceptionCachingResolver()
         del dnspython_resolver_module
@@ -940,7 +940,8 @@ def dns_cache_install():
         pass
 
     try:
-        from dns.resolver import LRUCache, Resolver, override_system_resolver, _resolver, default_resolver
+        from dns.resolver import (LRUCache, Resolver, _resolver,
+                                  default_resolver, override_system_resolver)
     except ImportError:
         return
 
