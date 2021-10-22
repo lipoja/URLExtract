@@ -62,6 +62,12 @@ Requirements
        pip install appdirs
        pip install dnspython
 
+Or you can install the requirements with `requirements.txt`:
+
+   ::
+
+       pip install -r requirements.txt
+
 Example
 ~~~~~~~
 
