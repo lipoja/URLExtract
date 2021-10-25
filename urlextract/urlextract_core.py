@@ -23,7 +23,7 @@ import uritools
 from urlextract.cachefile import CacheFile, CacheFileError
 
 # version of URLExtract (do not forget to change it in setup.py as well)
-__version__ = '1.4.0'
+__version__ = "1.4.0"
 
 # default value for maximum count of processed URLs by find_url
 DEFAULT_LIMIT = 10000
@@ -51,33 +51,33 @@ class URLExtract(CacheFile):
         if extractor.has_urls(example_text):
             print("Given text contains some URL")
     """
+
     # compiled regexp for naive validation of host name
-    _hostname_re = re.compile(
-        r"^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$")
+    _hostname_re = re.compile(r"^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])$")
 
     # list of enclosure of URL that should be removed
     _enclosure = {
         ("(", ")"),
         ("{", "}"),
         ("[", "]"),
-        ("\"", "\""),
+        ('"', '"'),
         ("\\", "\\"),
         ("'", "'"),
         ("`", "`"),
     }
 
-    _ipv4_tld = ['.{}'.format(ip) for ip in reversed(range(256))]
+    _ipv4_tld = [".{}".format(ip) for ip in reversed(range(256))]
     _ignore_list = set()
 
     _limit = DEFAULT_LIMIT
 
     def __init__(
-            self,
-            extract_email=False,
-            cache_dns=True,
-            extract_localhost=True,
-            limit=DEFAULT_LIMIT,
-            **kwargs
+        self,
+        extract_email=False,
+        cache_dns=True,
+        extract_localhost=True,
+        limit=DEFAULT_LIMIT,
+        **kwargs
     ):
         """
         Initialize function for URLExtract class.
@@ -103,10 +103,10 @@ class URLExtract(CacheFile):
         self._reload_tlds_from_file()
 
         # general stop characters
-        general_stop_chars = {'\"', '<', '>', ';'}
+        general_stop_chars = {'"', "<", ">", ";"}
         # defining default stop chars left
         self._stop_chars_left = set(string.whitespace)
-        self._stop_chars_left |= general_stop_chars | {'|', '=', ']', ')', '}'}
+        self._stop_chars_left |= general_stop_chars | {"|", "=", "]", ")", "}"}
 
         # defining default stop chars left
         self._stop_chars_right = set(string.whitespace)
@@ -120,7 +120,7 @@ class URLExtract(CacheFile):
         Initialize after tld characters
         """
         after_tld_chars = set(string.whitespace)
-        after_tld_chars |= {'/', '\"', '\'', '<', '>', '?', ':', '.', ','}
+        after_tld_chars |= {"/", '"', "'", "<", ">", "?", ":", ".", ","}
         # get left enclosure characters
         _, right_enclosure = zip(*self._enclosure)
         # add right enclosure characters to be valid after TLD
@@ -138,9 +138,9 @@ class URLExtract(CacheFile):
         tlds = sorted(self._load_cached_tlds(), key=len, reverse=True)
         tlds += self._ipv4_tld
         if self._extract_localhost:
-            tlds.append('localhost')
+            tlds.append("localhost")
         re_escaped = [re.escape(str(tld)) for tld in tlds]
-        self._tlds_re = re.compile('|'.join(re_escaped), flags=re.IGNORECASE)
+        self._tlds_re = re.compile("|".join(re_escaped), flags=re.IGNORECASE)
 
     @property
     def extract_email(self):
@@ -294,8 +294,10 @@ class URLExtract(CacheFile):
         :raises: TypeError
         """
         if not isinstance(stop_chars, set):
-            raise TypeError("stop_chars should be type set "
-                            "but {} was given".format(type(stop_chars)))
+            raise TypeError(
+                "stop_chars should be type set "
+                "but {} was given".format(type(stop_chars))
+            )
 
         self._stop_chars_left = stop_chars
 
@@ -317,8 +319,10 @@ class URLExtract(CacheFile):
         :raises: TypeError
         """
         if not isinstance(stop_chars, set):
-            raise TypeError("stop_chars should be type set "
-                            "but {} was given".format(type(stop_chars)))
+            raise TypeError(
+                "stop_chars should be type set "
+                "but {} was given".format(type(stop_chars))
+            )
 
         self._stop_chars_right = stop_chars
 
@@ -340,10 +344,8 @@ class URLExtract(CacheFile):
         :param str left_char: left character of enclosure pair - e.g. "("
         :param str right_char: right character of enclosure pair - e.g. ")"
         """
-        assert len(left_char) == 1, \
-            "Parameter left_char must be character not string"
-        assert len(right_char) == 1, \
-            "Parameter right_char must be character not string"
+        assert len(left_char) == 1, "Parameter left_char must be character not string"
+        assert len(right_char) == 1, "Parameter right_char must be character not string"
         self._enclosure.add((left_char, right_char))
 
         self._after_tld_chars = self._get_after_tld_chars()
@@ -355,17 +357,17 @@ class URLExtract(CacheFile):
         :param str left_char: left character of enclosure pair - e.g. "("
         :param str right_char: right character of enclosure pair - e.g. ")"
         """
-        assert len(left_char) == 1, \
-            "Parameter left_char must be character not string"
-        assert len(right_char) == 1, \
-            "Parameter right_char must be character not string"
+        assert len(left_char) == 1, "Parameter left_char must be character not string"
+        assert len(right_char) == 1, "Parameter right_char must be character not string"
         rm_enclosure = (left_char, right_char)
         if rm_enclosure in self._enclosure:
             self._enclosure.remove(rm_enclosure)
 
         self._after_tld_chars = self._get_after_tld_chars()
 
-    def _complete_url(self, text, tld_pos, tld, check_dns=False, with_schema_only=False):
+    def _complete_url(
+        self, text, tld_pos, tld, check_dns=False, with_schema_only=False
+    ):
         """
         Expand string in both sides to match whole URL.
 
@@ -403,36 +405,38 @@ class URLExtract(CacheFile):
                     else:
                         right_ok = False
 
-        complete_url = text[start_pos:end_pos + 1].lstrip('/')
+        complete_url = text[start_pos : end_pos + 1].lstrip("/")
         # remove last character from url
         # when it is allowed character right after TLD (e.g. dot, comma)
         temp_tlds = {tld + c for c in self._after_tld_chars}
         # get only dot+tld+one_char and compare
-        extended_tld = complete_url[len(complete_url)-len(tld)-1:]
+        extended_tld = complete_url[len(complete_url) - len(tld) - 1 :]
         if extended_tld in temp_tlds:
             # We do not want o change found URL
-            if not extended_tld.endswith('/'):
+            if not extended_tld.endswith("/"):
                 complete_url = complete_url[:-1]
 
-        complete_url = self._split_markdown(complete_url, tld_pos-start_pos)
+        complete_url = self._split_markdown(complete_url, tld_pos - start_pos)
         complete_url = self._remove_enclosure_from_url(
-            complete_url, tld_pos-start_pos, tld)
+            complete_url, tld_pos - start_pos, tld
+        )
 
         # search for enclosures before URL ignoring space character " "
         # when URL contains right enclosure character (issue #77)
         enclosure_map = {
-            left_char: right_char
-            for left_char, right_char in self._enclosure
+            left_char: right_char for left_char, right_char in self._enclosure
         }
-        if any(enclosure in complete_url[tld_pos-start_pos:]
-               for enclosure in enclosure_map.values()):
+        if any(
+            enclosure in complete_url[tld_pos - start_pos :]
+            for enclosure in enclosure_map.values()
+        ):
             enclosure_space_char = True
             enclosure_found = False
             tmp_start_pos = start_pos
             while enclosure_space_char:
                 if tmp_start_pos <= 0:
                     break
-                if text[tmp_start_pos - 1] == ' ':
+                if text[tmp_start_pos - 1] == " ":
                     tmp_start_pos -= 1
                 elif text[tmp_start_pos - 1] in enclosure_map.keys():
                     tmp_start_pos -= 1
@@ -441,20 +445,18 @@ class URLExtract(CacheFile):
                     enclosure_space_char = False
 
             if enclosure_found:
-                pre_url = text[tmp_start_pos: start_pos]
+                pre_url = text[tmp_start_pos:start_pos]
                 extended_complete_url = pre_url + complete_url
                 complete_url = self._remove_enclosure_from_url(
-                    extended_complete_url, tld_pos - tmp_start_pos, tld)
+                    extended_complete_url, tld_pos - tmp_start_pos, tld
+                )
         # URL should not start/end with whitespace
         complete_url = complete_url.strip()
         # URL should not start with two backslashes
-        if complete_url.startswith('//'):
+        if complete_url.startswith("//"):
             complete_url = complete_url[2:]
         if not self._is_domain_valid(
-                complete_url,
-                tld,
-                check_dns=check_dns,
-                with_schema_only=with_schema_only
+            complete_url, tld, check_dns=check_dns, with_schema_only=with_schema_only
         ):
             return ""
 
@@ -476,8 +478,7 @@ class URLExtract(CacheFile):
         right_tld_pos = tld_pos + len(matched_tld)
         if len(text) > right_tld_pos:
             if text[right_tld_pos] in self._after_tld_chars:
-                if tld_pos > 0 and text[tld_pos - 1] \
-                        not in self._stop_chars_left:
+                if tld_pos > 0 and text[tld_pos - 1] not in self._stop_chars_left:
                     return True
         else:
             if tld_pos > 0 and text[tld_pos - 1] not in self._stop_chars_left:
@@ -526,11 +527,11 @@ class URLExtract(CacheFile):
         if not url:
             return False
 
-        scheme_pos = url.find('://')
+        scheme_pos = url.find("://")
         if scheme_pos == -1:
             if with_schema_only:
                 return False
-            url = 'http://' + url
+            url = "http://" + url
             added_schema = True
         else:
             added_schema = False
@@ -548,10 +549,10 @@ class URLExtract(CacheFile):
                 # if we want to extract email we have to be sure that it
                 # really is email -> given URL does not have other parts
                 if (
-                        url_parts.getport()
-                        or url_parts.getpath()
-                        or url_parts.getquery()
-                        or url_parts.getfragment()
+                    url_parts.getport()
+                    or url_parts.getpath()
+                    or url_parts.getquery()
+                    or url_parts.getfragment()
                 ):
                     return False
 
@@ -559,8 +560,7 @@ class URLExtract(CacheFile):
             host = url_parts.gethost()
         except ValueError:
             self._logger.info(
-                "Invalid host '%s'. "
-                "If the host is valid report a bug.", url
+                "Invalid host '%s'. " "If the host is valid report a bug.", url
             )
             return False
 
@@ -579,15 +579,15 @@ class URLExtract(CacheFile):
         if tld in self._ipv4_tld and not is_ipv4:
             return False
 
-        host_parts = host.split('.')
+        host_parts = host.split(".")
 
-        if self._extract_localhost and host_parts == ['localhost']:
+        if self._extract_localhost and host_parts == ["localhost"]:
             return True
 
         if len(host_parts) <= 1:
             return False
 
-        host_tld = '.'+host_parts[-1]
+        host_tld = "." + host_parts[-1]
         if host_tld.lower() != tld.lower():
             return False
 
@@ -605,15 +605,16 @@ class URLExtract(CacheFile):
                 socket.gethostbyname(host)
             except socket.herror as err:
                 if err.errno == 0:
-                    self._logger.info("Unable to resolve address {}: {}"
-                                      .format(host, err))
+                    self._logger.info(
+                        "Unable to resolve address {}: {}".format(host, err)
+                    )
                 else:
                     self._logger.info(err)
                 return False
             except Exception as err:
                 self._logger.info(
-                    "Unknown exception during gethostbyname({}) {!r}"
-                    .format(host, err))
+                    "Unknown exception during gethostbyname({}) {!r}".format(host, err)
+                )
                 return False
 
         return True
@@ -632,23 +633,24 @@ class URLExtract(CacheFile):
         """
 
         enclosure_map = {
-            left_char: right_char
-            for left_char, right_char in self._enclosure
+            left_char: right_char for left_char, right_char in self._enclosure
         }
         # get position of most right left_char of enclosure pairs
-        left_pos = max([
-            text_url.rfind(left_char, 0, tld_pos)
-            for left_char in enclosure_map.keys()
-        ])
-        left_char = text_url[left_pos] if left_pos >= 0 else ''
-        right_char = enclosure_map.get(left_char, '')
+        left_pos = max(
+            [
+                text_url.rfind(left_char, 0, tld_pos)
+                for left_char in enclosure_map.keys()
+            ]
+        )
+        left_char = text_url[left_pos] if left_pos >= 0 else ""
+        right_char = enclosure_map.get(left_char, "")
         # get count of left and right enclosure characters and
-        left_char_count = text_url[:left_pos+1].count(left_char)
+        left_char_count = text_url[: left_pos + 1].count(left_char)
         right_char_count = text_url[left_pos:].count(right_char)
         # we want to find only pairs and ignore rest (more occurrences)
         min_count = min(left_char_count, right_char_count)
 
-        right_pos = len(text_url)+1
+        right_pos = len(text_url) + 1
         # find position of Nth occurrence of right enclosure character
         for i in range(max(min_count, 1)):
             right_pos = text_url[:right_pos].rfind(right_char)
@@ -656,7 +658,7 @@ class URLExtract(CacheFile):
         if right_pos < 0 or right_pos < tld_pos:
             right_pos = len(text_url)
 
-        new_url = text_url[left_pos + 1:right_pos]
+        new_url = text_url[left_pos + 1 : right_pos]
         tld_pos -= left_pos + 1
 
         # Get valid domain when we have input as: example.com)/path
@@ -666,8 +668,7 @@ class URLExtract(CacheFile):
         if after_tld_pos < len(new_url):
             if new_url[after_tld_pos] in enclosure_map.values():
                 new_url_tmp = new_url[:after_tld_pos]
-                return self._remove_enclosure_from_url(
-                    new_url_tmp, tld_pos, tld)
+                return self._remove_enclosure_from_url(new_url_tmp, tld_pos, tld)
 
         return new_url
 
@@ -686,21 +687,23 @@ class URLExtract(CacheFile):
         # Markdown url can looks like:
         # [http://example.com/](http://example.com/status/210)
 
-        left_bracket_pos = text_url.find('[')
+        left_bracket_pos = text_url.find("[")
         # subtract 3 because URL is never shorter than 3 characters
-        if left_bracket_pos > tld_pos-3:
+        if left_bracket_pos > tld_pos - 3:
             return text_url
 
-        right_bracket_pos = text_url.find(')')
+        right_bracket_pos = text_url.find(")")
         if right_bracket_pos < tld_pos:
             return text_url
 
         middle_pos = text_url.rfind("](")
         if middle_pos > tld_pos:
-            return text_url[left_bracket_pos+1:middle_pos]
+            return text_url[left_bracket_pos + 1 : middle_pos]
         return text_url
 
-    def gen_urls(self, text, check_dns=False, get_indices=False, with_schema_only=False):
+    def gen_urls(
+        self, text, check_dns=False, get_indices=False, with_schema_only=False
+    ):
         """
         Creates generator over found URLs in given text.
 
@@ -722,16 +725,20 @@ class URLExtract(CacheFile):
             tld_pos = tmp_text.find(tld)
             validated = self._validate_tld_match(text, tld, offset + tld_pos)
             if tld_pos != -1 and validated:
-                tmp_url = self._complete_url(text, offset + tld_pos, tld,
-                                             check_dns=check_dns,
-                                             with_schema_only=with_schema_only)
+                tmp_url = self._complete_url(
+                    text,
+                    offset + tld_pos,
+                    tld,
+                    check_dns=check_dns,
+                    with_schema_only=with_schema_only,
+                )
                 if tmp_url:
                     # do not search for TLD in already extracted URL
                     tld_pos_url = tmp_url.find(tld)
                     # move cursor right after found TLD
                     tld_pos += len(tld) + offset
                     # move cursor after end of found URL
-                    rest_url = tmp_url[tld_pos_url + len(tld):]
+                    rest_url = tmp_url[tld_pos_url + len(tld) :]
                     tld_pos += len(rest_url)
 
                     # remove all matched TLDs that were found in currently
@@ -741,7 +748,7 @@ class URLExtract(CacheFile):
                         tmp_tld_pos_url = rest_url.find(new_tld)
                         if tmp_tld_pos_url < 0:
                             break
-                        rest_url = rest_url[tmp_tld_pos_url + len(new_tld):]
+                        rest_url = rest_url[tmp_tld_pos_url + len(new_tld) :]
                         matched_tlds.pop(0)
 
                     if get_indices:
@@ -754,7 +761,14 @@ class URLExtract(CacheFile):
             # move cursor right after found TLD
             tld_pos += len(tld) + offset
 
-    def find_urls(self, text, only_unique=False, check_dns=False, get_indices=False, with_schema_only=False):
+    def find_urls(
+        self,
+        text,
+        only_unique=False,
+        check_dns=False,
+        get_indices=False,
+        with_schema_only=False,
+    ):
         """
         Find all URLs in given text.
 
@@ -771,25 +785,31 @@ class URLExtract(CacheFile):
         :raises URLExtractError: Raised when count of found URLs reaches
             given limit. Processed URLs are returned in `data` argument.
         """
-        urls = self.gen_urls(text, check_dns=check_dns, get_indices=get_indices, with_schema_only=with_schema_only)
+        urls = self.gen_urls(
+            text,
+            check_dns=check_dns,
+            get_indices=get_indices,
+            with_schema_only=with_schema_only,
+        )
         if self._limit is None:
             if only_unique:
                 return list(OrderedDict.fromkeys(urls))
             return list(urls)
 
         result_urls = []
-        url = next(urls, '')
+        url = next(urls, "")
         url_count = 1
         while url:
             if url_count > self._limit:
                 err = "Limit for extracting URLs was reached. [{} URLs]".format(
-                    self._limit)
+                    self._limit
+                )
                 self._logger.error(err)
 
                 raise URLExtractError(err, data=result_urls)
 
             result_urls.append(url)
-            url = next(urls, '')
+            url = next(urls, "")
             url_count += 1
 
         if only_unique:
@@ -808,8 +828,9 @@ class URLExtract(CacheFile):
         :rtype: bool
         """
 
-        return any(self.gen_urls(
-            text, check_dns=check_dns, with_schema_only=with_schema_only))
+        return any(
+            self.gen_urls(text, check_dns=check_dns, with_schema_only=with_schema_only)
+        )
 
 
 class URLExtractError(Exception):
@@ -820,6 +841,7 @@ class URLExtractError(Exception):
         message -- explanation of the error
         data -- input expression in which the error occurred
     """
+
     def __init__(self, message, data):
         self.data = data
         self.message = message
@@ -827,6 +849,7 @@ class URLExtractError(Exception):
 
 def report_issue(func):
     """Friendly message with link to GitHub for easier reporting"""
+
     @functools.wraps(func)
     def wrapper_urlextract_cli(*args, **kwargs):
         try:
@@ -837,7 +860,8 @@ def report_issue(func):
                 "If you can not resolve this issue please report it to: "
                 "https://github.com/lipoja/URLExtract/issues "
                 "and help us improve urlextract!",
-                file=sys.stderr)
+                file=sys.stderr,
+            )
             raise
 
     return wrapper_urlextract_cli
@@ -858,51 +882,82 @@ def _urlextract_cli():
         Parse programs arguments
         """
         parser = argparse.ArgumentParser(
-            description='urlextract - prints out all URLs that were '
-                        'found in input file or stdin based on locating '
-                        'their TLDs')
+            description="urlextract - prints out all URLs that were "
+            "found in input file or stdin based on locating "
+            "their TLDs"
+        )
 
         ver = URLExtract.get_version()
-        parser.add_argument("-v", "--version", action="version",
-                            version='%(prog)s - version {}'.format(ver))
-
         parser.add_argument(
-            "-u", "--unique", dest='unique', action='store_true',
-            help='print out only unique URLs found in file')
-
-        parser.add_argument(
-            "-dl", "--disable-localhost", dest='disable_localhost',
-            action='store_true', help='disable extracting "localhost" as URL')
-
-        parser.add_argument(
-            "-c", "--check-dns", dest='check_dns', action='store_true',
-            help='print out only URLs for existing domain names')
-
-        parser.add_argument(
-            '-i', '--ignore-file', metavar='<ignore_file>',
-            type=str, default=None,
-            help='input text file with URLs to exclude from extraction')
-
-        parser.add_argument(
-            "-l", "--limit", dest='limit', type=int, default=DEFAULT_LIMIT,
-            help='Maximum count of URLs that can be processed. '
-                 'Set 0 to disable the limit. '
-                 'Default: {}'.format(DEFAULT_LIMIT)
+            "-v",
+            "--version",
+            action="version",
+            version="%(prog)s - version {}".format(ver),
         )
 
         parser.add_argument(
-            'input_file', nargs='?', metavar='<input_file>',
-            type=argparse.FileType(), default=sys.stdin,
-            help='input text file with URLs to extract')
+            "-u",
+            "--unique",
+            dest="unique",
+            action="store_true",
+            help="print out only unique URLs found in file",
+        )
+
+        parser.add_argument(
+            "-dl",
+            "--disable-localhost",
+            dest="disable_localhost",
+            action="store_true",
+            help='disable extracting "localhost" as URL',
+        )
+
+        parser.add_argument(
+            "-c",
+            "--check-dns",
+            dest="check_dns",
+            action="store_true",
+            help="print out only URLs for existing domain names",
+        )
+
+        parser.add_argument(
+            "-i",
+            "--ignore-file",
+            metavar="<ignore_file>",
+            type=str,
+            default=None,
+            help="input text file with URLs to exclude from extraction",
+        )
+
+        parser.add_argument(
+            "-l",
+            "--limit",
+            dest="limit",
+            type=int,
+            default=DEFAULT_LIMIT,
+            help="Maximum count of URLs that can be processed. "
+            "Set 0 to disable the limit. "
+            "Default: {}".format(DEFAULT_LIMIT),
+        )
+
+        parser.add_argument(
+            "input_file",
+            nargs="?",
+            metavar="<input_file>",
+            type=argparse.FileType(),
+            default=sys.stdin,
+            help="input text file with URLs to extract",
+        )
 
         parsed_args = parser.parse_args()
         return parsed_args
 
     args = get_args()
     logging.basicConfig(
-        level=logging.WARNING, stream=sys.stderr,
-        format='%(asctime)s - %(levelname)s (%(name)s): %(message)s')
-    logger = logging.getLogger('urlextract')
+        level=logging.WARNING,
+        stream=sys.stderr,
+        format="%(asctime)s - %(levelname)s (%(name)s): %(message)s",
+    )
+    logger = logging.getLogger("urlextract")
 
     try:
         limit = None if args.limit <= 0 else args.limit
@@ -917,8 +972,10 @@ def _urlextract_cli():
             for url in urlextract.find_urls(content, args.unique, args.check_dns):
                 print(url)
         except URLExtractError as e:
-            logger.error("You can set limit using --limit parameter. "
-                         "See --help for more details.")
+            logger.error(
+                "You can set limit using --limit parameter. "
+                "See --help for more details."
+            )
             for url in e.data:
                 print(url)
 
@@ -933,6 +990,7 @@ def dns_cache_install():
     try:
         from dns import resolver as dnspython_resolver_module
         from dns_cache.resolver import ExceptionCachingResolver
+
         if not dnspython_resolver_module.default_resolver:
             dnspython_resolver_module.default_resolver = ExceptionCachingResolver()
         del dnspython_resolver_module
@@ -940,8 +998,13 @@ def dns_cache_install():
         pass
 
     try:
-        from dns.resolver import (LRUCache, Resolver, _resolver,
-                                  default_resolver, override_system_resolver)
+        from dns.resolver import (
+            LRUCache,
+            Resolver,
+            _resolver,
+            default_resolver,
+            override_system_resolver,
+        )
     except ImportError:
         return
 
@@ -957,5 +1020,5 @@ def dns_cache_install():
     override_system_resolver(resolver)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     _urlextract_cli()

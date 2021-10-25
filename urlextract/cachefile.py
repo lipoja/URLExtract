@@ -24,6 +24,7 @@ class CacheFileError(Exception):
     """
     Raised when some error occurred regarding file with cached TLDs.
     """
+
     pass
 
 
@@ -33,8 +34,8 @@ class CacheFile:
     """
 
     # file name of cached list of TLDs downloaded from IANA
-    _CACHE_FILE_NAME = 'tlds-alpha-by-domain.txt'
-    _DATA_DIR = 'data'
+    _CACHE_FILE_NAME = "tlds-alpha-by-domain.txt"
+    _DATA_DIR = "data"
 
     # name used in appdir
     _URLEXTRACT_NAME = "urlextract"
@@ -56,7 +57,8 @@ class CacheFile:
             self._logger.info(
                 "Cache file not found in '%s'. "
                 "Use URLExtract.update() to download newest version.",
-                self._tld_list_path)
+                self._tld_list_path,
+            )
             self._logger.info(
                 "Using default list of TLDs provided in urlextract package."
             )
@@ -83,12 +85,12 @@ class CacheFile:
         """
 
         default_list_path = os.path.join(
-            self._get_default_cache_dir(), self._CACHE_FILE_NAME)
+            self._get_default_cache_dir(), self._CACHE_FILE_NAME
+        )
 
         if not os.access(default_list_path, os.F_OK):
             raise CacheFileError(
-                "Default cache file does not exist "
-                "'{}'!".format(default_list_path)
+                "Default cache file does not exist " "'{}'!".format(default_list_path)
             )
 
         return default_list_path
@@ -158,7 +160,7 @@ class CacheFile:
         :return: Full path to cached file lock
         :rtype: str
         """
-        return self._get_cache_file_path()+'.lock'
+        return self._get_cache_file_path() + ".lock"
 
     def _download_tlds_list(self):
         """
@@ -168,44 +170,51 @@ class CacheFile:
         :return: True if list was downloaded, False in case of an error
         :rtype: bool
         """
-        url_list = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt'
+        url_list = "https://data.iana.org/TLD/tlds-alpha-by-domain.txt"
 
         # Default cache file exist (set by _default_cache_file)
         # and we want to write permission
-        if self._default_cache_file and \
-                not os.access(self._tld_list_path, os.W_OK):
+        if self._default_cache_file and not os.access(self._tld_list_path, os.W_OK):
             self._logger.info("Default cache file is not writable.")
             self._tld_list_path = self._get_cache_file_path()
-            self._logger.info(
-                "Changed path of cache file to: %s",
-                self._tld_list_path
-            )
+            self._logger.info("Changed path of cache file to: %s", self._tld_list_path)
 
-        if os.path.exists(self._tld_list_path) and \
-                os.access(self._tld_list_path, os.F_OK) and \
-                not os.access(self._tld_list_path, os.W_OK):
-            self._logger.error("ERROR: Cache file is not writable for current "
-                               "user. ({})".format(self._tld_list_path))
+        if (
+            os.path.exists(self._tld_list_path)
+            and os.access(self._tld_list_path, os.F_OK)
+            and not os.access(self._tld_list_path, os.W_OK)
+        ):
+            self._logger.error(
+                "ERROR: Cache file is not writable for current "
+                "user. ({})".format(self._tld_list_path)
+            )
             return False
 
         req = urllib.request.Request(url_list)
-        req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.0; '
-                                     'WOW64; rv:24.0) Gecko/20100101 '
-                                     'Firefox/24.0')
+        req.add_header(
+            "User-Agent",
+            "Mozilla/5.0 (Windows NT 6.0; "
+            "WOW64; rv:24.0) Gecko/20100101 "
+            "Firefox/24.0",
+        )
         try:
             with urllib.request.urlopen(req) as f:
-                page = f.read().decode('utf-8')
+                page = f.read().decode("utf-8")
         except HTTPError as e:
-            self._logger.error("ERROR: Can not download list of TLDs. "
-                               "(HTTPError: {})".format(e.reason))
+            self._logger.error(
+                "ERROR: Can not download list of TLDs. "
+                "(HTTPError: {})".format(e.reason)
+            )
             return False
         except URLError as e:
-            self._logger.error("ERROR: Can not download list of TLDs. "
-                               "(URLError: {})".format(e.reason))
+            self._logger.error(
+                "ERROR: Can not download list of TLDs. "
+                "(URLError: {})".format(e.reason)
+            )
             return False
 
         with filelock.FileLock(self._get_cache_lock_file_path()):
-            with open(self._tld_list_path, 'w') as ftld:
+            with open(self._tld_list_path, "w") as ftld:
                 ftld.write(page)
 
         return True
@@ -220,23 +229,23 @@ class CacheFile:
 
         # check if cached file is readable
         if not os.access(self._tld_list_path, os.R_OK):
-            self._logger.error("Cached file is not readable for current "
-                               "user. ({})".format(self._tld_list_path))
-            raise CacheFileError(
-                "Cached file is not readable for current user."
+            self._logger.error(
+                "Cached file is not readable for current "
+                "user. ({})".format(self._tld_list_path)
             )
+            raise CacheFileError("Cached file is not readable for current user.")
 
         set_of_tlds = set()
 
         with filelock.FileLock(self._get_cache_lock_file_path()):
-            with open(self._tld_list_path, 'r') as f_cache_tld:
+            with open(self._tld_list_path, "r") as f_cache_tld:
                 for line in f_cache_tld:
                     tld = line.strip().lower()
                     # skip empty lines
                     if not tld:
                         continue
                     # skip comments
-                    if tld[0] == '#':
+                    if tld[0] == "#":
                         continue
 
                     set_of_tlds.add("." + tld)
