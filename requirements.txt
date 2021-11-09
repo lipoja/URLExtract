@@ -1,7 +1,7 @@
 idna
 uritools
 pytest
-appdirs
+platformdirs
 bump2version
 filelock
 dnspython
