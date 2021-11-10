@@ -67,7 +67,7 @@ setup(
     install_requires=[
         'idna',
         'uritools',
-        'appdirs',
+        'platformdirs',
         'filelock'
     ],
 )

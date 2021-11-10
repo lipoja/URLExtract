@@ -17,7 +17,7 @@ from urllib.error import URLError, HTTPError
 
 import idna
 import filelock
-from appdirs import user_cache_dir
+from platformdirs import user_cache_dir
 
 
 class CacheFileError(Exception):
