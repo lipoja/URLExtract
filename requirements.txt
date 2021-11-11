@@ -5,3 +5,4 @@ platformdirs
 bump2version
 filelock
 dnspython
+black
