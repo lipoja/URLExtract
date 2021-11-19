@@ -9,12 +9,15 @@ This file contains pytests for has_url() method of URLExtract
 import pytest
 
 
-@pytest.mark.parametrize("text, expected, with_schema", [
-    ("Get unique URL from: http://janlipovsky.cz", True, False),
-    ("Text without URL", False, False),
-    ("example.com", True, False),
-    ("example.com", False, True)
-])
+@pytest.mark.parametrize(
+    "text, expected, with_schema",
+    [
+        ("Get unique URL from: http://janlipovsky.cz", True, False),
+        ("Text without URL", False, False),
+        ("example.com", True, False),
+        ("example.com", False, True),
+    ],
+)
 def test_has_urls(urlextract, text, expected, with_schema):
     """
     Testing has_urls returning all URLs

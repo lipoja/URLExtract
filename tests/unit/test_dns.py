@@ -9,6 +9,7 @@ Tests for find_url() method of URLExtract with invalid hostnames.
 import pytest
 
 import dns.resolver
+
 try:
     from dns_cache.resolver import ExceptionCachingResolver
 except ImportError:
