@@ -5,4 +5,4 @@ platformdirs
 bump2version
 filelock
 dnspython
-black
+black;python_version>="3.6"
