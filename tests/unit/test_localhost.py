@@ -7,12 +7,13 @@
 import pytest
 
 
-@pytest.mark.parametrize("text, expected", [
-    ("Local development url http://localhost:8000/",
-     ['http://localhost:8000/']),
-
-    ("Some text with localhost in it", []),
-])
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        ("Local development url http://localhost:8000/", ['http://localhost:8000/']),
+        ("Some text with localhost in it", []),
+    ],
+)
 def test_extractlocalhost(urlextract, text, expected):
     """
     Testing extracting localhost from test
@@ -24,10 +25,13 @@ def test_extractlocalhost(urlextract, text, expected):
     assert expected == urlextract.find_urls(text)
 
 
-@pytest.mark.parametrize("text, expected", [
-    ("Local development url http://localhost:8000/", []),
-    ("Some text with  localhost in it", []),
-])
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        ("Local development url http://localhost:8000/", []),
+        ("Some text with  localhost in it", []),
+    ],
+)
 def test_extract_localhost_disabled(urlextract, text, expected):
     """
     Testing disabled extracting of localhost from test

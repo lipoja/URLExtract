@@ -12,13 +12,16 @@ from urlextract.urlextract_core import URLExtractError
 
 
 @pytest.mark.parametrize("limit", (2, None))
-@pytest.mark.parametrize("text, expected", [
-    ("Let's have URL http://janlipovsky.cz",
-     ['http://janlipovsky.cz']),
-
-    ("http://aa.com/b.html https://aa.com/bb.html",
-     ["http://aa.com/b.html", "https://aa.com/bb.html"]),
-])
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        ("Let's have URL http://janlipovsky.cz", ['http://janlipovsky.cz']),
+        (
+            "http://aa.com/b.html https://aa.com/bb.html",
+            ["http://aa.com/b.html", "https://aa.com/bb.html"],
+        ),
+    ],
+)
 def test_find_urls_with_limit_success(urlextract, text, expected, limit):
     """
     Testing find_urls returning all URLs
@@ -31,13 +34,13 @@ def test_find_urls_with_limit_success(urlextract, text, expected, limit):
     assert expected == urlextract.find_urls(text)
 
 
-@pytest.mark.parametrize("text, expected", [
-    ("http://unique.com http://unique.com",
-     ['http://unique.com']),
-
-    ("Get unique URL from: in.v_alid.cz",
-     [])
-])
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        ("http://unique.com http://unique.com", ['http://unique.com']),
+        ("Get unique URL from: in.v_alid.cz", []),
+    ],
+)
 def test_find_urls_unique(urlextract, text, expected):
     """
     Testing find_urls returning only unique URLs
@@ -50,10 +53,12 @@ def test_find_urls_unique(urlextract, text, expected):
     assert urlextract.find_urls(text, only_unique=True) == expected
 
 
-@pytest.mark.parametrize("text, expected", [
-    ("http://aa.com/b.html https://aa.com/bb.html",
-     ["http://aa.com/b.html"]),
-])
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        ("http://aa.com/b.html https://aa.com/bb.html", ["http://aa.com/b.html"]),
+    ],
+)
 def test_find_urls_with_limit_raised(urlextract, text, expected):
     """
     Testing find_urls returning all URLs

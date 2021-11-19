@@ -7,12 +7,10 @@
 import pytest
 
 
-@pytest.mark.parametrize("text, expected", [
-
-    ("yahoo.com msn.com yahoo.com",
-     ['yahoo.com', 'msn.com', 'yahoo.com'])
-
-])
+@pytest.mark.parametrize(
+    "text, expected",
+    [("yahoo.com msn.com yahoo.com", ['yahoo.com', 'msn.com', 'yahoo.com'])],
+)
 def test_find_urls(urlextract, text, expected):
     """
     Testing find_urls returning all URLs in the order they exist (or exists first) in the input text.
@@ -24,12 +22,10 @@ def test_find_urls(urlextract, text, expected):
     assert expected == urlextract.find_urls(text)
 
 
-@pytest.mark.parametrize("text, expected", [
-
-    ("yahoo.com msn.com yahoo.com msn.com msn.com",
-     ['yahoo.com', 'msn.com'])
-
-])
+@pytest.mark.parametrize(
+    "text, expected",
+    [("yahoo.com msn.com yahoo.com msn.com msn.com", ['yahoo.com', 'msn.com'])],
+)
 def test_find_urls(urlextract, text, expected):
     """
     Testing find_urls returning unique URLs in the order they exist (or exists first) in the input text.
