@@ -27,17 +27,10 @@ setup(
     name='urlextract',
     version=__version__,
     py_modules=['urlextract'],
-    entry_points={
-        'console_scripts': [
-            'urlextract = urlextract:_urlextract_cli'
-        ]
-    },
+    entry_points={'console_scripts': ['urlextract = urlextract:_urlextract_cli']},
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     include_package_data=True,
-    keywords=[
-        'url', 'extract', 'find', 'finder',
-        'collect', 'link', 'tld', 'list'
-    ],
+    keywords=['url', 'extract', 'find', 'finder', 'collect', 'link', 'tld', 'list'],
     url='https://github.com/lipoja/URLExtract',
     project_urls={
         "Documentation": "https://urlextract.readthedocs.io/en/latest/",
@@ -64,10 +57,5 @@ setup(
         "Topic :: Text Processing :: Markup :: HTML",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    install_requires=[
-        'idna',
-        'uritools',
-        'platformdirs',
-        'filelock'
-    ],
+    install_requires=['idna', 'uritools', 'platformdirs', 'filelock'],
 )
