@@ -77,7 +77,7 @@ class URLExtract(CacheFile):
         cache_dns=True,
         extract_localhost=True,
         limit=DEFAULT_LIMIT,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize function for URLExtract class.
