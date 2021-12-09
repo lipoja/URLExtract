@@ -15,7 +15,7 @@ from urlextract.urlextract_core import URLExtractError
 @pytest.mark.parametrize(
     "text, expected",
     [
-        ("Let's have URL http://janlipovsky.cz", ['http://janlipovsky.cz']),
+        ("Let's have URL http://janlipovsky.cz", ["http://janlipovsky.cz"]),
         (
             "http://aa.com/b.html https://aa.com/bb.html",
             ["http://aa.com/b.html", "https://aa.com/bb.html"],
@@ -37,7 +37,7 @@ def test_find_urls_with_limit_success(urlextract, text, expected, limit):
 @pytest.mark.parametrize(
     "text, expected",
     [
-        ("http://unique.com http://unique.com", ['http://unique.com']),
+        ("http://unique.com http://unique.com", ["http://unique.com"]),
         ("Get unique URL from: in.v_alid.cz", []),
     ],
 )

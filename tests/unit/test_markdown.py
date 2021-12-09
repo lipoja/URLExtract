@@ -12,16 +12,16 @@ import pytest
     [
         (
             "xx[http://httpbin.org/status/200](http://httpbin.org/status/210)trololo",
-            ['http://httpbin.org/status/200', 'http://httpbin.org/status/210'],
+            ["http://httpbin.org/status/200", "http://httpbin.org/status/210"],
         ),
         (
             "This is text with markdown URL[http://httpbin.org/status/200]("
             "http://httpbin.org/status/210)",
-            ['http://httpbin.org/status/200', 'http://httpbin.org/status/210'],
+            ["http://httpbin.org/status/200", "http://httpbin.org/status/210"],
         ),
         (
             "[http://httpbin.org/status/200](http://httpbin.org/status/210)",
-            ['http://httpbin.org/status/200', 'http://httpbin.org/status/210'],
+            ["http://httpbin.org/status/200", "http://httpbin.org/status/210"],
         ),
     ],
 )

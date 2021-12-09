@@ -60,7 +60,7 @@ class URLExtract(CacheFile):
         ("(", ")"),
         ("{", "}"),
         ("[", "]"),
-        ("\"", "\""),
+        ('"', '"'),
         ("\\", "\\"),
         ("'", "'"),
         ("`", "`"),
@@ -77,7 +77,7 @@ class URLExtract(CacheFile):
         cache_dns=True,
         extract_localhost=True,
         limit=DEFAULT_LIMIT,
-        **kwargs
+        **kwargs,  # noqa E999
     ):
         """
         Initialize function for URLExtract class.
@@ -103,7 +103,7 @@ class URLExtract(CacheFile):
         self._reload_tlds_from_file()
 
         # general stop characters
-        general_stop_chars = {"\"", "<", ">", ";"}
+        general_stop_chars = {'"', "<", ">", ";"}
         # defining default stop chars left
         self._stop_chars_left = set(string.whitespace)
         self._stop_chars_left |= general_stop_chars | {"|", "=", "]", ")", "}"}
@@ -116,11 +116,9 @@ class URLExtract(CacheFile):
         self._after_tld_chars = self._get_after_tld_chars()
 
     def _get_after_tld_chars(self):
-        """
-        Initialize after tld characters
-        """
+        """Initialize after tld characters"""
         after_tld_chars = set(string.whitespace)
-        after_tld_chars |= {"/", "\"", "\'", "<", ">", "?", ":", ".", ","}
+        after_tld_chars |= {"/", '"', "'", "<", ">", "?", ":", ".", ","}
         # get left enclosure characters
         _, right_enclosure = zip(*self._enclosure)
         # add right enclosure characters to be valid after TLD
@@ -878,9 +876,7 @@ def _urlextract_cli():
     import argparse
 
     def get_args():
-        """
-        Parse programs arguments
-        """
+        """Parse programs arguments"""
         parser = argparse.ArgumentParser(
             description="urlextract - prints out all URLs that were "
             "found in input file or stdin based on locating "

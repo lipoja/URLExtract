@@ -21,17 +21,13 @@ from platformdirs import user_cache_dir
 
 
 class CacheFileError(Exception):
-    """
-    Raised when some error occurred regarding file with cached TLDs.
-    """
+    """Raised when some error occurred regarding file with cached TLDs."""
 
     pass
 
 
 class CacheFile:
-    """
-    Class for working with cached TLDs in file.
-    """
+    """Class for working with cached TLDs in file."""
 
     # file name of cached list of TLDs downloaded from IANA
     _CACHE_FILE_NAME = "tlds-alpha-by-domain.txt"

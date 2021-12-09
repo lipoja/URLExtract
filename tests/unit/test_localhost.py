@@ -10,7 +10,7 @@ import pytest
 @pytest.mark.parametrize(
     "text, expected",
     [
-        ("Local development url http://localhost:8000/", ['http://localhost:8000/']),
+        ("Local development url http://localhost:8000/", ["http://localhost:8000/"]),
         ("Some text with localhost in it", []),
     ],
 )
