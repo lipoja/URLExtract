@@ -12,7 +12,7 @@ import pytest
     [
         (
             "URI with User info in Authority ftp://jan@example.com:123/test",
-            ['ftp://jan@example.com:123/test'],
+            ["ftp://jan@example.com:123/test"],
         ),
         ("<email@address.net>", []),
         ("Do not extract emails by default jan@example.com", []),
@@ -32,8 +32,8 @@ def test_extract_email_disabled(urlextract, text, expected):
 @pytest.mark.parametrize(
     "text, expected",
     [
-        ("Do not extract emails by default jan@example.com", ['jan@example.com']),
-        ("<email@address.net>", ['email@address.net']),
+        ("Do not extract emails by default jan@example.com", ["jan@example.com"]),
+        ("<email@address.net>", ["email@address.net"]),
         ("Given URIs are not mail jan@example.com/asdasd jan@example.com:1234", []),
         ("Given URIs are not mail jan@example.com?not jan@example.com#not", []),
     ],

@@ -13,7 +13,7 @@ import pytest
     "text, expected",
     [
         ("example.com", []),
-        ("ample.com", ['ample.com']),
+        ("ample.com", ["ample.com"]),
         ("another-url.com", []),
         ("http://example.com", []),
         ("http://example.com:1234", []),
@@ -35,5 +35,5 @@ def test_ignore_list(urlextract, text, expected):
     :param str text: text in which we should find links
     :param list(str) expected: list of URLs that has to be found in text
     """
-    urlextract.ignore_list = {'example.com', 'another-url.com'}
+    urlextract.ignore_list = {"example.com", "another-url.com"}
     assert expected == urlextract.find_urls(text)
