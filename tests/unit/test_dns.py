@@ -20,9 +20,7 @@ from urlextract import URLExtract
 
 
 def test_check_dns_disabled(urlextract):
-    """
-    Testing no network, including dns, is used by default
-    """
+    """Testing no network, including dns, is used by default"""
     socket_module = urlextract_core.socket
 
     urlextract._cache_dns = False
@@ -38,9 +36,7 @@ def test_check_dns_disabled(urlextract):
 
 
 def test_check_dns_enabled(urlextract):
-    """
-    Testing network is used when check_dns is enabled
-    """
+    """Testing network is used when check_dns is enabled"""
     socket_module = urlextract_core.socket
     network_used = False
 
@@ -70,9 +66,7 @@ def test_check_dns_enabled(urlextract):
 
 
 def test_dns_cache_init():
-    """
-    Testing creating a new DNS caching resolver
-    """
+    """Testing creating a new DNS caching resolver"""
     default_resolver = dns.resolver.get_default_resolver()
     assert default_resolver == dns.resolver.default_resolver
     if default_resolver:
@@ -100,9 +94,7 @@ def test_dns_cache_init():
 
 
 def test_dns_cache_reuse():
-    """
-    Testing re-using an existing DNS caching resolver
-    """
+    """Testing re-using an existing DNS caching resolver"""
     underscore_resolver = dns.resolver._resolver
     if underscore_resolver:
         dns.resolver._resolver = None
@@ -130,9 +122,7 @@ def test_dns_cache_reuse():
 
 
 def test_dns_cache_negative(urlextract, dns_resolver):
-    """
-    Testing negative results are not cached
-    """
+    """Testing negative results are not cached"""
     if ExceptionCachingResolver:
         assert dns_resolver.__class__ == ExceptionCachingResolver
 
