@@ -116,6 +116,12 @@ def test_find_urls_unique(urlextract, text, expected):
                 ("https://example.com/@eon01/asdsd-dummy", (54, 92)),
             ],
         ),
+        (
+            "Some text www.company.com",
+            [
+                ("www.company.com", (10, 25)),
+            ],
+        ),
     ],
 )
 def test_find_urls_with_indices(urlextract, text, expected):
