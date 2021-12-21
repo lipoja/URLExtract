@@ -699,6 +699,22 @@ class URLExtract(CacheFile):
             return text_url[left_bracket_pos + 1 : middle_pos]
         return text_url
 
+    @staticmethod
+    def _get_tld_pos(url, tld):
+        """
+        Return position of TLD in hostname.
+
+        :param str url: URL in which TLD should be located
+        :param str tld: TLD we want ot find
+        :return:
+        """
+        tpm_url = "http://" + url if url.find("://") == -1 else url
+
+        url_parts = uritools.urisplit(tpm_url)
+        host = str(url_parts.gethost())
+        offset = url.find(host)
+        return host.rfind(tld) + offset
+
     def gen_urls(
         self, text, check_dns=False, get_indices=False, with_schema_only=False
     ):
@@ -730,9 +746,10 @@ class URLExtract(CacheFile):
                     check_dns=check_dns,
                     with_schema_only=with_schema_only,
                 )
+
                 if tmp_url:
                     # do not search for TLD in already extracted URL
-                    tld_pos_url = tmp_url.find(tld)
+                    tld_pos_url = self._get_tld_pos(tmp_url, tld)
                     # move cursor right after found TLD
                     tld_pos += len(tld) + offset
                     # move cursor after end of found URL
