@@ -9,19 +9,24 @@ This file contains pytests for exeption URLs () method of URLExtract
 import pytest
 
 
-@pytest.mark.parametrize("text, expected", [
-    ("example.com", []),
-    ("ample.com", ['ample.com']),
-    ("another-url.com", []),
-    ("http://example.com", []),
-    ("http://example.com:1234", []),
-    ("admin@example.com", []),
-    ("ftp://admin:pass@example.com", []),
-    ("http://subdom.example.com:1234/path/file.html?query=something#hashtag",
-    ["http://subdom.example.com:1234/path/file.html?query=something#hashtag"]),
-    ("www.example.com", ["www.example.com"]),
-    ("example.net", ["example.net"]),
-])
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        ("example.com", []),
+        ("ample.com", ['ample.com']),
+        ("another-url.com", []),
+        ("http://example.com", []),
+        ("http://example.com:1234", []),
+        ("admin@example.com", []),
+        ("ftp://admin:pass@example.com", []),
+        (
+            "http://subdom.example.com:1234/path/file.html?query=something#hashtag",
+            ["http://subdom.example.com:1234/path/file.html?query=something#hashtag"],
+        ),
+        ("www.example.com", ["www.example.com"]),
+        ("example.net", ["example.net"]),
+    ],
+)
 def test_ignore_list(urlextract, text, expected):
     """
     Testing filtering out URLs on ignore list

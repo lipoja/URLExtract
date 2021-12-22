@@ -7,19 +7,24 @@
 import pytest
 
 
-@pytest.mark.parametrize("text, expected", [
-
-    ("xx[http://httpbin.org/status/200](http://httpbin.org/status/210)trololo",
-     ['http://httpbin.org/status/200', 'http://httpbin.org/status/210']),
-
-    ("This is text with markdown URL[http://httpbin.org/status/200]("
-     "http://httpbin.org/status/210)",
-     ['http://httpbin.org/status/200', 'http://httpbin.org/status/210']),
-
-    ("[http://httpbin.org/status/200](http://httpbin.org/status/210)",
-    ['http://httpbin.org/status/200', 'http://httpbin.org/status/210']),
-
-])
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        (
+            "xx[http://httpbin.org/status/200](http://httpbin.org/status/210)trololo",
+            ['http://httpbin.org/status/200', 'http://httpbin.org/status/210'],
+        ),
+        (
+            "This is text with markdown URL[http://httpbin.org/status/200]("
+            "http://httpbin.org/status/210)",
+            ['http://httpbin.org/status/200', 'http://httpbin.org/status/210'],
+        ),
+        (
+            "[http://httpbin.org/status/200](http://httpbin.org/status/210)",
+            ['http://httpbin.org/status/200', 'http://httpbin.org/status/210'],
+        ),
+    ],
+)
 def test_find_urls(urlextract, text, expected):
     """
     Testing find_urls returning all URLs
