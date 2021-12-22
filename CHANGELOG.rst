@@ -2,6 +2,12 @@ Changelog
 ~~~~~~~~~
 - N/A
 
+- 1.5.0 (2021-12-22)
+    - Fix incorrect indices when TLD is found twice (issue #109)
+    - Replace unmaintained appdirs with maintained platformdirs - by Hugo van Kemenade (issue #106)
+    - update readme, code style and code formatting using black  - by za
+    - updated list of TLDs
+
 - 1.4.0 (2021-10-06)
     - urlextract detects URLs which start with double slash '//' (issue #94)
     - adding ability to return only URLs with schema (issue #96)
