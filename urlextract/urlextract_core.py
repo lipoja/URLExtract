@@ -23,7 +23,7 @@ import uritools
 from urlextract.cachefile import CacheFile, CacheFileError
 
 # version of URLExtract (do not forget to change it in setup.py as well)
-__version__ = "1.4.0"
+__version__ = "1.5.0"
 
 # default value for maximum count of processed URLs by find_url
 DEFAULT_LIMIT = 10000
