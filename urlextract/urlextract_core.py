@@ -8,11 +8,13 @@ urlextract_core.py - file with definition of URLExtract class and urlextract cli
 .. codeauthor:: Jan Lipovský <janlipovsky@gmail.com>, janlipovsky.cz
 .. contributors: https://github.com/lipoja/URLExtract/graphs/contributors
 """
+from argparse import Namespace
 import functools
 import ipaddress
 import logging
 import re
 import socket
+from typing import Set, Iterable, Tuple, List, Union, NoReturn
 import string
 import sys
 from collections import OrderedDict
@@ -115,7 +117,7 @@ class URLExtract(CacheFile):
         # characters that are allowed to be right after TLD
         self._after_tld_chars = self._get_after_tld_chars()
 
-    def _get_after_tld_chars(self):
+    def _get_after_tld_chars(self) -> Set[str]:
         """Initialize after tld characters"""
         after_tld_chars = set(string.whitespace)
         after_tld_chars |= {"/", '"', "'", "<", ">", "?", ":", ".", ","}
@@ -141,7 +143,7 @@ class URLExtract(CacheFile):
         self._tlds_re = re.compile("|".join(re_escaped), flags=re.IGNORECASE)
 
     @property
-    def extract_email(self):
+    def extract_email(self) -> bool:
         """
         If set to True email will be extracted from text
 
@@ -150,7 +152,7 @@ class URLExtract(CacheFile):
         return self._extract_email
 
     @extract_email.setter
-    def extract_email(self, extract):
+    def extract_email(self, extract : bool):
         """
         Set if emails will be extracted from text
 
@@ -159,7 +161,7 @@ class URLExtract(CacheFile):
         self._extract_email = extract
 
     @property
-    def extract_localhost(self):
+    def extract_localhost(self) -> bool:
         """
         If set to True 'localhost' will be extracted as URL from text
 
@@ -168,7 +170,7 @@ class URLExtract(CacheFile):
         return self._extract_localhost
 
     @extract_localhost.setter
-    def extract_localhost(self, enable):
+    def extract_localhost(self, enable : bool):
         """
         Set if 'localhost' will be extracted as URL from text
 
@@ -178,7 +180,7 @@ class URLExtract(CacheFile):
         self._extract_localhost = enable
 
     @property
-    def ignore_list(self):
+    def ignore_list(self) -> Set[str]:
         """
         Returns set of URLs on ignore list
 
@@ -188,7 +190,7 @@ class URLExtract(CacheFile):
         return self._ignore_list
 
     @ignore_list.setter
-    def ignore_list(self, ignore_list):
+    def ignore_list(self, ignore_list : Set[str]):
         """
         Set of URLs to be ignored (not returned) while extracting from text
 
@@ -223,7 +225,7 @@ class URLExtract(CacheFile):
 
         return True
 
-    def update_when_older(self, days):
+    def update_when_older(self, days: int) -> bool:
         """
         Update TLD list cache file if the list is older than
         number of days given in parameter `days` or if does not exist.
@@ -245,7 +247,7 @@ class URLExtract(CacheFile):
         return True
 
     @staticmethod
-    def get_version():
+    def get_version() -> str:
         """
         Returns version number.
 
@@ -255,7 +257,7 @@ class URLExtract(CacheFile):
 
         return __version__
 
-    def get_after_tld_chars(self):
+    def get_after_tld_chars(self) -> List[str]:
         """
         Returns list of chars that are allowed after TLD
 
@@ -265,7 +267,7 @@ class URLExtract(CacheFile):
 
         return list(self._after_tld_chars)
 
-    def set_after_tld_chars(self, after_tld_chars):
+    def set_after_tld_chars(self, after_tld_chars: Iterable[str]):
         """
         Set chars that are allowed after TLD.
 
@@ -274,7 +276,7 @@ class URLExtract(CacheFile):
 
         self._after_tld_chars = set(after_tld_chars)
 
-    def get_stop_chars_left(self):
+    def get_stop_chars_left(self) -> Set[str]:
         """
         Returns set of stop chars for text on left from TLD.
 
@@ -283,7 +285,7 @@ class URLExtract(CacheFile):
         """
         return self._stop_chars_left
 
-    def set_stop_chars_left(self, stop_chars):
+    def set_stop_chars_left(self, stop_chars: Set[str]):
         """
         Set stop characters for text on left from TLD.
         Stop characters are used when determining end of URL.
@@ -299,7 +301,7 @@ class URLExtract(CacheFile):
 
         self._stop_chars_left = stop_chars
 
-    def get_stop_chars_right(self):
+    def get_stop_chars_right(self) -> Set[str]:
         """
         Returns set of stop chars for text on right from TLD.
 
@@ -308,7 +310,7 @@ class URLExtract(CacheFile):
         """
         return self._stop_chars_right
 
-    def set_stop_chars_right(self, stop_chars):
+    def set_stop_chars_right(self, stop_chars: Set[str]):
         """
         Set stop characters for text on right from TLD.
         Stop characters are used when determining end of URL.
@@ -324,7 +326,7 @@ class URLExtract(CacheFile):
 
         self._stop_chars_right = stop_chars
 
-    def get_enclosures(self):
+    def get_enclosures(self) -> Set[Tuple[str, str]]:
         """
         Returns set of enclosure pairs that might be used to enclosure URL.
         For example brackets (example.com), [example.com], {example.com}
@@ -334,7 +336,7 @@ class URLExtract(CacheFile):
         """
         return self._enclosure
 
-    def add_enclosure(self, left_char, right_char):
+    def add_enclosure(self, left_char : str, right_char : str):
         """
         Add new enclosure pair of characters. That and should be removed
         when their presence is detected at beginning and end of found URL
@@ -348,7 +350,7 @@ class URLExtract(CacheFile):
 
         self._after_tld_chars = self._get_after_tld_chars()
 
-    def remove_enclosure(self, left_char, right_char):
+    def remove_enclosure(self, left_char : str, right_char : str):
         """
         Remove enclosure pair from set of enclosures.
 
@@ -364,8 +366,8 @@ class URLExtract(CacheFile):
         self._after_tld_chars = self._get_after_tld_chars()
 
     def _complete_url(
-        self, text, tld_pos, tld, check_dns=False, with_schema_only=False
-    ):
+        self, text : str, tld_pos : int, tld : str, check_dns=False, with_schema_only=False
+    ) -> str:
         """
         Expand string in both sides to match whole URL.
 
@@ -460,7 +462,7 @@ class URLExtract(CacheFile):
 
         return complete_url
 
-    def _validate_tld_match(self, text, matched_tld, tld_pos):
+    def _validate_tld_match(self, text : str, matched_tld : str, tld_pos : int) -> bool:
         """
         Validate TLD match - tells if at found position is really TLD.
 
@@ -484,7 +486,7 @@ class URLExtract(CacheFile):
 
         return False
 
-    def _is_domain_valid(self, url, tld, check_dns=False, with_schema_only=False):
+    def _is_domain_valid(self, url : str, tld : str, check_dns=False, with_schema_only=False):
         """
         Checks if given URL has valid domain name (ignores subdomains)
 
@@ -617,7 +619,7 @@ class URLExtract(CacheFile):
 
         return True
 
-    def _remove_enclosure_from_url(self, text_url, tld_pos, tld):
+    def _remove_enclosure_from_url(self, text_url : str, tld_pos : int, tld : str) -> str:
         """
         Removes enclosure characters from URL given in text_url.
         For example: (example.com) -> example.com
@@ -671,7 +673,7 @@ class URLExtract(CacheFile):
         return new_url
 
     @staticmethod
-    def _split_markdown(text_url, tld_pos):
+    def _split_markdown(text_url : str, tld_pos : int) -> str:
         """
         Split markdown URL. There is an issue wen Markdown URL is found.
         Parsing of the URL does not stop on right place so wrongly found URL
@@ -700,7 +702,8 @@ class URLExtract(CacheFile):
         return text_url
 
     @staticmethod
-    def _get_tld_pos(url, tld):
+    # TODO: fix DOC to accomodate to return value
+    def _get_tld_pos(url : str, tld : str) -> int:
         """
         Return position of TLD in hostname.
 
@@ -715,9 +718,11 @@ class URLExtract(CacheFile):
         offset = url.find(host)
         return host.rfind(tld) + offset
 
+    # TODO: move type assertion to be Generator based
+    # found https://stackoverflow.com/a/38423388/14669675
     def gen_urls(
-        self, text, check_dns=False, get_indices=False, with_schema_only=False
-    ):
+        self, text : str, check_dns=False, get_indices=False, with_schema_only=False
+    ) -> Union[str, Tuple[str, Tuple[int, int]]]:
         """
         Creates generator over found URLs in given text.
 
@@ -778,12 +783,12 @@ class URLExtract(CacheFile):
 
     def find_urls(
         self,
-        text,
+        text : str,
         only_unique=False,
         check_dns=False,
         get_indices=False,
         with_schema_only=False,
-    ):
+    ) -> List[str]:
         """
         Find all URLs in given text.
 
@@ -831,7 +836,7 @@ class URLExtract(CacheFile):
             return list(OrderedDict.fromkeys(result_urls))
         return result_urls
 
-    def has_urls(self, text, check_dns=False, with_schema_only=False):
+    def has_urls(self, text : str, check_dns=False, with_schema_only=False) -> bool:
         """
         Checks if text contains any valid URL.
         Returns True if text contains at least one URL.
@@ -883,7 +888,7 @@ def report_issue(func):
 
 
 @report_issue
-def _urlextract_cli():
+def _urlextract_cli() -> NoReturn:
     """
     urlextract - command line program that will print all URLs to stdout
     Usage: urlextract [input_file] [-u] [-v]
@@ -892,7 +897,8 @@ def _urlextract_cli():
     """
     import argparse
 
-    def get_args():
+    # TODO: add type checking here
+    def get_args() -> Namespace:
         """Parse programs arguments"""
         parser = argparse.ArgumentParser(
             description="urlextract - prints out all URLs that were "
@@ -999,7 +1005,7 @@ def _urlextract_cli():
         args.input_file.close()
 
 
-def dns_cache_install():
+def dns_cache_install() -> None:
     try:
         from dns import resolver as dnspython_resolver_module
         from dns_cache.resolver import ExceptionCachingResolver

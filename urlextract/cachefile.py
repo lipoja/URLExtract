@@ -12,6 +12,8 @@ import logging
 import os
 import tempfile
 import urllib.request
+from typing import Set, Iterable, Tuple, List, Union, NoReturn
+
 from datetime import datetime
 from urllib.error import URLError, HTTPError
 
@@ -61,7 +63,7 @@ class CacheFile:
             self._tld_list_path = self._get_default_cache_file_path()
             self._default_cache_file = True
 
-    def _get_default_cache_dir(self):
+    def _get_default_cache_dir(self) -> str:
         """
         Returns default cache directory (data directory)
 
@@ -72,7 +74,7 @@ class CacheFile:
 
         return os.path.join(os.path.dirname(__file__), self._DATA_DIR)
 
-    def _get_default_cache_file_path(self):
+    def _get_default_cache_file_path(self) -> str:
         """
         Returns default cache file path
 
@@ -91,7 +93,7 @@ class CacheFile:
 
         return default_list_path
 
-    def _get_writable_cache_dir(self):
+    def _get_writable_cache_dir(self) -> str:
         """
         Get writable cache directory with fallback to user's cache directory
         and global temp directory
@@ -124,7 +126,7 @@ class CacheFile:
 
         raise CacheFileError("Cache directories are not writable.")
 
-    def _get_cache_file_path(self):
+    def _get_cache_file_path(self) -> str:
         """
         Get path for cache file
 
@@ -148,7 +150,7 @@ class CacheFile:
         # get path for cached file
         return os.path.join(cache_dir, self._CACHE_FILE_NAME)
 
-    def _get_cache_lock_file_path(self):
+    def _get_cache_lock_file_path(self) -> str:
         """
         Get path for cache file lock
 
@@ -158,7 +160,7 @@ class CacheFile:
         """
         return self._get_cache_file_path() + ".lock"
 
-    def _download_tlds_list(self):
+    def _download_tlds_list(self) -> bool:
         """
         Function downloads list of TLDs from IANA.
         LINK: https://data.iana.org/TLD/tlds-alpha-by-domain.txt
@@ -215,7 +217,7 @@ class CacheFile:
 
         return True
 
-    def _load_cached_tlds(self):
+    def _load_cached_tlds(self) -> Set[str]:
         """
         Loads TLDs from cached file to set.
 
@@ -231,7 +233,7 @@ class CacheFile:
             )
             raise CacheFileError("Cached file is not readable for current user.")
 
-        set_of_tlds = set()
+        set_of_tlds : Set[str] = set()
 
         with filelock.FileLock(self._get_cache_lock_file_path()):
             with open(self._tld_list_path, "r") as f_cache_tld:
@@ -249,7 +251,7 @@ class CacheFile:
 
         return set_of_tlds
 
-    def _get_last_cachefile_modification(self):
+    def _get_last_cachefile_modification(self) -> Union[datetime, None]:
         """
         Get last modification of cache file with TLDs.
 
