@@ -115,6 +115,11 @@ class URLExtract(CacheFile):
         # characters that are allowed to be right after TLD
         self._after_tld_chars = self._get_after_tld_chars()
 
+        # protocol char
+        self._stop_protocol_char = ":"
+        # TODO: possibly add "ftp" and more
+        self._supported_protocols = ["http", "https", "file"]
+
     def _get_after_tld_chars(self):
         """Initialize after tld characters"""
         after_tld_chars = set(string.whitespace)
@@ -390,8 +395,18 @@ class URLExtract(CacheFile):
                 if start_pos <= 0:
                     left_ok = False
                 else:
-                    if text[start_pos - 1] not in self._stop_chars_left:
+                    left_char = text[start_pos - 1]
+                    if left_char not in self._stop_chars_left:
                         start_pos -= 1
+                        # extract the protocol if we've reached ":"
+                        if left_char == self._stop_protocol_char:
+                            for protocol in self._supported_protocols:
+                                protocol_start_pos = start_pos - len(protocol)
+                                if protocol_start_pos < 0:
+                                    continue
+                                if protocol == text[protocol_start_pos : start_pos]:
+                                    start_pos = protocol_start_pos
+                                    left_ok = False
                     else:
                         left_ok = False
             if right_ok:

@@ -19,6 +19,8 @@ import pytest
             "URL https://example.com/@eon01/asdsd-dummy",
             ["https://example.com/@eon01/asdsd-dummy"],
         ),
+        ('multiple protocols, job:https://2.ua/YHfw38', ["https://2.ua/YHfw38"]),
+        ('more multiple protocols, link:job:https://2.ua/YHfw38', ["https://2.ua/YHfw38"]),
         ("ukrainian news pravda.com.ua", ["pravda.com.ua"]),
         (
             '<a href="https://www.example.com/">example</a>',
