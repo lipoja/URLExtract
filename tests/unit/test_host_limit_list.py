@@ -19,6 +19,8 @@ import pytest
         ("one-another-url.com", []),
         ("http://example.com", ["http://example.com"]),
         ("http://example.com:1234", ["http://example.com:1234"]),
+        ("http://example.com:1234 http://example.com admin@example.com", 
+                    ["http://example.com:1234", "http://example.com", "admin@example.com"]),
         ("admin@example.com", []),
         ("ftp://admin:pass@example.com", ["ftp://admin:pass@example.com"]),
         (
