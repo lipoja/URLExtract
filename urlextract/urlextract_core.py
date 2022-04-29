@@ -68,6 +68,7 @@ class URLExtract(CacheFile):
 
     _ipv4_tld = [".{}".format(ip) for ip in reversed(range(256))]
     _ignore_list = set()
+    _host_limit_list = set()
 
     _limit = DEFAULT_LIMIT
 
@@ -208,6 +209,38 @@ class URLExtract(CacheFile):
                 if not url:
                     continue
                 self._ignore_list.add(url)
+
+    @property
+    def host_limit_list(self):
+        """
+        Returns set of URLs that can be processed
+
+        :return: Returns set of URLs that can be processed
+        :rtype: set(str)
+        """
+        return self._host_limit_list
+
+    @host_limit_list.setter
+    def host_limit_list(self, host_limit_list):
+        """
+        Set of URLs that can be processed
+
+        :param set(str) host_limit_list: set of URLs
+        """
+        self._host_limit_list = host_limit_list
+
+    def load_host_limit_list(self, file_name):
+        """
+        Load URLs from file into host limit list
+
+        :param str file_name: path to file containing URLs
+        """
+        with open(file_name) as f:
+            for line in f:
+                url = line.strip()
+                if not url:
+                    continue
+                self._host_limit_list.add(url)
 
     def update(self):
         """
@@ -563,6 +596,9 @@ class URLExtract(CacheFile):
             return False
 
         if not host:
+            return False
+
+        if self._host_limit_list and host not in self._host_limit_list:
             return False
 
         if host in self._ignore_list:
@@ -942,6 +978,15 @@ def _urlextract_cli():
         )
 
         parser.add_argument(
+            "-hl",
+            "--host-limit-file",
+            metavar="<host_limit_file>",
+            type=str,
+            default=None,
+            help="input text file with URLs that can be processed",
+        )
+
+        parser.add_argument(
             "-l",
             "--limit",
             dest="limit",
@@ -979,6 +1024,8 @@ def _urlextract_cli():
             urlextract.extract_localhost = False
         if args.ignore_file:
             urlextract.load_ignore_list(args.ignore_file)
+        if args.host_limit_file:
+            urlextract.load_host_limit_list(args.host_limit_file)
         urlextract.update_when_older(30)
         content = args.input_file.read()
         try:
