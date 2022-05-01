@@ -17,7 +17,7 @@ optional arguments:
   -c, --check-dns       print out only URLs for existing domain names
   -i <ignore_file>, --ignore-file <ignore_file>
                         input text file with URLs to exclude from extraction
-  -hl <host_limit_file>, --host-limit-file <host_limit_file>
+  -p <permit_file>, --permit-file <permit_file>
                         input text file with URLs that can be processed
   -l LIMIT, --limit LIMIT
                         Maximum count of URLs that can be processed. Set 0 to

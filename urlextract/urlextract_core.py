@@ -68,7 +68,7 @@ class URLExtract(CacheFile):
 
     _ipv4_tld = [".{}".format(ip) for ip in reversed(range(256))]
     _ignore_list = set()
-    _host_limit_list = set()
+    _permit_list = set()
 
     _limit = DEFAULT_LIMIT
 
@@ -211,27 +211,27 @@ class URLExtract(CacheFile):
                 self._ignore_list.add(url)
 
     @property
-    def host_limit_list(self):
+    def permit_list(self):
         """
         Returns set of URLs that can be processed
 
         :return: Returns set of URLs that can be processed
         :rtype: set(str)
         """
-        return self._host_limit_list
+        return self._permit_list
 
-    @host_limit_list.setter
-    def host_limit_list(self, host_limit_list):
+    @permit_list.setter
+    def permit_list(self, permit_list):
         """
         Set of URLs that can be processed
 
-        :param set(str) host_limit_list: set of URLs
+        :param set(str) permit_list: set of URLs
         """
-        self._host_limit_list = host_limit_list
+        self._permit_list = permit_list
 
-    def load_host_limit_list(self, file_name):
+    def load_permit_list(self, file_name):
         """
-        Load URLs from file into host limit list
+        Load URLs from file into permit list
 
         :param str file_name: path to file containing URLs
         """
@@ -240,7 +240,7 @@ class URLExtract(CacheFile):
                 url = line.strip()
                 if not url:
                     continue
-                self._host_limit_list.add(url)
+                self._permit_list.add(url)
 
     def update(self):
         """
@@ -598,7 +598,7 @@ class URLExtract(CacheFile):
         if not host:
             return False
 
-        if self._host_limit_list and host not in self._host_limit_list:
+        if self._permit_list and host not in self._permit_list:
             return False
 
         if host in self._ignore_list:
@@ -978,9 +978,9 @@ def _urlextract_cli():
         )
 
         parser.add_argument(
-            "-hl",
-            "--host-limit-file",
-            metavar="<host_limit_file>",
+            "-p",
+            "--permit-file",
+            metavar="<permit_file>",
             type=str,
             default=None,
             help="input text file with URLs that can be processed",
@@ -1024,8 +1024,8 @@ def _urlextract_cli():
             urlextract.extract_localhost = False
         if args.ignore_file:
             urlextract.load_ignore_list(args.ignore_file)
-        if args.host_limit_file:
-            urlextract.load_host_limit_list(args.host_limit_file)
+        if args.permit_file:
+            urlextract.load_permit_list(args.permit_file)
         urlextract.update_when_older(30)
         content = args.input_file.read()
         try:
