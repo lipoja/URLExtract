@@ -3,7 +3,7 @@ urlextract - command line
 
 urlextract - command line program that will print all URLs to stdout
 
-Usage: ``$ urlextract [-h] [-v] [-u] [-dl] [-c] [-i <ignore_file>] [-hl <host_limit_file>] [-l LIMIT] [<input_file>]``
+Usage: ``$ urlextract [-h] [-v] [-u] [-dl] [-c] [-i <ignore_file>] [-p <permit_file>] [-l LIMIT] [<input_file>]``
 
 positional arguments:
   <input_file>          input text file with URLs to extract
