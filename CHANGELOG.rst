@@ -2,6 +2,11 @@ Changelog
 ~~~~~~~~~
 - N/A
 
+- 1.6.0 (2022-05-17)
+    - Add a list of URLs allowed to extract (issue #125) - by khoben
+    - correct order of actual and expected in tests
+    - updated list of TLDs
+
 - 1.5.0 (2021-12-22)
     - Fix incorrect indices when TLD is found twice (issue #109)
     - Replace unmaintained appdirs with maintained platformdirs - by Hugo van Kemenade (issue #106)
