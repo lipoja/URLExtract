@@ -36,6 +36,7 @@ def test_extract_email_disabled(urlextract, text, expected):
         ("<email@address.net>", ["email@address.net"]),
         ("Given URIs are not mail jan@example.com/asdasd jan@example.com:1234", []),
         ("Given URIs are not mail jan@example.com?not jan@example.com#not", []),
+        ("bad.email @gmail.com", ["bad.email", "gmail.com"]),
     ],
 )
 def test_extract_email_enabled(urlextract, text, expected):

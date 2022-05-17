@@ -486,6 +486,10 @@ class URLExtract(CacheFile):
         # URL should not start with two backslashes
         if complete_url.startswith("//"):
             complete_url = complete_url[2:]
+        # should not be grabbing email fragment
+        # https://github.com/lipoja/URLExtract/issues/122
+        if complete_url.startswith('@'):
+            complete_url = complete_url[1:]
         if not self._is_domain_valid(
             complete_url, tld, check_dns=check_dns, with_schema_only=with_schema_only
         ):
