@@ -36,4 +36,4 @@ def test_ignore_list(urlextract, text, expected):
     :param list(str) expected: list of URLs that has to be found in text
     """
     urlextract.ignore_list = {"example.com", "another-url.com"}
-    assert expected == urlextract.find_urls(text)
+    assert urlextract.find_urls(text) == expected

@@ -31,7 +31,7 @@ def test_find_urls_with_limit_success(urlextract, text, expected, limit):
     :param list(str) expected: list of URLs that has to be found in text
     """
     urlextract._limit = limit
-    assert expected == urlextract.find_urls(text)
+    assert urlextract.find_urls(text) == expected
 
 
 @pytest.mark.parametrize(
@@ -70,4 +70,4 @@ def test_find_urls_with_limit_raised(urlextract, text, expected):
     urlextract._limit = 1
     with pytest.raises(URLExtractError) as e:
         urlextract.find_urls(text)
-        assert expected == e.data
+        assert e.data == expected

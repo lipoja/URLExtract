@@ -33,4 +33,4 @@ def test_find_urls(urlextract, text, expected):
     :param str text: text in which we should find links
     :param list(str) expected: list of URLs that has to be found in text
     """
-    assert expected == urlextract.find_urls(text)
+    assert urlextract.find_urls(text) == expected

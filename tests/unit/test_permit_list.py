@@ -42,7 +42,7 @@ def test_permit_list(urlextract, text, expected):
     :param list(str) expected: list of URLs that has to be found in text
     """
     urlextract.permit_list = {"example.com", "another-url.com"}
-    assert expected == urlextract.find_urls(text)
+    assert urlextract.find_urls(text) == expected
 
 
 @pytest.mark.parametrize(
@@ -74,7 +74,7 @@ def test_permit_list_with_ignore(urlextract, text, expected):
     """
     urlextract.permit_list = {"example.com", "another-url.com"}
     urlextract.ignore_list = {"another-url.com"}
-    assert expected == urlextract.find_urls(text)
+    assert urlextract.find_urls(text) == expected
 
 
 @pytest.mark.parametrize(
@@ -106,7 +106,7 @@ def test_permit_list_with_emails(urlextract, text, expected):
     """
     urlextract.extract_email = True
     urlextract.permit_list = {"example.com", "another-url.com"}
-    assert expected == urlextract.find_urls(text)
+    assert urlextract.find_urls(text) == expected
 
 
 @pytest.mark.parametrize(
@@ -128,7 +128,7 @@ def test_host_limit_localhost_enabled(urlextract, text, expected):
     :param list(str) expected: list of URLs that has to be found in text
     """
     urlextract.permit_list = {"localhost"}
-    assert expected == urlextract.find_urls(text)
+    assert urlextract.find_urls(text) == expected
 
 
 @pytest.mark.parametrize(
@@ -148,4 +148,4 @@ def test_host_limit_localhost_disabled(urlextract, text, expected):
     """
     urlextract.extract_localhost = False
     urlextract.permit_list = {"localhost"}
-    assert expected == urlextract.find_urls(text)
+    assert urlextract.find_urls(text) == expected

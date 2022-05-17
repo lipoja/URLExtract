@@ -160,4 +160,4 @@ def test_check_dns_find_urls(urlextract, text, expected):
     :param str text: text in which we should find links
     :param list(str) expected: list of URLs that has to be found in text
     """
-    assert expected == urlextract.find_urls(text, check_dns=True)
+    assert urlextract.find_urls(text, check_dns=True) == expected
