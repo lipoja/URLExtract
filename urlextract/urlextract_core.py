@@ -153,7 +153,7 @@ class URLExtract(CacheFile):
         return self._extract_email
 
     @extract_email.setter
-    def extract_email(self, extract : bool):
+    def extract_email(self, extract: bool):
         """
         Set if emails will be extracted from text
 
@@ -171,7 +171,7 @@ class URLExtract(CacheFile):
         return self._extract_localhost
 
     @extract_localhost.setter
-    def extract_localhost(self, enable : bool):
+    def extract_localhost(self, enable: bool):
         """
         Set if 'localhost' will be extracted as URL from text
 
@@ -191,7 +191,7 @@ class URLExtract(CacheFile):
         return self._ignore_list
 
     @ignore_list.setter
-    def ignore_list(self, ignore_list : Set[str]):
+    def ignore_list(self, ignore_list: Set[str]):
         """
         Set of URLs to be ignored (not returned) while extracting from text
 
@@ -369,7 +369,7 @@ class URLExtract(CacheFile):
         """
         return self._enclosure
 
-    def add_enclosure(self, left_char : str, right_char : str):
+    def add_enclosure(self, left_char: str, right_char: str):
         """
         Add new enclosure pair of characters. That and should be removed
         when their presence is detected at beginning and end of found URL
@@ -383,7 +383,7 @@ class URLExtract(CacheFile):
 
         self._after_tld_chars = self._get_after_tld_chars()
 
-    def remove_enclosure(self, left_char : str, right_char : str):
+    def remove_enclosure(self, left_char: str, right_char: str):
         """
         Remove enclosure pair from set of enclosures.
 
@@ -399,7 +399,7 @@ class URLExtract(CacheFile):
         self._after_tld_chars = self._get_after_tld_chars()
 
     def _complete_url(
-        self, text : str, tld_pos : int, tld : str, check_dns=False, with_schema_only=False
+        self, text: str, tld_pos: int, tld: str, check_dns=False, with_schema_only=False
     ) -> str:
         """
         Expand string in both sides to match whole URL.
@@ -495,7 +495,7 @@ class URLExtract(CacheFile):
 
         return complete_url
 
-    def _validate_tld_match(self, text : str, matched_tld : str, tld_pos : int) -> bool:
+    def _validate_tld_match(self, text: str, matched_tld: str, tld_pos: int) -> bool:
         """
         Validate TLD match - tells if at found position is really TLD.
 
@@ -519,7 +519,9 @@ class URLExtract(CacheFile):
 
         return False
 
-    def _is_domain_valid(self, url : str, tld : str, check_dns=False, with_schema_only=False):
+    def _is_domain_valid(
+        self, url: str, tld: str, check_dns=False, with_schema_only=False
+    ):
         """
         Checks if given URL has valid domain name (ignores subdomains)
 
@@ -655,7 +657,7 @@ class URLExtract(CacheFile):
 
         return True
 
-    def _remove_enclosure_from_url(self, text_url : str, tld_pos : int, tld : str) -> str:
+    def _remove_enclosure_from_url(self, text_url: str, tld_pos: int, tld: str) -> str:
         """
         Removes enclosure characters from URL given in text_url.
         For example: (example.com) -> example.com
@@ -709,7 +711,7 @@ class URLExtract(CacheFile):
         return new_url
 
     @staticmethod
-    def _split_markdown(text_url : str, tld_pos : int) -> str:
+    def _split_markdown(text_url: str, tld_pos: int) -> str:
         """
         Split markdown URL. There is an issue wen Markdown URL is found.
         Parsing of the URL does not stop on right place so wrongly found URL
@@ -739,7 +741,7 @@ class URLExtract(CacheFile):
 
     @staticmethod
     # TODO: fix DOC to accomodate to return value
-    def _get_tld_pos(url : str, tld : str) -> int:
+    def _get_tld_pos(url: str, tld: str) -> int:
         """
         Return position of TLD in hostname.
 
@@ -757,7 +759,7 @@ class URLExtract(CacheFile):
     # TODO: move type assertion to be Generator based
     # found https://stackoverflow.com/a/38423388/14669675
     def gen_urls(
-        self, text : str, check_dns=False, get_indices=False, with_schema_only=False
+        self, text: str, check_dns=False, get_indices=False, with_schema_only=False
     ) -> Union[str, Tuple[str, Tuple[int, int]]]:
         """
         Creates generator over found URLs in given text.
@@ -819,7 +821,7 @@ class URLExtract(CacheFile):
 
     def find_urls(
         self,
-        text : str,
+        text: str,
         only_unique=False,
         check_dns=False,
         get_indices=False,
@@ -872,7 +874,7 @@ class URLExtract(CacheFile):
             return list(OrderedDict.fromkeys(result_urls))
         return result_urls
 
-    def has_urls(self, text : str, check_dns=False, with_schema_only=False) -> bool:
+    def has_urls(self, text: str, check_dns=False, with_schema_only=False) -> bool:
         """
         Checks if text contains any valid URL.
         Returns True if text contains at least one URL.

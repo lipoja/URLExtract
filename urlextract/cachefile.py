@@ -233,7 +233,7 @@ class CacheFile:
             )
             raise CacheFileError("Cached file is not readable for current user.")
 
-        set_of_tlds : Set[str] = set()
+        set_of_tlds: Set[str] = set()
 
         with filelock.FileLock(self._get_cache_lock_file_path()):
             with open(self._tld_list_path, "r") as f_cache_tld:
