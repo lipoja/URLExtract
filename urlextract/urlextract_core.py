@@ -14,13 +14,13 @@ import ipaddress
 import logging
 import re
 import socket
-from typing import Set, Iterable, Tuple, List, Union, NoReturn
+from typing import Set, Iterable, Tuple, List, Union, NoReturn, Generator
 import string
 import sys
 from collections import OrderedDict
 from datetime import datetime, timedelta
 
-import uritools
+import uritools  # type: ignore
 
 from urlextract.cachefile import CacheFile, CacheFileError
 
@@ -69,8 +69,8 @@ class URLExtract(CacheFile):
     }
 
     _ipv4_tld = [".{}".format(ip) for ip in reversed(range(256))]
-    _ignore_list = set()
-    _permit_list = set()
+    _ignore_list: Set[str] = set()
+    _permit_list: Set[str] = set()
 
     _limit = DEFAULT_LIMIT
 
@@ -760,7 +760,7 @@ class URLExtract(CacheFile):
     # found https://stackoverflow.com/a/38423388/14669675
     def gen_urls(
         self, text: str, check_dns=False, get_indices=False, with_schema_only=False
-    ) -> Union[str, Tuple[str, Tuple[int, int]]]:
+    ) -> Generator[Union[str, Tuple[str, Tuple[int, int]]], None, None]:
         """
         Creates generator over found URLs in given text.
 
@@ -826,7 +826,7 @@ class URLExtract(CacheFile):
         check_dns=False,
         get_indices=False,
         with_schema_only=False,
-    ) -> List[str]:
+    ) -> List[Union[str, Tuple[str, Tuple[int, int]]]]:
         """
         Find all URLs in given text.
 
@@ -854,7 +854,7 @@ class URLExtract(CacheFile):
                 return list(OrderedDict.fromkeys(urls))
             return list(urls)
 
-        result_urls = []
+        result_urls: List[Union[str, Tuple[str, Tuple[int, int]]]] = []
         url = next(urls, "")
         url_count = 1
         while url:
@@ -926,7 +926,7 @@ def report_issue(func):
 
 
 @report_issue
-def _urlextract_cli() -> NoReturn:
+def _urlextract_cli():
     """
     urlextract - command line program that will print all URLs to stdout
     Usage: urlextract [input_file] [-u] [-v]
@@ -1056,8 +1056,8 @@ def _urlextract_cli() -> NoReturn:
 
 def dns_cache_install() -> None:
     try:
-        from dns import resolver as dnspython_resolver_module
-        from dns_cache.resolver import ExceptionCachingResolver
+        from dns import resolver as dnspython_resolver_module  # type: ignore
+        from dns_cache.resolver import ExceptionCachingResolver  # type: ignore
 
         if not dnspython_resolver_module.default_resolver:
             dnspython_resolver_module.default_resolver = ExceptionCachingResolver()
@@ -1066,7 +1066,7 @@ def dns_cache_install() -> None:
         pass
 
     try:
-        from dns.resolver import (
+        from dns.resolver import (  # type: ignore
             LRUCache,
             Resolver,
             _resolver,
