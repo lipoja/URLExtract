@@ -37,8 +37,8 @@ import pytest
             ["https://example.com/what.com"],
         ),
         (
-            "https://i2.wp.com/siliconfilter.com/2011/06/example.jpg",
-            ["https://i2.wp.com/siliconfilter.com/2011/06/example.jpg"],
+            "* test link -https://www.example.com",
+            ["https://www.example.com"],
         ),
         (
             "https://www.test.org/paper/apostrophe'in-url",

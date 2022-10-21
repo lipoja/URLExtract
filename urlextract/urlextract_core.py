@@ -488,6 +488,9 @@ class URLExtract(CacheFile):
         # URL should not start with two backslashes
         if complete_url.startswith("//"):
             complete_url = complete_url[2:]
+        # URL should not start with unreserved characters
+        if complete_url.startswith(("-", ".", "~", "_")):
+            complete_url = complete_url[1:]
         if not self._is_domain_valid(
             complete_url, tld, check_dns=check_dns, with_schema_only=with_schema_only
         ):
