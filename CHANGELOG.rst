@@ -2,6 +2,12 @@ Changelog
 ~~~~~~~~~
 - N/A
 
+- 1.7.0 (2022-10-22)
+    - correct handling when authority starts with @ symbol
+    - remove unreserved characters from the beginning of found URL
+    - added typing and mypy checkcs - by mimi89999
+    - updated list of TLDs
+
 - 1.6.0 (2022-05-17)
     - Add a list of URLs allowed to extract (issue #125) - by khoben
     - correct order of actual and expected in tests
