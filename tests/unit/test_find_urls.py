@@ -57,6 +57,7 @@ import pytest
             "<script src='//www.example.com/somejsfile.js'>",
             ["www.example.com/somejsfile.js"],
         ),
+        ("bad.email @address.net>", ['bad.email']),
     ],
 )
 def test_find_urls(urlextract, text, expected):

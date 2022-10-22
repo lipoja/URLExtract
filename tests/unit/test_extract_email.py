@@ -34,6 +34,7 @@ def test_extract_email_disabled(urlextract, text, expected):
     [
         ("Do not extract emails by default jan@example.com", ["jan@example.com"]),
         ("<email@address.net>", ["email@address.net"]),
+        ("whitespace @address.net>", []),
         ("Given URIs are not mail jan@example.com/asdasd jan@example.com:1234", []),
         ("Given URIs are not mail jan@example.com?not jan@example.com#not", []),
     ],

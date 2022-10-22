@@ -577,6 +577,10 @@ class URLExtract(CacheFile):
         url_parts = uritools.urisplit(url)
         # <scheme>://<authority>/<path>?<query>#<fragment>
 
+        # authority can't start with @
+        if url_parts.authority.startswith('@'):
+            return False
+
         # if URI contains user info and schema was automatically added
         # the url is probably an email
         if url_parts.getuserinfo() and added_schema:
