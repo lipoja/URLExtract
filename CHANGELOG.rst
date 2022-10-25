@@ -2,6 +2,9 @@ Changelog
 ~~~~~~~~~
 - N/A
 
+- 1.7.1 (2022-10-25)
+    - fixes urlextract without authority causes AttributeError
+
 - 1.7.0 (2022-10-22)
     - correct handling when authority starts with @ symbol
     - remove unreserved characters from the beginning of found URL
