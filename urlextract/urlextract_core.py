@@ -578,7 +578,7 @@ class URLExtract(CacheFile):
         # <scheme>://<authority>/<path>?<query>#<fragment>
 
         # authority can't start with @
-        if url_parts.authority.startswith('@'):
+        if url_parts.authority and url_parts.authority.startswith('@'):
             return False
 
         # if URI contains user info and schema was automatically added

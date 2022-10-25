@@ -58,6 +58,7 @@ import pytest
             ["www.example.com/somejsfile.js"],
         ),
         ("bad.email @address.net>", ['bad.email']),
+        ('[[ "$(giturl)" =~ ^https://gitlab.com ]] echo "found" || echo "didnt', []),
     ],
 )
 def test_find_urls(urlextract, text, expected):
