@@ -760,8 +760,11 @@ class URLExtract(CacheFile):
 
         url_parts = uritools.urisplit(tpm_url)
         host = str(url_parts.gethost())
-        offset = url.find(host)
-        return host.rfind(tld) + offset
+        # `host` is always returned in lowercase,
+        # so make sure `url` & `tld` must also be lowercase,
+        # otherwise the `find()` may fail.
+        offset = url.lower().find(host)
+        return host.rfind(tld.lower()) + offset
 
     # TODO: move type assertion to be Generator based
     # found https://stackoverflow.com/a/38423388/14669675
