@@ -112,10 +112,10 @@ def test_find_urls_unique(urlextract, text, expected):
     "text, expected",
     [
         (
-            "Let's have URL http://janlipovsky.cz and a second URL https://example.com/@eon01/asdsd-dummy it's over.",
+            "Let's have URL http://janlipovsky.cz and a second URL https://Example.Com/@eon01/asdsd-dummy it's over.",
             [
                 ("http://janlipovsky.cz", (15, 36)),
-                ("https://example.com/@eon01/asdsd-dummy", (54, 92)),
+                ("https://Example.Com/@eon01/asdsd-dummy", (54, 92)),
             ],
         ),
         (
