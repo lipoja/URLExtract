@@ -153,3 +153,46 @@ def test_find_urls_schema_only(urlextract, text, expected):
     :param list(str) expected: list of URLs that has to be found in text
     """
     assert urlextract.find_urls(text, with_schema_only=True) == expected
+
+
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        ("multiple protocols, job:https://example.co", ["https://example.co"]),
+        (
+            "more multiple protocols, link:job:https://example.com/r",
+            ["https://example.com/r"],
+        ),
+        ("svn+ssh://example.com", ["svn+ssh://example.com"]),
+    ],
+)
+def test_find_urls_multiple_protocol(urlextract, text, expected):
+    """
+    Testing find_urls returning all URLs
+
+    :param fixture urlextract: fixture holding URLExtract object
+    :param str text: text in which we should find links
+    :param list(str) expected: list of URLs that has to be found in text
+    """
+    assert urlextract.find_urls(text) == expected
+
+
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        ("svn+ssh://example.com", ["ssh://example.com"]),
+        ("multiple protocols, job:https://example.co", ["https://example.co"]),
+        ("test link:job:https://example.com/r", ["https://example.com/r"]),
+    ],
+)
+def test_find_urls_multiple_protocol_custom(urlextract, text, expected):
+    """
+    Testing find_urls returning all URLs
+
+    :param fixture urlextract: fixture holding URLExtract object
+    :param str text: text in which we should find links
+    :param list(str) expected: list of URLs that has to be found in text
+    """
+    stop_chars = urlextract.get_stop_chars_left_from_scheme() | {"+"}
+    urlextract.set_stop_chars_left_from_scheme(stop_chars)
+    assert urlextract.find_urls(text) == expected
