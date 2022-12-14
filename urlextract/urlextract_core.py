@@ -111,6 +111,9 @@ class URLExtract(CacheFile):
         self._stop_chars_left = set(string.whitespace)
         self._stop_chars_left |= general_stop_chars | {"|", "=", "]", ")", "}"}
 
+        # default stop characters on left side from schema
+        self._stop_chars_left_from_schema = self._stop_chars_left.copy() | {":"}
+
         # defining default stop chars left
         self._stop_chars_right = set(string.whitespace)
         self._stop_chars_right |= general_stop_chars
@@ -334,6 +337,31 @@ class URLExtract(CacheFile):
 
         self._stop_chars_left = stop_chars
 
+    def get_stop_chars_left_from_scheme(self) -> Set[str]:
+        """
+        Returns set of stop chars for text on left from scheme.
+
+        :return: set of stop chars
+        :rtype: set
+        """
+        return self._stop_chars_left_from_schema
+
+    def set_stop_chars_left_from_scheme(self, stop_chars: Set[str]):
+        """
+        Set stop characters for text on left from scheme.
+        Stop characters are used when determining end of URL.
+
+        :param set stop_chars: set of characters
+        :raises: TypeError
+        """
+        if not isinstance(stop_chars, set):
+            raise TypeError(
+                "stop_chars should be type set "
+                "but {} was given".format(type(stop_chars))
+            )
+
+        self._stop_chars_left_from_schema = stop_chars
+
     def get_stop_chars_right(self) -> Set[str]:
         """
         Returns set of stop chars for text on right from TLD.
@@ -420,12 +448,18 @@ class URLExtract(CacheFile):
         max_len = len(text) - 1
         end_pos = tld_pos
         start_pos = tld_pos
+        in_scheme = False
         while left_ok or right_ok:
             if left_ok:
                 if start_pos <= 0:
                     left_ok = False
                 else:
-                    if text[start_pos - 1] not in self._stop_chars_left:
+                    if (
+                        in_scheme
+                        and text[start_pos - 1] in self._stop_chars_left_from_schema
+                    ):
+                        left_ok = False
+                    if left_ok and text[start_pos - 1] not in self._stop_chars_left:
                         start_pos -= 1
                     else:
                         left_ok = False
@@ -437,6 +471,9 @@ class URLExtract(CacheFile):
                         end_pos += 1
                     else:
                         right_ok = False
+
+            if text[start_pos : start_pos + 3] == "://":
+                in_scheme = True
 
         complete_url = text[start_pos : end_pos + 1].lstrip("/")
         # remove last character from url
