@@ -178,7 +178,7 @@ class URLExtract(CacheFile):
         """
         Set if 'localhost' will be extracted as URL from text
 
-        :param bool enable: True if localhost' should be extracted
+        :param bool enable: True if 'localhost' should be extracted
             False otherwise
         """
         self._extract_localhost = enable
@@ -186,7 +186,7 @@ class URLExtract(CacheFile):
     @property
     def ignore_list(self) -> Set[str]:
         """
-        Returns set of URLs on ignore list
+        Set of URLs to be ignored (not returned) while extracting from text
 
         :return: Returns set of ignored URLs
         :rtype: set(str)
@@ -218,7 +218,7 @@ class URLExtract(CacheFile):
     @property
     def permit_list(self):
         """
-        Returns set of URLs that can be processed
+        Set of URLs that can be processed
 
         :return: Returns set of URLs that can be processed
         :rtype: set(str)
@@ -264,7 +264,7 @@ class URLExtract(CacheFile):
     def update_when_older(self, days: int) -> bool:
         """
         Update TLD list cache file if the list is older than
-        number of days given in parameter `days` or if does not exist.
+        number of days given in parameter `days` or if it does not exist.
 
         :param int days: number of days from last change
         :return: True if update was successful, False otherwise
@@ -482,7 +482,7 @@ class URLExtract(CacheFile):
         # get only dot+tld+one_char and compare
         extended_tld = complete_url[len(complete_url) - len(tld) - 1 :]
         if extended_tld in temp_tlds:
-            # We do not want o change found URL
+            # We do not want to change found URL
             if not extended_tld.endswith("/"):
                 complete_url = complete_url[:-1]
 
@@ -745,7 +745,7 @@ class URLExtract(CacheFile):
 
         # Get valid domain when we have input as: example.com)/path
         # we assume that if there is enclosure character after TLD it is
-        # the end URL it self therefore we remove the rest
+        # the end URL itself therefore we remove the rest
         after_tld_pos = tld_pos + len(tld)
         if after_tld_pos < len(new_url):
             if new_url[after_tld_pos] in enclosure_map.values():
@@ -962,7 +962,7 @@ def report_issue(func):
         except Exception:
             print(
                 "Error: An unexpected error occurred. "
-                "If you can not resolve this issue please report it to: "
+                "If you can't resolve this issue please report it to: "
                 "https://github.com/lipoja/URLExtract/issues "
                 "and help us improve urlextract!",
                 file=sys.stderr,
