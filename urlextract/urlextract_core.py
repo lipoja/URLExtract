@@ -80,6 +80,7 @@ class URLExtract(CacheFile):
         cache_dns=True,
         extract_localhost=True,
         limit=DEFAULT_LIMIT,
+        allow_mixed_case_hostname=True,
         **kwargs,  # noqa E999
     ):
         """
@@ -95,6 +96,11 @@ class URLExtract(CacheFile):
         :param bool extract_localhost: True if we want to extract 'localhost'
             as URL from text.
             Enabled by default
+        :param int limit: maximum count of processed URLs by find_url function
+            default value defined as global variable DEFAULT_LIMIT
+        :param bool allow_mixed_case_hostname: True if hostname can contain mixed case letters
+            (upper-case and lower-case).
+            Disabled by default
         """
         super(URLExtract, self).__init__(**kwargs)
 
@@ -103,6 +109,7 @@ class URLExtract(CacheFile):
         self._extract_email = extract_email
         self._cache_dns = cache_dns
         self._limit = limit
+        self._allow_mixed_case_hostname = allow_mixed_case_hostname
         self._reload_tlds_from_file()
 
         # general stop characters
@@ -163,6 +170,24 @@ class URLExtract(CacheFile):
         :param bool extract: True if emails should be extracted False otherwise
         """
         self._extract_email = extract
+
+    @property
+    def allow_mixed_case_hostname(self) -> bool:
+        """
+        If set to True host should contain mixed case letters (upper-case and lower-case)
+
+        :rtype: bool
+        """
+        return self._allow_mixed_case_hostname
+
+    @allow_mixed_case_hostname.setter
+    def allow_mixed_case_hostname(self, allow_mixed_case: bool):
+        """
+        Set if mixed case hostnames are allowed
+
+        :param bool allow_mixed_case: True if we should allow mixed case hostnames False otherwise
+        """
+        self._allow_mixed_case_hostname = allow_mixed_case
 
     @property
     def extract_localhost(self) -> bool:
@@ -615,7 +640,7 @@ class URLExtract(CacheFile):
         # <scheme>://<authority>/<path>?<query>#<fragment>
 
         # authority can't start with @
-        if url_parts.authority and url_parts.authority.startswith('@'):
+        if url_parts.authority and url_parts.authority.startswith("@"):
             return False
 
         # if URI contains user info and schema was automatically added
@@ -645,6 +670,12 @@ class URLExtract(CacheFile):
 
         if not host:
             return False
+
+        if not self.allow_mixed_case_hostname:
+            # we have to take url_parts.host instead of host variable because url_parts.host is not normalized
+            return all(s.islower() for s in url_parts.host if s.isalpha()) or all(
+                s.isupper() for s in url_parts.host if s.isalpha()
+            )
 
         if self._permit_list and host not in self._permit_list:
             return False
