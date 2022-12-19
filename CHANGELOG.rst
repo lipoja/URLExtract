@@ -2,6 +2,12 @@ Changelog
 ~~~~~~~~~
 - N/A
 
+- 1.8.0 (2022-12-19)
+    - adding ability to filter out mixed case hostnames (issue #143)
+    - adding the ability to set stop characters inside of scheme - default stop chars ':' (issue #82)
+    - Fix index issue with uppercase characters in domain names  - by Peng Wang
+    - updated GitHub Action test - by Wu Tingfeng
+
 - 1.7.1 (2022-10-25)
     - fixes urlextract without authority causes AttributeError
 
