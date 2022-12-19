@@ -4,15 +4,22 @@ URLExtract
 URLExtract is python class for collecting (extracting) URLs from given
 text based on locating TLD.
 
-.. image:: https://img.shields.io/github/workflow/status/lipoja/URLExtract/Upload%20Python%20Package
-    :target: https://github.com/lipoja/URLExtract/actions/workflows/python-publish.yml
-    :alt: Build Status
+
+.. image:: https://img.shields.io/github/actions/workflow/status/lipoja/URLExtract/python-package.yml?branch=master
+    :target: https://github.com/lipoja/URLExtract/actions/workflows/python-package.yml
+    :alt: Build
 .. image:: https://img.shields.io/github/tag/lipoja/URLExtract.svg
     :target: https://github.com/lipoja/URLExtract/tags
     :alt: Git tag
 .. image:: https://img.shields.io/pypi/pyversions/urlextract.svg
     :target: https://pypi.python.org/pypi/urlextract
     :alt: Python Version Compatibility
+.. image:: https://img.shields.io/pypi/dw/urlextract
+    :target: https://pypistats.org/packages/urlextract
+    :alt: PyPI downloads per week
+.. image:: https://img.shields.io/pypi/dm/urlextract
+    :target: https://pypistats.org/packages/urlextract
+    :alt: PyPI downloads   
 
 
 How does it work
