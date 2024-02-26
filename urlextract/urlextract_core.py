@@ -484,7 +484,12 @@ class URLExtract(CacheFile):
                         and text[start_pos - 1] in self._stop_chars_left_from_schema
                     ):
                         left_ok = False
-                    if left_ok and text[start_pos - 1] not in self._stop_chars_left:
+                    if (
+                        left_ok
+                        and text[start_pos - 1] not in self._stop_chars_left
+                        # Allow only ASCII characters in authority and schema
+                        and ord(text[start_pos - 1]) <= 127
+                    ):
                         start_pos -= 1
                     else:
                         left_ok = False
