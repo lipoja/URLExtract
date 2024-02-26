@@ -673,9 +673,10 @@ class URLExtract(CacheFile):
 
         if not self.allow_mixed_case_hostname:
             # we have to take url_parts.host instead of host variable because url_parts.host is not normalized
-            return all(s.islower() for s in url_parts.host if s.isalpha()) or all(
+            if not (all(s.islower() for s in url_parts.host if s.isalpha()) or all(
                 s.isupper() for s in url_parts.host if s.isalpha()
-            )
+            )):
+                return False
 
         if self._permit_list and host not in self._permit_list:
             return False
