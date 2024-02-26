@@ -37,6 +37,8 @@ def test_mixed_case_defaults(urlextract, text, expected):
 @pytest.mark.parametrize(
     "text, expected",
     [
+        ("main_data_site.group.popular_data_desc", []),
+        ("144.2 MB", []),
         ("ample.com", ["ample.com"]),
         ("http://Example.COM", []),
         ("www.example.com", ["www.example.com"]),
