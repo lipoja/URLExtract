@@ -470,6 +470,10 @@ class URLExtract(CacheFile):
         left_ok = True
         right_ok = True
 
+        # hack to fix Markdown link match
+        possible_markdown = False
+        right_enclosure_pos = None
+
         max_len = len(text) - 1
         end_pos = tld_pos
         start_pos = tld_pos
@@ -479,6 +483,10 @@ class URLExtract(CacheFile):
                 if start_pos <= 0:
                     left_ok = False
                 else:
+                    # For Markdown link is typical to have "](" these
+                    # brackets next to each other without white space
+                    if text[start_pos] == "(" and text[start_pos - 1] == "]":
+                        possible_markdown = True
                     if (
                         in_scheme
                         and text[start_pos - 1] in self._stop_chars_left_from_schema
@@ -498,12 +506,19 @@ class URLExtract(CacheFile):
                     right_ok = False
                 else:
                     if text[end_pos + 1] not in self._stop_chars_right:
+                        # correcting Markdown matches
+                        if right_enclosure_pos is None and text[end_pos + 1] == ")":
+                            right_enclosure_pos = end_pos + 1
                         end_pos += 1
                     else:
                         right_ok = False
 
             if text[start_pos : start_pos + 3] == "://":
                 in_scheme = True
+
+        # correcting Markdown matches
+        if possible_markdown and right_enclosure_pos is not None:
+            end_pos = right_enclosure_pos
 
         complete_url = text[start_pos : end_pos + 1].lstrip("/")
         # remove last character from url
@@ -678,9 +693,10 @@ class URLExtract(CacheFile):
 
         if not self.allow_mixed_case_hostname:
             # we have to take url_parts.host instead of host variable because url_parts.host is not normalized
-            if not (all(s.islower() for s in url_parts.host if s.isalpha()) or all(
-                s.isupper() for s in url_parts.host if s.isalpha()
-            )):
+            if not (
+                all(s.islower() for s in url_parts.host if s.isalpha())
+                or all(s.isupper() for s in url_parts.host if s.isalpha())
+            ):
                 return False
 
         if self._permit_list and host not in self._permit_list:

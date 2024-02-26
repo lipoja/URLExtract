@@ -2,6 +2,7 @@ Changelog
 ~~~~~~~~~
 - N/A
     - Adding support for Python 3.12
+    - Fixing parsing of Markdown links
 
 - 1.8.0 (2022-12-19)
     - adding ability to filter out mixed case hostnames (issue #143)
