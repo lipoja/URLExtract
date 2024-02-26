@@ -23,6 +23,10 @@ import pytest
             "[http://httpbin.org/status/200](http://httpbin.org/status/210)",
             ["http://httpbin.org/status/200", "http://httpbin.org/status/210"],
         ),
+        (
+            "[markdown link name](https://google.com/)\\n\\n![Img](https://example.com/970x630px.jpg)",
+            ["https://google.com/", "https://example.com/970x630px.jpg"],
+        ),
     ],
 )
 def test_find_urls(urlextract, text, expected):
