@@ -12,6 +12,8 @@ import pytest
 @pytest.mark.parametrize(
     "text, expected",
     [
+        ("%sexample.com" % chr(8231), ["example.com"]),
+        ("some%sdomain.example.com" % chr(8231), ["domain.example.com"]),
         ("Let's have URL http://janlipovsky.cz", ["http://janlipovsky.cz"]),
         ("Let's have text without URLs.", []),
         ("Dot after TLD: http://janlipovsky.cz.", ["http://janlipovsky.cz"]),
@@ -57,7 +59,7 @@ import pytest
             "<script src='//www.example.com/somejsfile.js'>",
             ["www.example.com/somejsfile.js"],
         ),
-        ("bad.email @address.net>", ['bad.email']),
+        ("bad.email @address.net>", ["bad.email"]),
         ('[[ "$(giturl)" =~ ^https://gitlab.com ]] echo "found" || echo "didnt', []),
     ],
 )
