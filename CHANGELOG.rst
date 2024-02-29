@@ -1,8 +1,13 @@
 Changelog
 ~~~~~~~~~
 - N/A
+
+- 1.9.0 (2024-02-29)
     - Adding support for Python 3.12
+    - Accepting only ASCII characters left from TLD.
     - Fixing parsing of Markdown links
+    - Fixing filter of mixed case hostnames
+    - updated list of TLDs
 
 - 1.8.0 (2022-12-19)
     - adding ability to filter out mixed case hostnames (issue #143)
