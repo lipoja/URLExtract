@@ -61,6 +61,12 @@ import pytest
         ),
         ("bad.email @address.net>", ["bad.email"]),
         ('[[ "$(giturl)" =~ ^https://gitlab.com ]] echo "found" || echo "didnt', []),
+        (
+            "[https://example.com/page|https://example.com/page|smart-link]",
+            ["https://example.com/page", "https://example.com/page"],
+        ),
+        ("[http://example.com|Example]", ["http://example.com"]),
+        ("see example.com|other", ["example.com"]),
     ],
 )
 def test_find_urls(urlextract, text, expected):

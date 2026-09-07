@@ -113,10 +113,10 @@ class URLExtract(CacheFile):
         self._reload_tlds_from_file()
 
         # general stop characters
-        general_stop_chars = {'"', "<", ">", ";"}
+        general_stop_chars = {'"', "<", ">", ";", "|"}
         # defining default stop chars left
         self._stop_chars_left = set(string.whitespace)
-        self._stop_chars_left |= general_stop_chars | {"|", "=", "]", ")", "}"}
+        self._stop_chars_left |= general_stop_chars | {"=", "]", ")", "}"}
 
         # default stop characters on left side from schema
         self._stop_chars_left_from_schema = self._stop_chars_left.copy() | {":"}
@@ -131,7 +131,7 @@ class URLExtract(CacheFile):
     def _get_after_tld_chars(self) -> Set[str]:
         """Initialize after tld characters"""
         after_tld_chars = set(string.whitespace)
-        after_tld_chars |= {"/", '"', "'", "<", ">", "?", ":", ".", ","}
+        after_tld_chars |= {"/", '"', "'", "<", ">", "?", ":", ".", ",", "|"}
         # get left enclosure characters
         _, right_enclosure = zip(*self._enclosure)
         # add right enclosure characters to be valid after TLD

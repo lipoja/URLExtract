@@ -1,6 +1,7 @@
 Changelog
 ~~~~~~~~~
 - N/A
+    - treat ``|`` as a stop character on the right side of URL (Jira/Confluence style links) - by rishisy
 
 - 1.9.0 (2024-02-29)
     - Adding support for Python 3.12
