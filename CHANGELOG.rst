@@ -1,7 +1,12 @@
 Changelog
 ~~~~~~~~~
 - N/A
+
+
+- 1.10.0 (2026-10-02)
     - treat ``|`` as a stop character on the right side of URL (Jira/Confluence style links) - by rishisy
+    - Black formatting fix Jan Lipovský 4 minutes ago
+    - Bumping supported python versions Jan Lipovský 16 minutes ago
 
 - 1.9.0 (2024-02-29)
     - Adding support for Python 3.12
