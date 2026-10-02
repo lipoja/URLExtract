@@ -6,6 +6,7 @@ This file contains pytests for exeption URLs () method of URLExtract
 .. Licence MIT
 .. codeauthor:: Jan Lipovský <janlipovsky@gmail.com>, janlipovsky.cz
 """
+
 import pytest
 
 

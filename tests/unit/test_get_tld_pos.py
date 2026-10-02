@@ -6,6 +6,7 @@ This file contains pytests for _get_tld_pos() method of URLExtract
 .. Licence MIT
 .. codeauthor:: Jan Lipovský <janlipovsky@gmail.com>, janlipovsky.cz
 """
+
 import pytest
 
 

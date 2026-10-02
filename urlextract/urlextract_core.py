@@ -8,6 +8,7 @@ urlextract_core.py - file with definition of URLExtract class and urlextract cli
 .. codeauthor:: Jan Lipovský <janlipovsky@gmail.com>, janlipovsky.cz
 .. contributors: https://github.com/lipoja/URLExtract/graphs/contributors
 """
+
 from argparse import Namespace
 import functools
 import ipaddress

@@ -4,6 +4,7 @@
 .. Licence MIT
 .. codeauthor:: Jan Lipovský <janlipovsky@gmail.com>, janlipovsky.cz
 """
+
 import pytest
 
 from urlextract import URLExtract

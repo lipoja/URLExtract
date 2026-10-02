@@ -6,6 +6,7 @@ Tests for find_url() method of URLExtract with invalid hostnames.
 .. Licence MIT
 .. codeauthor:: John Vandenberg <jayvdb@gmail.com>
 """
+
 import pytest
 
 import dns.resolver
