@@ -6,6 +6,7 @@ This file contains pytests for find_url() method of URLExtract
 .. Licence MIT
 .. codeauthor:: Jan Lipovský <janlipovsky@gmail.com>, janlipovsky.cz
 """
+
 import pytest
 
 from urlextract.urlextract_core import URLExtractError

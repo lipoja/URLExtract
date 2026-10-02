@@ -6,6 +6,7 @@ This file contains pytests for allow_mixed_case_hostname of URLExtract
 .. Licence MIT
 .. codeauthor:: Jan Lipovský <janlipovsky@gmail.com>, janlipovsky.cz
 """
+
 import pytest
 
 
