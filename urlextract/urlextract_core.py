@@ -857,6 +857,36 @@ class URLExtract(CacheFile):
         offset = url.lower().find(host)
         return host.rfind(tld.lower()) + offset
 
+    def _get_matched_tld_pos(
+        self, text: str, url: str, tld_pos_text: int, tld: str
+    ) -> int:
+        """
+        Return position of the matched TLD inside of the extracted URL.
+
+        The matched TLD does not have to be the last one in hostname,
+        e.g. the first ".com" in "my.example.com.example.com".
+
+        :param str text: text where the URL was found
+        :param str url: URL extracted around the matched TLD
+        :param int tld_pos_text: position of the matched TLD in text
+        :param str tld: matched TLD
+        :return: position of the matched TLD in url
+        :rtype: int
+
+        >>> extractor = URLExtract()
+        >>> text = "Visit my.example.com.example.com"
+        >>> extractor._get_matched_tld_pos(
+        ...     text, "my.example.com.example.com", 16, ".com"
+        ... )
+        10
+        """
+        # URL has to start before the matched TLD and end after it
+        url_start = text.find(url, max(0, tld_pos_text + len(tld) - len(url)))
+        if 0 <= url_start <= tld_pos_text:
+            return tld_pos_text - url_start
+
+        return self._get_tld_pos(url, tld)
+
     # TODO: move type assertion to be Generator based
     # found https://stackoverflow.com/a/38423388/14669675
     def gen_urls(
@@ -893,7 +923,9 @@ class URLExtract(CacheFile):
 
                 if tmp_url:
                     # do not search for TLD in already extracted URL
-                    tld_pos_url = self._get_tld_pos(tmp_url, tld)
+                    tld_pos_url = self._get_matched_tld_pos(
+                        text, tmp_url, offset + tld_pos, tld
+                    )
                     # move cursor right after found TLD
                     tld_pos += len(tld) + offset
                     # move cursor after end of found URL

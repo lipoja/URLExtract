@@ -52,6 +52,7 @@ import pytest
             ["http://aa.com/b.html", "https://aa.com/bb.html"],
         ),
         ("http://0.0.0.0/a.io", ["http://0.0.0.0/a.io"]),
+        ("my.example.com.example.com", ["my.example.com.example.com"]),
         (
             "http://123.56.234.210/struts_action.do",
             ["http://123.56.234.210/struts_action.do"],
@@ -131,6 +132,19 @@ def test_find_urls_unique(urlextract, text, expected):
             "Some text www.company.com",
             [
                 ("www.company.com", (10, 25)),
+            ],
+        ),
+        (
+            "String bbb.aaa.bbb.aaa.aaa test string",
+            [
+                ("bbb.aaa.bbb.aaa.aaa", (7, 26)),
+            ],
+        ),
+        (
+            "Visit my.example.com.example.com and http://example.org",
+            [
+                ("my.example.com.example.com", (6, 32)),
+                ("http://example.org", (37, 55)),
             ],
         ),
     ],
